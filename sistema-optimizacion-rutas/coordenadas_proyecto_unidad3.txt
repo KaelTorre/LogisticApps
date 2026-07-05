@@ -1,0 +1,23 @@
+coordenadas de oficina (inicial):
+-8.375482, -74.556342
+
+coordenadas de clientes:
+Universidad Nacional de Ucayali: -8.394832, -74.577328
+Aeropuerto Internacional Capitan FAP David Abenzur Rengifo:-8.385646, -74.574080
+Open Plaza Pucallpa: -8.387164 -74.567581
+Hospital II Pucallpa - EsSalud: -8.391258 -74.547131
+Puerto de Pucallpa: -8.387673 -74.528546
+Universidad Alas Peruanas: -8.370582 -74.567438
+Real Plaza Pucallpa: -8.384834 -74.556256
+Grifo Yarinacocha Company: -8,3955641, -74,5959372
+Divina Montaña: -8.403812 -74.628032
+Manish Hotel: -8.393301 -74.568857
+Clinica Esmedic E.I.R.L.: -8,3818002, -74,5343827
+Clinica Juan Pablo II: -8,3815351, -74,5380421
+Municipalidad distrital de Manantay: -8.398003 -74.536225
+Cliente Grifo: -8.418840 -74.559263
+Centro Cultural de Pucallpa: -8.381852 -74.527971
+EMAPACOP S.A.: -8.377232 -74.526916
+Hospital Amazónico de Yarinacocha: -8.356146 -74.572832
+Restaurantes Flotantes: -8.350583 -74.571548
+Policia Municipal de Yarinacocha: -8.355079 -74.576381
