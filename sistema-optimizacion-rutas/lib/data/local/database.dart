@@ -104,7 +104,9 @@ class CacheOsrmTable extends Table {
   CacheOsrmTable,
 ])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_abrirConexion());
+  /// [executor] permite inyectar una base en memoria en tests
+  /// (`NativeDatabase.memory()`); en la app se usa siempre `driftDatabase`.
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _abrirConexion());
 
   @override
   int get schemaVersion => 1;
