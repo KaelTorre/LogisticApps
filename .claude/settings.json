@@ -17,7 +17,16 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['name'], d['latest']['version']\\); print\\(d['latest']['pubspec'].get\\('description'\\)\\)\")",
       "Bash(mv unidad3-CLAUDE.md sistema-optimizacion-rutas/CLAUDE.md)",
       "Bash(mv unidad3-sistema-optimizacion-rutas-vrp.md sistema-optimizacion-rutas/sistema-optimizacion-rutas-vrp.md)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(.claude/skills/run-desktop/driver.sh start *)",
+      "Bash(.claude/skills/run-desktop/driver.sh screenshot *)",
+      "Bash(sed -n '1,80p' /home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/native.dart)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/**)",
+      "Bash(grep -n \"class DriftNativeOptions\" -A 30 /home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/*.dart 2>/dev/null | head -40)",
+      "Bash(.claude_dummy=1)",
+      "Bash(.claude/skills/run-desktop/driver.sh stop *)",
+      "Bash(rpm -q xdg-user-dirs)",
+      "Read(//tmp/shots/**)"
     ]
   }
 }

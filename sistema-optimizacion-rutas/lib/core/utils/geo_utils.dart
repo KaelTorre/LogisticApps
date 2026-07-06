@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:latlong2/latlong.dart';
+
 /// Radio medio de la Tierra en kilómetros, usado por [distanciaHaversineKm].
 const double _radioTierraKm = 6371.0;
 
@@ -36,3 +38,33 @@ double distanciaHaversineKm({
 }
 
 double _gradosARadianes(double grados) => grados * pi / 180.0;
+
+/// Decodifica el string de polyline codificado que devuelve OSRM en
+/// `/route/` (algoritmo estándar de Google, precisión 5 — ver CLAUDE.md
+/// sección 6.2) a una lista de puntos consumible por `flutter_map`.
+List<LatLng> decodificarPolyline(String codificado) {
+  final puntos = <LatLng>[];
+  var indice = 0;
+  var lat = 0;
+  var lon = 0;
+
+  int leerDelta() {
+    var resultado = 0;
+    var desplazamiento = 0;
+    int byte;
+    do {
+      byte = codificado.codeUnitAt(indice++) - 63;
+      resultado |= (byte & 0x1f) << desplazamiento;
+      desplazamiento += 5;
+    } while (byte >= 0x20);
+    return (resultado & 1) != 0 ? ~(resultado >> 1) : (resultado >> 1);
+  }
+
+  while (indice < codificado.length) {
+    lat += leerDelta();
+    lon += leerDelta();
+    puntos.add(LatLng(lat / 1e5, lon / 1e5));
+  }
+
+  return puntos;
+}

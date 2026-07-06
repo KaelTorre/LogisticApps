@@ -100,6 +100,15 @@ cmd_click() {
   echo "click en ($x, $y)"
 }
 
+cmd_scroll() {
+  _load_state
+  local x="${1:-640}" y="${2:-400}" clicks="${3:-5}" boton="${4:-5}"
+  for _ in $(seq 1 "$clicks"); do
+    DISPLAY="$XDISPLAY" xdotool mousemove --window "$WINDOW_ID" "$x" "$y" click "$boton"
+  done
+  echo "scroll en ($x, $y) x$clicks (botón $boton: 4=arriba, 5=abajo)"
+}
+
 cmd_key() {
   _load_state
   DISPLAY="$XDISPLAY" xdotool key --window "$WINDOW_ID" "$1"
@@ -133,12 +142,13 @@ case "${1:-}" in
   start)      cmd_start ;;
   screenshot) shift; cmd_screenshot "$@" ;;
   click)      shift; cmd_click "$@" ;;
+  scroll)     shift; cmd_scroll "$@" ;;
   key)        shift; cmd_key "$@" ;;
   type)       shift; cmd_type "$@" ;;
   status)     cmd_status ;;
   stop)       cmd_stop ;;
   *)
-    echo "Uso: driver.sh {build|start|screenshot [nombre]|click X Y|key TECLA|type TEXTO|status|stop}" >&2
+    echo "Uso: driver.sh {build|start|screenshot [nombre]|click X Y|scroll [X Y CLICKS BOTON]|key TECLA|type TEXTO|status|stop}" >&2
     exit 1
     ;;
 esac

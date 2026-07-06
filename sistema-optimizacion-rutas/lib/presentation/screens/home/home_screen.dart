@@ -2,30 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../optimizacion/optimizacion_screen.dart';
+
 class _ModuloInicio {
   const _ModuloInicio({
     required this.icono,
     required this.titulo,
     required this.descripcion,
+    this.pantalla,
   });
 
   final IconData icono;
   final String titulo;
   final String descripcion;
+
+  /// Si es `null`, la tarjeta muestra "próximamente" (módulo aún no
+  /// construido en esta fase).
+  final WidgetBuilder? pantalla;
 }
 
-const List<_ModuloInicio> _modulos = [
-  _ModuloInicio(
+final List<_ModuloInicio> _modulos = [
+  const _ModuloInicio(
     icono: LucideIcons.warehouse,
     titulo: 'Depósito',
     descripcion: 'Ubicación del punto de partida de las rutas.',
   ),
-  _ModuloInicio(
+  const _ModuloInicio(
     icono: LucideIcons.mapPin,
     titulo: 'Puntos de entrega',
     descripcion: 'Catálogo de clientes y destinos de reparto.',
   ),
-  _ModuloInicio(
+  const _ModuloInicio(
     icono: LucideIcons.truck,
     titulo: 'Vehículos',
     descripcion: 'Flota disponible, capacidad y costo por km.',
@@ -34,11 +41,12 @@ const List<_ModuloInicio> _modulos = [
     icono: LucideIcons.route,
     titulo: 'Optimización',
     descripcion: 'Calcular rutas con Ahorros o Barrido.',
+    pantalla: (_) => const OptimizacionScreen(),
   ),
-  _ModuloInicio(
+  const _ModuloInicio(
     icono: LucideIcons.map,
     titulo: 'Resultado en mapa',
-    descripcion: 'Rutas reales sobre calles, vía OSRM.',
+    descripcion: 'Se abre automáticamente al calcular una ruta.',
   ),
 ];
 
@@ -100,9 +108,16 @@ class _TarjetaModulo extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${modulo.titulo}: próximamente')),
-          );
+          final pantalla = modulo.pantalla;
+          if (pantalla == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${modulo.titulo}: próximamente')),
+            );
+            return;
+          }
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: pantalla));
         },
         child: Padding(
           padding: const EdgeInsets.all(20),

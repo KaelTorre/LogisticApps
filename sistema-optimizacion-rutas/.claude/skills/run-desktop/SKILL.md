@@ -15,11 +15,17 @@ puede invocar desde cualquier directorio.
 ## Prerequisitos (una sola vez por contenedor)
 
 ```bash
-sudo dnf install -y xorg-x11-server-Xvfb ImageMagick xdotool xwininfo
+sudo dnf install -y xorg-x11-server-Xvfb ImageMagick xdotool xwininfo xdg-user-dirs
+xdg-user-dirs-update
 ```
 
 (`ImageMagick` da el comando `import` para el screenshot; `xdotool`/`xwininfo`
-son opcionales, solo hacen falta para los comandos `click`/`key`/`type`/`start`).
+son opcionales, solo hacen falta para los comandos `click`/`key`/`type`/`start`.
+`xdg-user-dirs` es obligatorio: la app usa `drift_flutter`, que resuelve el
+archivo de la base de datos vía `path_provider`'s
+`getApplicationDocumentsDirectory()` — sin `xdg-user-dirs-update` corriendo al
+menos una vez, esa llamada lanza `MissingPlatformDirectoryException` y la app
+crashea silenciosamente al abrir la base, apenas arranca).
 
 ## Uso
 
@@ -42,6 +48,7 @@ fallo de lanzamiento, no un éxito.
 | `start` | levanta Xvfb en `:99` (si no corría ya) y lanza el binario, espera hasta 15s a que aparezca la ventana |
 | `screenshot [nombre]` | screenshot de la ventana de la app → `/tmp/shots/<nombre>.png` (override con `SCREENSHOT_DIR`) |
 | `click X Y` | click izquierdo en la coordenada `(X, Y)` relativa a la ventana (vía `xdotool`) |
+| `scroll [X Y CLICKS BOTON]` | scroll con la rueda del mouse en `(X, Y)` (default `640 400`), `CLICKS` veces (default 5), botón `4`=arriba / `5`=abajo (default) — útil para listas largas (`ListView`) que no responden a teclado |
 | `key TECLA` | envía una tecla (ej. `Tab`, `Return`) a la ventana |
 | `type TEXTO` | escribe texto en el campo con foco |
 | `status` | muestra PIDs de Xvfb/app y el id de ventana actuales |
