@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/exportar_google_maps.dart';
 import '../../../data/models/deposito.dart';
 import '../../providers/escenario_provider.dart';
 
@@ -39,6 +41,7 @@ class MapaResultadoScreen extends StatelessWidget {
             rutas: rutas,
           );
           final panel = _PanelRutas(
+            deposito: puntoDeposito,
             rutas: rutas,
             vehiculosFaltantes: vehiculosFaltantes,
           );
@@ -49,10 +52,7 @@ class MapaResultadoScreen extends StatelessWidget {
                 Expanded(flex: 2, child: mapa),
                 SizedBox(
                   width: 340,
-                  child: Material(
-                    elevation: 1,
-                    child: panel,
-                  ),
+                  child: Material(elevation: 1, child: panel),
                 ),
               ],
             );
@@ -118,12 +118,13 @@ class _Mapa extends StatelessWidget {
               child: _MarcadorDeposito(color: colorScheme.primary),
             ),
             for (final ruta in rutas)
-              for (final parada in ruta.rutaAsignada.paradas)
+              for (final entrada in ruta.rutaAsignada.paradas.indexed)
                 Marker(
-                  point: LatLng(parada.latitud, parada.longitud),
-                  width: 28,
-                  height: 28,
+                  point: LatLng(entrada.$2.latitud, entrada.$2.longitud),
+                  width: 26,
+                  height: 26,
                   child: _MarcadorParada(
+                    numero: entrada.$1 + 1,
                     color: ruta.color.resolver(brightness),
                   ),
                 ),
@@ -153,25 +154,41 @@ class _MarcadorDeposito extends StatelessWidget {
 }
 
 class _MarcadorParada extends StatelessWidget {
-  const _MarcadorParada({required this.color});
+  const _MarcadorParada({required this.numero, required this.color});
 
+  final int numero;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Text(
+        '$numero',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          height: 1,
+        ),
       ),
     );
   }
 }
 
 class _PanelRutas extends StatelessWidget {
-  const _PanelRutas({required this.rutas, required this.vehiculosFaltantes});
+  const _PanelRutas({
+    required this.deposito,
+    required this.rutas,
+    required this.vehiculosFaltantes,
+  });
 
+  final LatLng deposito;
   final List<RutaConGeometria> rutas;
   final int vehiculosFaltantes;
 
@@ -185,7 +202,7 @@ class _PanelRutas extends StatelessWidget {
           const SizedBox(height: 16),
         ],
         for (final ruta in rutas) ...[
-          _TarjetaRuta(ruta: ruta),
+          _TarjetaRuta(deposito: deposito, ruta: ruta),
           const SizedBox(height: 12),
         ],
       ],
@@ -225,8 +242,9 @@ class _BannerFlotaInsuficiente extends StatelessWidget {
 }
 
 class _TarjetaRuta extends StatelessWidget {
-  const _TarjetaRuta({required this.ruta});
+  const _TarjetaRuta({required this.deposito, required this.ruta});
 
+  final LatLng deposito;
   final RutaConGeometria ruta;
 
   @override
@@ -264,9 +282,14 @@ class _TarjetaRuta extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
+                IconButton(
+                  tooltip: 'Exportar a Google Maps',
+                  icon: const Icon(LucideIcons.externalLink, size: 20),
+                  onPressed: () => _exportarAGoogleMaps(context),
+                ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Wrap(
               spacing: 16,
               runSpacing: 4,
@@ -277,16 +300,87 @@ class _TarjetaRuta extends StatelessWidget {
                 Text('${ruta.rutaAsignada.demandaTotal.toStringAsFixed(0)} kg'),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              ruta.rutaAsignada.paradas.map((p) => p.nombre).join(' → '),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-            ),
+            const SizedBox(height: 12),
+            for (final entrada in ruta.rutaAsignada.paradas.indexed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: ruta.color.resolver(brightness),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${entrada.$1 + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        entrada.$2.nombre,
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: colorScheme.onSurface),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _exportarAGoogleMaps(BuildContext context) async {
+    final paradas = ruta.rutaAsignada.paradas
+        .map((p) => LatLng(p.latitud, p.longitud))
+        .toList();
+
+    if (paradas.length > limiteWaypointsGoogleMaps) {
+      final continuar = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Ruta con muchas paradas'),
+          content: Text(
+            'Esta ruta tiene ${paradas.length} paradas. Google Maps solo '
+            'admite hasta $limiteWaypointsGoogleMaps en computadoras (y '
+            'apenas $limiteWaypointsGoogleMapsMovil si el link se abre en el '
+            'navegador de un celular, aunque la app de Google Maps suele '
+            'admitir más). Se exportarán solo las primeras '
+            '$limiteWaypointsGoogleMaps; el resto no aparecerá.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Exportar de todas formas'),
+            ),
+          ],
+        ),
+      );
+      if (continuar != true) return;
+    }
+
+    final uri = construirUrlGoogleMaps(deposito: deposito, paradas: paradas);
+    final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!context.mounted || abierto) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('No se pudo abrir Google Maps.')),
     );
   }
 }

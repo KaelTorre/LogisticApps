@@ -26,7 +26,8 @@
       "Bash(.claude_dummy=1)",
       "Bash(.claude/skills/run-desktop/driver.sh stop *)",
       "Bash(rpm -q xdg-user-dirs)",
-      "Read(//tmp/shots/**)"
+      "Read(//tmp/shots/**)",
+      "WebSearch"
     ]
   }
 }
