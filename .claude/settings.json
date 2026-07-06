@@ -123,7 +123,10 @@
       "Bash(nohup python3 -m http.server 8765)",
       "Bash(curl -sI http://localhost:8765/index.html)",
       "Bash(grep -n \"^- \\\\[x\\\\] Se quitó \\\\`debugShowCheckedModeBanner\\\\`\" /home/kslap/Dev/LOGISTICA/LogisticApps/sistema-optimizacion-rutas/CLAUDE.md)",
-      "Bash(grep -rn \"static const IconData info\\\\b\" /home/kslap/.pub-cache/hosted/pub.dev/lucide_icons_flutter-*/lib/ 2>/dev/null | head -3)"
+      "Bash(grep -rn \"static const IconData info\\\\b\" /home/kslap/.pub-cache/hosted/pub.dev/lucide_icons_flutter-*/lib/ 2>/dev/null | head -3)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 640 100)",
+      "Bash(DISPLAY=:99 xdotool click --window 0x200003 1)",
+      "Bash(.claude/skills/run-desktop/driver.sh build *)"
     ]
   }
 }
