@@ -81,4 +81,44 @@ void main() {
       );
     });
   });
+
+  group('dividirPolylinePorTramos', () {
+    test('con un solo tramo, devuelve la polyline completa sin dividir', () {
+      final puntos = List.generate(5, (i) => LatLng(0, i * 0.01));
+      final segmentos = dividirPolylinePorTramos(puntos, [1000]);
+
+      expect(segmentos, hasLength(1));
+      expect(segmentos.first, puntos);
+    });
+
+    test('con menos de 2 puntos en la polyline, no se puede dividir', () {
+      final segmentos = dividirPolylinePorTramos(const [
+        LatLng(0, 0),
+      ], [500, 500]);
+      expect(segmentos, [
+        [const LatLng(0, 0)],
+      ]);
+    });
+
+    test('divide en tantos segmentos como tramos, cubriendo toda la ruta', () {
+      // Línea recta hacia el este, 3 tramos de distancia real igual.
+      final puntos = List.generate(31, (i) => LatLng(0, i * 0.001));
+
+      final segmentos = dividirPolylinePorTramos(puntos, [1000, 1000, 1000]);
+
+      expect(segmentos, hasLength(3));
+      // Cada segmento arranca donde terminó el anterior (comparten borde).
+      expect(segmentos[0].last, segmentos[1].first);
+      expect(segmentos[1].last, segmentos[2].first);
+      // El primer punto de todos y el último de todos son los extremos
+      // reales de la ruta.
+      expect(segmentos.first.first, puntos.first);
+      expect(segmentos.last.last, puntos.last);
+      // Con tramos de igual distancia real, los segmentos deben quedar de
+      // largo similar (línea recta y uniforme).
+      for (final segmento in segmentos) {
+        expect(segmento.length, closeTo(11, 2));
+      }
+    });
+  });
 }
