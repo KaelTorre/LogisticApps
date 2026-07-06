@@ -97,7 +97,13 @@
       "Bash(kill -9 283804 283806)",
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1223 212 click 1)",
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1257 697 click 1)",
-      "Bash(ps -p 264462 -o pid,lstart,cmd)"
+      "Bash(ps -p 264462 -o pid,lstart,cmd)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_0.png)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 446)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_1_hover5.png)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 446 click 1)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_2_fijado.png)",
+      "Bash(kill -9 314510 314512)"
     ]
   }
 }
