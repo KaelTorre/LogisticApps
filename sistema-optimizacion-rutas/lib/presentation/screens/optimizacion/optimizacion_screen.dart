@@ -123,6 +123,17 @@ class _OptimizacionBody extends StatelessWidget {
                       .animate()
                       .fadeIn(delay: 180.ms, duration: 250.ms)
                       .slideY(begin: 0.06, end: 0, curve: Curves.easeOut),
+                  // Banner de error: va en el body scrollable para que nunca
+                  // empuje el botón Calcular fuera de pantalla en Android.
+                  if (provider.estado == EstadoCalculo.error &&
+                      provider.mensajeError != null) ...
+                    [
+                      const SizedBox(height: 20),
+                      _BannerError(mensaje: provider.mensajeError!)
+                          .animate()
+                          .fadeIn(duration: 200.ms)
+                          .slideY(begin: 0.1, end: 0, curve: Curves.easeOut),
+                    ],
                   // Deja lugar para no quedar tapado por la barra inferior.
                   const SizedBox(height: 24),
                 ],
@@ -581,12 +592,6 @@ class _BarraResumenYAccion extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (provider.estado == EstadoCalculo.error &&
-                        provider.mensajeError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _BannerError(mensaje: provider.mensajeError!),
-                      ),
                     Row(
                       children: [
                         _EstadisticaResumen(
