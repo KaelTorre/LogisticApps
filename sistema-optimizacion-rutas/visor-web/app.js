@@ -381,42 +381,73 @@ async function iniciar() {
   }
 
   const listaEl = document.getElementById('lista-paradas');
+
+  // Cada fila de la lista queda ligada a un índice de tramo (`tramos`/`legs`)
+  // para poder resaltarlo con hover/click — incluye tanto las paradas reales
+  // como, al final, el regreso al depósito (ver más abajo).
+  function crearItemLista(indiceTramo, htmlInterno) {
+    const li = document.createElement('li');
+    li.innerHTML = htmlInterno;
+
+    li.addEventListener('mouseenter', () => {
+      if (tramoFijado === null) mostrarSoloTramo(indiceTramo);
+    });
+    li.addEventListener('mouseleave', () => {
+      if (tramoFijado === null) mostrarSoloTramo(null);
+    });
+    li.addEventListener('click', () => {
+      if (tramoFijado === indiceTramo) {
+        tramoFijado = null;
+        li.classList.remove('fijado');
+        mostrarSoloTramo(null);
+      } else {
+        listaEl
+          .querySelectorAll('li.fijado')
+          .forEach((el) => el.classList.remove('fijado'));
+        tramoFijado = indiceTramo;
+        li.classList.add('fijado');
+        mostrarSoloTramo(indiceTramo);
+      }
+    });
+
+    return li;
+  }
+
   function actualizarListaParadas() {
     listaEl.innerHTML = '';
     paradas.forEach((p, i) => {
       const [nombre] = p;
       const distanciaTramoKm = legs[i] ? (legs[i].distance / 1000).toFixed(1) : null;
-      const li = document.createElement('li');
-      li.innerHTML = `
+      const li = crearItemLista(
+        i,
+        `
         <span class="numero" style="background:${colorDeTramo(i)}">${i + 1}</span>
         <span>
           <div>${nombre}</div>
           ${distanciaTramoKm ? `<div class="distancia-tramo">${distanciaTramoKm} km ${i === 0 ? 'desde el depósito' : 'desde la parada anterior'}</div>` : ''}
-        </span>`;
-
-      li.addEventListener('mouseenter', () => {
-        if (tramoFijado === null) mostrarSoloTramo(i);
-      });
-      li.addEventListener('mouseleave', () => {
-        if (tramoFijado === null) mostrarSoloTramo(null);
-      });
-      li.addEventListener('click', () => {
-        if (tramoFijado === i) {
-          tramoFijado = null;
-          li.classList.remove('fijado');
-          mostrarSoloTramo(null);
-        } else {
-          listaEl
-            .querySelectorAll('li.fijado')
-            .forEach((el) => el.classList.remove('fijado'));
-          tramoFijado = i;
-          li.classList.add('fijado');
-          mostrarSoloTramo(i);
-        }
-      });
-
+        </span>`,
+      );
       listaEl.appendChild(li);
     });
+
+    // El regreso al depósito es un tramo más (`legs`/`tramos` siempre tiene
+    // uno más que `paradas`, ver CLAUDE.md) — sin esta fila no había forma
+    // de resaltarlo, aunque la polyline y la distancia/tiempo totales sí lo
+    // incluyen desde siempre.
+    const indiceRegreso = paradas.length;
+    const distanciaRegresoKm = legs[indiceRegreso]
+      ? (legs[indiceRegreso].distance / 1000).toFixed(1)
+      : null;
+    const liRegreso = crearItemLista(
+      indiceRegreso,
+      `
+      <span class="numero" style="background:${colorDeTramo(indiceRegreso)}">${SVG_WAREHOUSE}</span>
+      <span>
+        <div>Regreso al depósito</div>
+        ${distanciaRegresoKm ? `<div class="distancia-tramo">${distanciaRegresoKm} km desde la última parada</div>` : ''}
+      </span>`,
+    );
+    listaEl.appendChild(liRegreso);
   }
   actualizarListaParadas();
 

@@ -103,7 +103,10 @@
       "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_1_hover5.png)",
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 446 click 1)",
       "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_2_fijado.png)",
-      "Bash(kill -9 314510 314512)"
+      "Bash(kill -9 314510 314512)",
+      "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
+      "Bash(curl -s https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
+      "Bash(curl -s \"https://router.project-osrm.org/route/v1/driving/-74.556342,-8.375482;-74.577328,-8.394832;-74.574080,-8.385646;-74.556342,-8.375482?overview=full&geometries=polyline\")"
     ]
   }
 }
