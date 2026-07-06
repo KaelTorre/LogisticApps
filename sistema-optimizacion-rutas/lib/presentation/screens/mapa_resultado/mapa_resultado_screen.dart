@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/exportar_google_maps.dart';
+import '../../../core/exportar_visor_web.dart';
 import '../../../data/models/deposito.dart';
 import '../../providers/escenario_provider.dart';
 
@@ -41,7 +43,7 @@ class MapaResultadoScreen extends StatelessWidget {
             rutas: rutas,
           );
           final panel = _PanelRutas(
-            deposito: puntoDeposito,
+            deposito: deposito,
             rutas: rutas,
             vehiculosFaltantes: vehiculosFaltantes,
           );
@@ -188,7 +190,7 @@ class _PanelRutas extends StatelessWidget {
     required this.vehiculosFaltantes,
   });
 
-  final LatLng deposito;
+  final Deposito deposito;
   final List<RutaConGeometria> rutas;
   final int vehiculosFaltantes;
 
@@ -244,7 +246,7 @@ class _BannerFlotaInsuficiente extends StatelessWidget {
 class _TarjetaRuta extends StatelessWidget {
   const _TarjetaRuta({required this.deposito, required this.ruta});
 
-  final LatLng deposito;
+  final Deposito deposito;
   final RutaConGeometria ruta;
 
   @override
@@ -283,9 +285,14 @@ class _TarjetaRuta extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Exportar a Google Maps',
+                  tooltip: 'Exportar a Google Maps (máx. $limiteWaypointsGoogleMaps paradas)',
                   icon: const Icon(LucideIcons.externalLink, size: 20),
                   onPressed: () => _exportarAGoogleMaps(context),
+                ),
+                IconButton(
+                  tooltip: 'Compartir link completo (sin límite de paradas)',
+                  icon: const Icon(LucideIcons.link, size: 20),
+                  onPressed: () => _compartirLinkCompleto(context),
                 ),
               ],
             ),
@@ -375,12 +382,38 @@ class _TarjetaRuta extends StatelessWidget {
       if (continuar != true) return;
     }
 
-    final uri = construirUrlGoogleMaps(deposito: deposito, paradas: paradas);
+    final uri = construirUrlGoogleMaps(
+      deposito: LatLng(deposito.latitud, deposito.longitud),
+      paradas: paradas,
+    );
     final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!context.mounted || abierto) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('No se pudo abrir Google Maps.')),
+    );
+  }
+
+  Future<void> _compartirLinkCompleto(BuildContext context) async {
+    final uri = construirUrlVisorWeb(
+      deposito: deposito,
+      paradas: ruta.rutaAsignada.paradas,
+      vehiculoNombre: ruta.rutaAsignada.vehiculo?.nombre,
+    );
+
+    await Clipboard.setData(ClipboardData(text: uri.toString()));
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Link copiado — pégalo en WhatsApp, correo, etc.',
+        ),
+        action: SnackBarAction(
+          label: 'Abrir',
+          onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
+        ),
+      ),
     );
   }
 }
