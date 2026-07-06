@@ -22,6 +22,7 @@ class OptimizacionScreen extends StatelessWidget {
               puntoEntregaRepository: context.read(),
               vehiculoRepository: context.read(),
               osrmClient: context.read(),
+              historialRepository: context.read(),
             )
             ..cargarDatosIniciales(),
       child: const _OptimizacionBody(),
@@ -41,12 +42,13 @@ class _OptimizacionBody extends StatelessWidget {
           if (provider.cargandoDatosIniciales) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (provider.deposito == null) {
+          if (provider.depositoSeleccionado == null) {
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(
-                  'No hay un depósito configurado todavía.',
+                  'No hay ningún depósito configurado todavía. Ve a '
+                  'Depósitos para crear uno.',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -58,6 +60,23 @@ class _OptimizacionBody extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Text(
+                'Depósito',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<int>(
+                initialValue: provider.depositoSeleccionado!.id,
+                items: [
+                  for (final deposito in provider.depositosDisponibles)
+                    DropdownMenuItem(
+                      value: deposito.id,
+                      child: Text(deposito.nombre),
+                    ),
+                ],
+                onChanged: (id) => provider.elegirDeposito(id!),
+              ),
+              const SizedBox(height: 24),
               Text('Método', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               SegmentedButton<MetodoOptimizacion>(
@@ -136,9 +155,10 @@ class _OptimizacionBody extends StatelessWidget {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => MapaResultadoScreen(
-            deposito: provider.deposito!,
+            deposito: provider.depositoSeleccionado!,
             rutas: provider.rutas,
             vehiculosFaltantes: provider.vehiculosFaltantes,
+            metodo: provider.metodo,
           ),
         ),
       );

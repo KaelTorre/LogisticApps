@@ -6,6 +6,7 @@ import 'core/theme.dart';
 import 'data/local/database.dart';
 import 'data/remote/osrm_client.dart';
 import 'data/repositories/deposito_repository.dart';
+import 'data/repositories/historial_repository.dart';
 import 'data/repositories/punto_entrega_repository.dart';
 import 'data/repositories/vehiculo_repository.dart';
 import 'presentation/screens/home/home_screen.dart';
@@ -17,6 +18,7 @@ Future<void> main() async {
   final depositoRepository = DepositoRepository(database);
   final puntoEntregaRepository = PuntoEntregaRepository(database);
   final vehiculoRepository = VehiculoRepository(database);
+  final historialRepository = HistorialRepository(database);
 
   // Siembra el dataset de prueba/precargado (sección 9, Fase 0 de CLAUDE.md)
   // solo si la base está vacía — nunca pisa datos que el usuario ya creó.
@@ -31,6 +33,7 @@ Future<void> main() async {
         Provider<DepositoRepository>.value(value: depositoRepository),
         Provider<PuntoEntregaRepository>.value(value: puntoEntregaRepository),
         Provider<VehiculoRepository>.value(value: vehiculoRepository),
+        Provider<HistorialRepository>.value(value: historialRepository),
         Provider<OsrmClient>(
           create: (_) => OsrmClient(database: database),
           dispose: (_, cliente) => cliente.dispose(),

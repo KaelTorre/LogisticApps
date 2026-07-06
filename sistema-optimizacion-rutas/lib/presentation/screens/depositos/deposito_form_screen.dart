@@ -3,34 +3,31 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-import '../../../data/models/punto_entrega.dart';
-import '../../../data/repositories/punto_entrega_repository.dart';
+import '../../../data/models/deposito.dart';
+import '../../../data/repositories/deposito_repository.dart';
 import '../_shared/selector_ubicacion_campo.dart';
 import '../_shared/validadores_formulario.dart';
 
-/// Formulario de creación/edición de un punto de entrega. Si [existente] es
-/// `null` crea uno nuevo; si no, actualiza ese registro. La ubicación se
-/// elige tocando el mapa (`SelectorUbicacionCampo`) — sin geocodificación de
-/// direcciones (sección 11 de CLAUDE.md, fuera de alcance de este proyecto).
-class PuntoEntregaFormScreen extends StatefulWidget {
-  const PuntoEntregaFormScreen({super.key, this.existente});
+/// Formulario de creación/edición de un depósito. Si [existente] es `null`
+/// crea uno nuevo; si no, actualiza ese registro. La app admite varios
+/// depósitos — el usuario elige de cuál sale la mercadería en cada cálculo
+/// (`presentation/screens/optimizacion/optimizacion_screen.dart`).
+///
+/// La ubicación se elige tocando el mapa (`SelectorUbicacionCampo`), no
+/// escribiendo latitud/longitud a mano.
+class DepositoFormScreen extends StatefulWidget {
+  const DepositoFormScreen({super.key, this.existente});
 
-  final PuntoEntrega? existente;
+  final Deposito? existente;
 
   @override
-  State<PuntoEntregaFormScreen> createState() =>
-      _PuntoEntregaFormScreenState();
+  State<DepositoFormScreen> createState() => _DepositoFormScreenState();
 }
 
-class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
+class _DepositoFormScreenState extends State<DepositoFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _nombreCtrl = TextEditingController(
     text: widget.existente?.nombre ?? '',
-  );
-  late final _demandaCtrl = TextEditingController(
-    text: widget.existente != null
-        ? widget.existente!.demanda.toString()
-        : '0',
   );
 
   LatLng? _ubicacion;
@@ -51,7 +48,6 @@ class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
   @override
   void dispose() {
     _nombreCtrl.dispose();
-    _demandaCtrl.dispose();
     super.dispose();
   }
 
@@ -62,21 +58,18 @@ class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
     if (!formValido || ubicacion == null) return;
 
     setState(() => _guardando = true);
-    final repositorio = context.read<PuntoEntregaRepository>();
-    final punto = PuntoEntrega(
+    final repositorio = context.read<DepositoRepository>();
+    final deposito = Deposito(
       id: widget.existente?.id,
       nombre: _nombreCtrl.text.trim(),
       latitud: ubicacion.latitude,
       longitud: ubicacion.longitude,
-      demanda: double.parse(_demandaCtrl.text.trim()),
-      ventanaInicio: widget.existente?.ventanaInicio,
-      ventanaFin: widget.existente?.ventanaFin,
     );
 
     if (_esEdicion) {
-      await repositorio.actualizar(punto);
+      await repositorio.actualizar(deposito);
     } else {
-      await repositorio.crear(punto);
+      await repositorio.crear(deposito);
     }
 
     if (!mounted) return;
@@ -87,7 +80,7 @@ class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_esEdicion ? 'Editar punto de entrega' : 'Nuevo punto de entrega'),
+        title: Text(_esEdicion ? 'Editar depósito' : 'Nuevo depósito'),
       ),
       body: SafeArea(
         child: Center(
@@ -104,7 +97,7 @@ class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
                       controller: _nombreCtrl,
                       decoration: const InputDecoration(
                         labelText: 'Nombre',
-                        hintText: 'Ej. Bodega San Martín',
+                        hintText: 'Ej. Oficina principal',
                       ),
                       textInputAction: TextInputAction.next,
                       validator: (valor) =>
@@ -118,22 +111,6 @@ class _PuntoEntregaFormScreenState extends State<PuntoEntregaFormScreen> {
                         _ubicacion = elegido;
                         _mostrarErrorUbicacion = false;
                       }),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _demandaCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Demanda (kg)',
-                        hintText: 'Ej. 120',
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      validator: (valor) => validarNumeroNoNegativo(
-                        valor,
-                        etiqueta: 'La demanda',
-                      ),
                     ),
                     const SizedBox(height: 24),
                     FilledButton.icon(

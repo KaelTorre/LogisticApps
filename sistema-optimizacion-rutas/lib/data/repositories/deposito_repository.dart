@@ -3,9 +3,9 @@ import 'package:drift/drift.dart' show Value;
 import '../local/database.dart';
 import '../models/deposito.dart';
 
-/// Repositorio de depósito. El MVP asume un único depósito activo a la vez
-/// (sección 8 de CLAUDE.md), por eso [guardarUnico] actualiza el existente
-/// en vez de permitir crear varios.
+/// Repositorio de depósito: catálogo editable de depósitos (Fase avanzada:
+/// la app admite varios, el usuario elige de cuál sale la mercadería en
+/// cada cálculo — ver `EscenarioProvider.depositosDisponibles`).
 class DepositoRepository {
   DepositoRepository(this._database);
 
@@ -16,33 +16,34 @@ class DepositoRepository {
     return filas.map(_aDominio).toList();
   }
 
-  /// Crea el depósito si todavía no hay ninguno, o actualiza el existente
-  /// (siempre hay a lo sumo uno solo activo).
-  Future<void> guardarUnico(Deposito deposito) async {
-    final existentes = await obtenerTodos();
-    if (existentes.isEmpty) {
-      await _database
-          .into(_database.depositoTable)
-          .insert(
-            DepositoTableCompanion.insert(
-              nombre: deposito.nombre,
-              latitud: deposito.latitud,
-              longitud: deposito.longitud,
-            ),
-          );
-      return;
-    }
+  Future<int> crear(Deposito deposito) {
+    return _database
+        .into(_database.depositoTable)
+        .insert(
+          DepositoTableCompanion.insert(
+            nombre: deposito.nombre,
+            latitud: deposito.latitud,
+            longitud: deposito.longitud,
+          ),
+        );
+  }
 
-    final id = existentes.first.id!;
+  Future<void> actualizar(Deposito deposito) async {
     await (_database.update(
       _database.depositoTable,
-    )..where((t) => t.id.equals(id))).write(
+    )..where((t) => t.id.equals(deposito.id!))).write(
       DepositoTableCompanion(
         nombre: Value(deposito.nombre),
         latitud: Value(deposito.latitud),
         longitud: Value(deposito.longitud),
       ),
     );
+  }
+
+  Future<void> eliminar(int id) async {
+    await (_database.delete(
+      _database.depositoTable,
+    )..where((t) => t.id.equals(id))).go();
   }
 
   /// Inserta [deposito] solo si todavía no hay ninguno guardado (pensado

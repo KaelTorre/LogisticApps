@@ -106,7 +106,18 @@
       "Bash(kill -9 314510 314512)",
       "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
       "Bash(curl -s https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
-      "Bash(curl -s \"https://router.project-osrm.org/route/v1/driving/-74.556342,-8.375482;-74.577328,-8.394832;-74.574080,-8.385646;-74.556342,-8.375482?overview=full&geometries=polyline\")"
+      "Bash(curl -s \"https://router.project-osrm.org/route/v1/driving/-74.556342,-8.375482;-74.577328,-8.394832;-74.574080,-8.385646;-74.556342,-8.375482?overview=full&geometries=polyline\")",
+      "Bash(flutter analyze *)",
+      "Bash(flutter test *)",
+      "Bash(grep -rn \"static NativeDatabase opened\\\\|factory NativeDatabase.opened\\\\|NativeDatabase.opened\" /home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/ 2>/dev/null | head -10)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/**)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/**)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/native/**)",
+      "Bash(cat /home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/native.dart)",
+      "Bash(grep -rn \"userVersion\\\\|void execute\\(\" /home/kslap/.pub-cache/hosted/pub.dev/sqlite3-*/lib/src/database.dart 2>/dev/null | head -10 *)",
+      "Bash(DISPLAY=:99 xdotool key --window 0x200003 ctrl+a)",
+      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"NOMBRE EDITADO DESPUES\")",
+      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"Universidad Nacional de Ucayali\")"
     ]
   }
 }

@@ -1,28 +1,11 @@
 /// Validadores reutilizados por los formularios de Depósito, Puntos de
-/// entrega y Vehículos (sección 11 de CLAUDE.md: coordenadas fuera de rango
-/// deben rechazarse en el formulario, no llegar a OSRM).
+/// entrega y Vehículos. La latitud/longitud ya no se valida como texto: se
+/// elige tocando el mapa (`SelectorUbicacionCampo`), que por construcción
+/// siempre da coordenadas dentro de rango.
 String? validarObligatorio(String? valor, {String etiqueta = 'Este campo'}) {
   if (valor == null || valor.trim().isEmpty) {
     return '$etiqueta es obligatorio.';
   }
-  return null;
-}
-
-String? validarLatitud(String? valor) {
-  if (valor == null || valor.trim().isEmpty) return 'La latitud es obligatoria.';
-  final numero = double.tryParse(valor.trim());
-  if (numero == null) return 'Debe ser un número.';
-  if (numero < -90 || numero > 90) return 'Debe estar entre -90 y 90.';
-  return null;
-}
-
-String? validarLongitud(String? valor) {
-  if (valor == null || valor.trim().isEmpty) {
-    return 'La longitud es obligatoria.';
-  }
-  final numero = double.tryParse(valor.trim());
-  if (numero == null) return 'Debe ser un número.';
-  if (numero < -180 || numero > 180) return 'Debe estar entre -180 y 180.';
   return null;
 }
 

@@ -6,10 +6,12 @@ import 'package:latlong2/latlong.dart';
 import '../../core/utils/geo_utils.dart';
 import '../../data/models/deposito.dart';
 import '../../data/models/escenario_optimizacion.dart';
+import '../../data/models/historial_calculo.dart';
 import '../../data/models/punto_entrega.dart';
 import '../../data/models/vehiculo.dart';
 import '../../data/remote/osrm_client.dart';
 import '../../data/repositories/deposito_repository.dart';
+import '../../data/repositories/historial_repository.dart';
 import '../../data/repositories/punto_entrega_repository.dart';
 import '../../data/repositories/vehiculo_repository.dart';
 import '../../domain/algoritmo_ahorros.dart';
@@ -30,6 +32,7 @@ class RutaConGeometria {
     required this.distanciaMetros,
     required this.duracionSegundos,
     this.distanciasPorTramoMetros = const [],
+    this.geometriaPolyline,
   });
 
   final RutaAsignada rutaAsignada;
@@ -42,6 +45,11 @@ class RutaConGeometria {
   /// parada 1→parada 2 es `[1]`, etc.) — para mostrar "cuánto falta hasta
   /// aquí" en el detalle de ruta.
   final List<double> distanciasPorTramoMetros;
+
+  /// String de la polyline codificada tal como la devolvió OSRM (antes de
+  /// decodificarla en [puntosRuta]) — se guarda para no tener que
+  /// recodificarla al persistir esta ruta en el historial.
+  final String? geometriaPolyline;
 }
 
 /// Estado y lógica de la pantalla de Optimización: selección de puntos y
@@ -53,18 +61,22 @@ class EscenarioProvider extends ChangeNotifier {
     required PuntoEntregaRepository puntoEntregaRepository,
     required VehiculoRepository vehiculoRepository,
     required OsrmClient osrmClient,
+    required HistorialRepository historialRepository,
   }) : _depositoRepository = depositoRepository,
        _puntoEntregaRepository = puntoEntregaRepository,
        _vehiculoRepository = vehiculoRepository,
-       _osrmClient = osrmClient;
+       _osrmClient = osrmClient,
+       _historialRepository = historialRepository;
 
   final DepositoRepository _depositoRepository;
   final PuntoEntregaRepository _puntoEntregaRepository;
   final VehiculoRepository _vehiculoRepository;
   final OsrmClient _osrmClient;
+  final HistorialRepository _historialRepository;
 
   bool cargandoDatosIniciales = true;
-  Deposito? deposito;
+  List<Deposito> depositosDisponibles = [];
+  Deposito? depositoSeleccionado;
   List<PuntoEntrega> puntosDisponibles = [];
   List<Vehiculo> vehiculosDisponibles = [];
 
@@ -78,8 +90,10 @@ class EscenarioProvider extends ChangeNotifier {
   int vehiculosFaltantes = 0;
 
   Future<void> cargarDatosIniciales() async {
-    final depositos = await _depositoRepository.obtenerTodos();
-    deposito = depositos.isNotEmpty ? depositos.first : null;
+    depositosDisponibles = await _depositoRepository.obtenerTodos();
+    depositoSeleccionado = depositosDisponibles.isNotEmpty
+        ? depositosDisponibles.first
+        : null;
     puntosDisponibles = await _puntoEntregaRepository.obtenerTodos();
     vehiculosDisponibles = await _vehiculoRepository.obtenerTodos();
 
@@ -108,8 +122,15 @@ class EscenarioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void elegirDeposito(int id) {
+    depositoSeleccionado = depositosDisponibles.firstWhere(
+      (d) => d.id == id,
+    );
+    notifyListeners();
+  }
+
   Future<void> calcular() async {
-    final deposito = this.deposito;
+    final deposito = depositoSeleccionado;
     if (deposito == null) {
       _fallarCon('No hay un depósito configurado.');
       return;
@@ -189,6 +210,7 @@ class EscenarioProvider extends ChangeNotifier {
             distanciasPorTramoMetros: respuestaRuta.tramos
                 .map((t) => t.distanciaMetros)
                 .toList(),
+            geometriaPolyline: geometria,
           ),
         );
       }
@@ -197,8 +219,73 @@ class EscenarioProvider extends ChangeNotifier {
       vehiculosFaltantes = resultado.vehiculosFaltantes;
       estado = EstadoCalculo.listo;
       notifyListeners();
+
+      await _guardarEnHistorial(
+        deposito: deposito,
+        rutasConGeometria: rutasConGeometria,
+        vehiculosFaltantes: resultado.vehiculosFaltantes,
+      );
     } on OsrmException catch (e) {
       _fallarCon(e.mensaje);
+    }
+  }
+
+  /// Guarda automáticamente un snapshot del cálculo recién resuelto (ver
+  /// CLAUDE.md: historial inmutable, no debe depender de datos en vivo). Un
+  /// fallo acá nunca debe convertir un cálculo exitoso en un error visible
+  /// para el usuario — solo se registra en consola.
+  Future<void> _guardarEnHistorial({
+    required Deposito deposito,
+    required List<RutaConGeometria> rutasConGeometria,
+    required int vehiculosFaltantes,
+  }) async {
+    try {
+      await _historialRepository.guardar(
+        HistorialCalculo(
+          fechaCalculo: DateTime.now(),
+          metodo: metodo,
+          depositoNombre: deposito.nombre,
+          depositoLatitud: deposito.latitud,
+          depositoLongitud: deposito.longitud,
+          vehiculosFaltantes: vehiculosFaltantes,
+          distanciaTotalMetros: rutasConGeometria.fold(
+            0.0,
+            (suma, r) => suma + (r.distanciaMetros ?? 0),
+          ),
+          cantidadRutas: rutasConGeometria.length,
+          rutas: [
+            for (var i = 0; i < rutasConGeometria.length; i++)
+              HistorialRuta(
+                orden: i,
+                vehiculoNombre: rutasConGeometria[i].rutaAsignada.vehiculo?.nombre,
+                vehiculoCapacidadMaxima:
+                    rutasConGeometria[i].rutaAsignada.vehiculo?.capacidadMaxima,
+                vehiculoCostoEstimadoPorKm: rutasConGeometria[i]
+                    .rutaAsignada
+                    .vehiculo
+                    ?.costoEstimadoPorKm,
+                vehiculoTipoFlota:
+                    rutasConGeometria[i].rutaAsignada.vehiculo?.tipoFlota,
+                paradas: [
+                  for (final p in rutasConGeometria[i].rutaAsignada.paradas)
+                    ParadaSnapshot(
+                      nombre: p.nombre,
+                      latitud: p.latitud,
+                      longitud: p.longitud,
+                      demanda: p.demanda,
+                    ),
+                ],
+                distanciaMetros: rutasConGeometria[i].distanciaMetros,
+                duracionSegundos: rutasConGeometria[i].duracionSegundos,
+                distanciasPorTramoMetros:
+                    rutasConGeometria[i].distanciasPorTramoMetros,
+                geometriaPolyline: rutasConGeometria[i].geometriaPolyline,
+              ),
+          ],
+        ),
+      );
+    } catch (e) {
+      debugPrint('No se pudo guardar el cálculo en el historial: $e');
     }
   }
 

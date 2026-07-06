@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../depositos/deposito_screen.dart';
+import '../depositos/depositos_screen.dart';
+import '../historial/historial_screen.dart';
 import '../optimizacion/optimizacion_screen.dart';
 import '../puntos_entrega/puntos_entrega_screen.dart';
 import '../vehiculos/vehiculos_screen.dart';
@@ -27,9 +28,9 @@ class _ModuloInicio {
 final List<_ModuloInicio> _modulos = [
   _ModuloInicio(
     icono: LucideIcons.warehouse,
-    titulo: 'Depósito',
-    descripcion: 'Ubicación del punto de partida de las rutas.',
-    pantalla: (_) => const DepositoScreen(),
+    titulo: 'Depósitos',
+    descripcion: 'Puntos de partida de las rutas — se puede tener varios.',
+    pantalla: (_) => const DepositosScreen(),
   ),
   _ModuloInicio(
     icono: LucideIcons.mapPin,
@@ -53,6 +54,12 @@ final List<_ModuloInicio> _modulos = [
     icono: LucideIcons.map,
     titulo: 'Resultado en mapa',
     descripcion: 'Se abre automáticamente al calcular una ruta.',
+  ),
+  _ModuloInicio(
+    icono: LucideIcons.history,
+    titulo: 'Historial',
+    descripcion: 'Cálculos anteriores, guardados automáticamente.',
+    pantalla: (_) => const HistorialScreen(),
   ),
 ];
 

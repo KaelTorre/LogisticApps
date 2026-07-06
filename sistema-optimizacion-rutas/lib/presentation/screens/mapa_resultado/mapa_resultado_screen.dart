@@ -11,6 +11,7 @@ import '../../../core/exportar_visor_web.dart';
 import '../../../core/paleta_rutas.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../../data/models/deposito.dart';
+import '../../../data/models/escenario_optimizacion.dart';
 import '../../providers/escenario_provider.dart';
 
 /// Pantalla de Resultado en mapa (sección 8 de CLAUDE.md): depósito, puntos
@@ -28,11 +29,13 @@ class MapaResultadoScreen extends StatefulWidget {
     required this.deposito,
     required this.rutas,
     required this.vehiculosFaltantes,
+    required this.metodo,
   });
 
   final Deposito deposito;
   final List<RutaConGeometria> rutas;
   final int vehiculosFaltantes;
+  final MetodoOptimizacion metodo;
 
   @override
   State<MapaResultadoScreen> createState() => _MapaResultadoScreenState();
@@ -104,7 +107,23 @@ class _MapaResultadoScreenState extends State<MapaResultadoScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Resultado en mapa')),
+      appBar: AppBar(
+        title: const Text('Resultado en mapa'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Chip(
+                label: Text(
+                  widget.metodo == MetodoOptimizacion.ahorros
+                      ? 'Ahorros'
+                      : 'Barrido',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final mapa = _Mapa(
