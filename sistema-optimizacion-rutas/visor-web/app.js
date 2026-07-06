@@ -305,11 +305,11 @@ async function iniciar() {
     maxZoom: 19,
   }).addTo(mapa);
 
-  const capaParadas = L.layerGroup().addTo(mapa);
-  // Un layerGroup de Leaflet por tramo (polyline + flechas), para poder
-  // mostrar/ocultar cada uno por separado al pasar el mouse o hacer click en
-  // la lista, sin tocar los demás.
+  // Un layerGroup de Leaflet por tramo (polyline + flechas) y un marcador
+  // individual por parada, para poder mostrar/ocultar cada uno por separado
+  // al pasar el mouse o hacer click en la lista, sin tocar los demás.
   let gruposPorTramo = [];
+  let marcadoresPorParada = [];
   let colorearPorTramo = false;
   let tramoFijado = null; // índice fijado por click, o null si no hay nada fijo
 
@@ -330,27 +330,33 @@ async function iniciar() {
       return grupo.addTo(mapa);
     });
 
-    capaParadas.clearLayers();
-    paradas.forEach((p, i) => {
+    marcadoresPorParada.forEach((marcador) => mapa.removeLayer(marcador));
+    marcadoresPorParada = paradas.map((p, i) => {
       const [nombre, lat, lon] = p;
-      L.marker([lat, lon], { icon: iconoNumerado(i + 1, colorDeTramo(i)) })
-        .addTo(capaParadas)
+      return L.marker([lat, lon], { icon: iconoNumerado(i + 1, colorDeTramo(i)) })
+        .addTo(mapa)
         .bindPopup(`${i + 1}. ${nombre}`);
     });
 
     tramoFijado = null;
   }
 
-  // Muestra solo el tramo `indice` (el resto se oculta); `null` = mostrar
-  // todos. Los marcadores numerados de las paradas se quedan siempre
-  // visibles, sirven de referencia con la lista independientemente de cuál
-  // tramo esté resaltado.
+  // Muestra solo el tramo `indice` (el resto se oculta, incluyendo las
+  // paradas que no son ninguno de los dos extremos de ese tramo); `null` =
+  // mostrar todo. El depósito se queda siempre visible, es el punto de
+  // referencia común a todos los tramos.
   function mostrarSoloTramo(indice) {
     gruposPorTramo.forEach((grupo, i) => {
       const visible = indice === null || i === indice;
       const estaEnMapa = mapa.hasLayer(grupo);
       if (visible && !estaEnMapa) mapa.addLayer(grupo);
       if (!visible && estaEnMapa) mapa.removeLayer(grupo);
+    });
+    marcadoresPorParada.forEach((marcador, i) => {
+      const visible = indice === null || i === indice || i === indice - 1;
+      const estaEnMapa = mapa.hasLayer(marcador);
+      if (visible && !estaEnMapa) mapa.addLayer(marcador);
+      if (!visible && estaEnMapa) mapa.removeLayer(marcador);
     });
   }
 
