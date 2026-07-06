@@ -1,0 +1,166 @@
+:root {
+  --bg: #eef2fb;
+  --superficie: #ffffff;
+  --borde: rgba(11, 11, 11, 0.1);
+  --texto: #0b0b0b;
+  --texto-secundario: #52514e;
+  --primario: #2a78d6;
+  --primario-on: #ffffff;
+  --ruta: #1baf7a;
+  --error-bg: #fbe4e1;
+  --error-texto: #7a1f1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0f17;
+    --superficie: #12141d;
+    --borde: rgba(255, 255, 255, 0.1);
+    --texto: #ffffff;
+    --texto-secundario: #c3c2b7;
+    --primario: #3987e5;
+    --primario-on: #ffffff;
+    --ruta: #199e70;
+    --error-bg: #3a1a17;
+    --error-texto: #f2b8ae;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#encabezado {
+  padding: 16px 20px;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#titulo-vehiculo {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+#metricas {
+  display: flex;
+  gap: 16px;
+  color: var(--texto-secundario);
+  font-size: 0.9rem;
+}
+
+#contenido {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+#mapa {
+  flex: 2;
+  min-width: 0;
+}
+
+#panel {
+  flex: 1;
+  max-width: 340px;
+  min-width: 260px;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--superficie);
+  border-left: 1px solid var(--borde);
+}
+
+#estado {
+  color: var(--texto-secundario);
+  font-size: 0.9rem;
+}
+
+#estado.error {
+  background: var(--error-bg);
+  color: var(--error-texto);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+#lista-paradas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#lista-paradas li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+
+.numero {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ruta);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.numero.deposito {
+  background: var(--primario);
+}
+
+.marcador-numerado {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ruta);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.marcador-numerado.deposito {
+  background: var(--primario);
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  #contenido {
+    flex-direction: column;
+  }
+  #panel {
+    max-width: none;
+    max-height: 40vh;
+    border-left: none;
+    border-top: 1px solid var(--borde);
+  }
+}

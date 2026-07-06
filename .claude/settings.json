@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which snap *)",
+      "Read(//usr/lib/**)",
+      "Bash(curl -sI --max-time 5 https://github.com)",
+      "Bash(sudo -n true)",
+      "Bash(pkg-config --exists gtk+-3.0)",
+      "Bash(mkdir -p ~/development)",
+      "Bash(git clone *)",
+      "Bash(sudo dnf install -y clang cmake ninja-build gtk3-devel pkg-config mesa-libGL-devel)",
+      "Bash(rpm -q clang cmake ninja-build gtk3-devel pkg-config mesa-libGL-devel gtk3 mesa-libGL)",
+      "Bash(rpm -q pkgconf-pkg-config pkgconf)",
+      "Bash(tail -c 1500 /tmp/claude-1000/-home-kslap-Dev-LOGISTICA-LogisticApps/14cf3790-aa0b-4303-bb95-075da99fb854/tasks/bj2w0s40h.output; echo; echo \"---exists?---\"; ls -la ~/development/flutter/bin/cache/dart-sdk 2>&1 | head -5)",
+      "Read(//home/kslap/development/flutter/bin/cache/dart-sdk/**)",
+      "Bash(curl -s https://pub.dev/api/packages/drift_flutter)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['name'], d['latest']['version']\\); print\\(d['latest']['pubspec'].get\\('description'\\)\\)\")",
+      "Bash(mv unidad3-CLAUDE.md sistema-optimizacion-rutas/CLAUDE.md)",
+      "Bash(mv unidad3-sistema-optimizacion-rutas-vrp.md sistema-optimizacion-rutas/sistema-optimizacion-rutas-vrp.md)",
+      "Bash(git add *)",
+      "Bash(.claude/skills/run-desktop/driver.sh start *)",
+      "Bash(.claude/skills/run-desktop/driver.sh screenshot *)",
+      "Bash(sed -n '1,80p' /home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/native.dart)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/**)",
+      "Bash(grep -n \"class DriftNativeOptions\" -A 30 /home/kslap/.pub-cache/hosted/pub.dev/drift_flutter-0.3.0/lib/src/*.dart 2>/dev/null | head -40)",
+      "Bash(.claude_dummy=1)",
+      "Bash(.claude/skills/run-desktop/driver.sh stop *)",
+      "Bash(rpm -q xdg-user-dirs)",
+      "Read(//tmp/shots/**)",
+      "WebSearch"
+    ]
+  }
+}
