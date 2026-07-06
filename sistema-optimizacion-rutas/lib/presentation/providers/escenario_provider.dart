@@ -3,7 +3,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../core/paleta_rutas.dart';
 import '../../core/utils/geo_utils.dart';
 import '../../data/models/deposito.dart';
 import '../../data/models/escenario_optimizacion.dart';
@@ -19,22 +18,30 @@ import '../../domain/asignacion_vehiculos.dart';
 
 enum EstadoCalculo { inactivo, cargando, listo, error }
 
-/// Una ruta ya resuelta por Ahorros/Barrido, con su geometría real (decodificada
-/// desde OSRM `/route/`) y el color con el que se dibuja en el mapa.
+/// Una ruta ya resuelta por Ahorros/Barrido, con su geometría real
+/// (decodificada desde OSRM `/route/`). El color con el que se dibuja lo
+/// decide la pantalla de Mapa (`colorParaRuta`), no el provider — así el
+/// control de color por ruta puede recalcularlo sin volver a pedirle nada a
+/// OSRM.
 class RutaConGeometria {
   const RutaConGeometria({
     required this.rutaAsignada,
     required this.puntosRuta,
     required this.distanciaMetros,
     required this.duracionSegundos,
-    required this.color,
+    this.distanciasPorTramoMetros = const [],
   });
 
   final RutaAsignada rutaAsignada;
   final List<LatLng> puntosRuta;
   final double? distanciaMetros;
   final double? duracionSegundos;
-  final ColorRuta color;
+
+  /// Distancia de cada tramo entre paradas consecutivas (`[i]` es el tramo
+  /// que termina en la parada `i + 1`: depósito→parada 1 es `[0]`,
+  /// parada 1→parada 2 es `[1]`, etc.) — para mostrar "cuánto falta hasta
+  /// aquí" en el detalle de ruta.
+  final List<double> distanciasPorTramoMetros;
 }
 
 /// Estado y lógica de la pantalla de Optimización: selección de puntos y
@@ -179,9 +186,9 @@ class EscenarioProvider extends ChangeNotifier {
                 : const [],
             distanciaMetros: respuestaRuta.distanciaMetros,
             duracionSegundos: respuestaRuta.duracionSegundos,
-            color: ruta.vehiculo != null
-                ? colorParaRuta(i)
-                : colorSinAsignar,
+            distanciasPorTramoMetros: respuestaRuta.tramos
+                .map((t) => t.distanciaMetros)
+                .toList(),
           ),
         );
       }

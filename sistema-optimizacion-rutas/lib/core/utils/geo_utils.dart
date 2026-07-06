@@ -68,3 +68,98 @@ List<LatLng> decodificarPolyline(String codificado) {
 
   return puntos;
 }
+
+/// Rumbo inicial (en grados, 0=norte, sentido horario) desde `(lat1,lon1)`
+/// hacia `(lat2,lon2)` — fórmula estándar de rumbo entre dos coordenadas.
+/// Usado para orientar las flechas de dirección sobre una polyline.
+double rumboEntrePuntos({
+  required double lat1,
+  required double lon1,
+  required double lat2,
+  required double lon2,
+}) {
+  final phi1 = _gradosARadianes(lat1);
+  final phi2 = _gradosARadianes(lat2);
+  final deltaLambda = _gradosARadianes(lon2 - lon1);
+  final y = sin(deltaLambda) * cos(phi2);
+  final x = cos(phi1) * sin(phi2) - sin(phi1) * cos(phi2) * cos(deltaLambda);
+  final theta = atan2(y, x);
+  return (theta * 180 / pi + 360) % 360;
+}
+
+/// Un punto sobre una ruta con el rumbo (dirección) hacia el que avanza en
+/// ese tramo, para dibujar una flecha orientada.
+class PuntoConRumbo {
+  const PuntoConRumbo({required this.punto, required this.rumboGrados});
+
+  final LatLng punto;
+  final double rumboGrados;
+}
+
+/// Muestrea puntos espaciados uniformemente a lo largo de [puntosRuta] (la
+/// polyline ya decodificada) para dibujar flechas de dirección — sin esto,
+/// una polyline se ve como una línea plana sin indicar hacia dónde avanza el
+/// vehículo (pedido explícito de UX). La cantidad de flechas escala con la
+/// longitud real de la ruta: ~1 cada [intervaloKm] km, entre [minimo] y
+/// [maximo].
+List<PuntoConRumbo> muestrearFlechasEnRuta(
+  List<LatLng> puntosRuta, {
+  double intervaloKm = 2.0,
+  int minimo = 3,
+  int maximo = 20,
+}) {
+  if (puntosRuta.length < 2) return const [];
+
+  final distanciasAcumuladas = <double>[0];
+  for (var i = 1; i < puntosRuta.length; i++) {
+    final anterior = puntosRuta[i - 1];
+    final actual = puntosRuta[i];
+    distanciasAcumuladas.add(
+      distanciasAcumuladas.last +
+          distanciaHaversineKm(
+            lat1: anterior.latitude,
+            lon1: anterior.longitude,
+            lat2: actual.latitude,
+            lon2: actual.longitude,
+          ),
+    );
+  }
+
+  final largoTotalKm = distanciasAcumuladas.last;
+  if (largoTotalKm <= 0) return const [];
+
+  final cantidad = (largoTotalKm / intervaloKm).round().clamp(minimo, maximo);
+  final resultado = <PuntoConRumbo>[];
+  var indiceSegmento = 0;
+
+  for (var k = 1; k <= cantidad; k++) {
+    final objetivo = largoTotalKm * k / (cantidad + 1);
+    while (indiceSegmento < distanciasAcumuladas.length - 2 &&
+        distanciasAcumuladas[indiceSegmento + 1] < objetivo) {
+      indiceSegmento++;
+    }
+
+    final p0 = puntosRuta[indiceSegmento];
+    final p1 = puntosRuta[indiceSegmento + 1];
+    final d0 = distanciasAcumuladas[indiceSegmento];
+    final d1 = distanciasAcumuladas[indiceSegmento + 1];
+    final t = d1 > d0 ? ((objetivo - d0) / (d1 - d0)).clamp(0.0, 1.0) : 0.0;
+
+    resultado.add(
+      PuntoConRumbo(
+        punto: LatLng(
+          p0.latitude + (p1.latitude - p0.latitude) * t,
+          p0.longitude + (p1.longitude - p0.longitude) * t,
+        ),
+        rumboGrados: rumboEntrePuntos(
+          lat1: p0.latitude,
+          lon1: p0.longitude,
+          lat2: p1.latitude,
+          lon2: p1.longitude,
+        ),
+      ),
+    );
+  }
+
+  return resultado;
+}
