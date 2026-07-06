@@ -81,7 +81,23 @@
       "Bash(curl -s \"https://api.github.com/repos/KaelTorre/LogisticApps/actions/workflows/307716498/runs?per_page=10\")",
       "Bash(curl -s \"https://api.github.com/repos/KaelTorre/LogisticApps\")",
       "Bash(curl -s -o /dev/null -w \"Sitio actual \\(%{http_code}\\): \" https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/)",
-      "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/)"
+      "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/)",
+      "Bash(grep -nE \"static const IconData \\(split|rows3|layers|separator|gitBranch\\) =\" /home/kslap/.pub-cache/hosted/pub.dev/lucide_icons_flutter-3.1.14+2/lib/lucide_icons.dart)",
+      "Bash(rm -f /tmp/.X99-lock ~/.config/chromium/SingletonLock ~/.config/chromium/SingletonSocket ~/.config/chromium/SingletonCookie)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_0.png)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 351)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_1.png)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 351 click 1)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 700 750)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_2_fijado.png)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 495)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_3_hover_bloqueado.png)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_4_desbloqueado.png)",
+      "Bash(import -display :99 -window 0x200003 /tmp/shots/hover_test_5_combinado.png)",
+      "Bash(kill -9 283804 283806)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1223 212 click 1)",
+      "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1257 697 click 1)",
+      "Bash(ps -p 264462 -o pid,lstart,cmd)"
     ]
   }
 }

@@ -110,21 +110,7 @@ List<PuntoConRumbo> muestrearFlechasEnRuta(
 }) {
   if (puntosRuta.length < 2) return const [];
 
-  final distanciasAcumuladas = <double>[0];
-  for (var i = 1; i < puntosRuta.length; i++) {
-    final anterior = puntosRuta[i - 1];
-    final actual = puntosRuta[i];
-    distanciasAcumuladas.add(
-      distanciasAcumuladas.last +
-          distanciaHaversineKm(
-            lat1: anterior.latitude,
-            lon1: anterior.longitude,
-            lat2: actual.latitude,
-            lon2: actual.longitude,
-          ),
-    );
-  }
-
+  final distanciasAcumuladas = _distanciasAcumuladasKm(puntosRuta);
   final largoTotalKm = distanciasAcumuladas.last;
   if (largoTotalKm <= 0) return const [];
 
@@ -162,4 +148,70 @@ List<PuntoConRumbo> muestrearFlechasEnRuta(
   }
 
   return resultado;
+}
+
+List<double> _distanciasAcumuladasKm(List<LatLng> puntos) {
+  final acumuladas = <double>[0];
+  for (var i = 1; i < puntos.length; i++) {
+    final anterior = puntos[i - 1];
+    final actual = puntos[i];
+    acumuladas.add(
+      acumuladas.last +
+          distanciaHaversineKm(
+            lat1: anterior.latitude,
+            lon1: anterior.longitude,
+            lat2: actual.latitude,
+            lon2: actual.longitude,
+          ),
+    );
+  }
+  return acumuladas;
+}
+
+/// Divide la polyline completa de una ruta en un tramo por cada parada
+/// (depósito→parada 1, parada 1→parada 2, ..., última→depósito), usando la
+/// proporción real de distancia de cada tramo (`distanciasTramoMetros`, de
+/// `OsrmRouteResponse.tramos`) para ubicar dónde "cortarla" dentro de la
+/// geometría combinada.
+///
+/// Es una aproximación visual (no exacta al metro): OSRM no separa la
+/// geometría por tramo salvo pidiendo `steps=true` y reconstruyéndola a
+/// partir de los pasos, que es más complejidad de la que hace falta para
+/// "colorear cada tramo distinto" (sección 3.1 de CLAUDE.md). Mismo
+/// algoritmo portado a `visor-web/app.js`.
+List<List<LatLng>> dividirPolylinePorTramos(
+  List<LatLng> puntosRuta,
+  List<double> distanciasTramoMetros,
+) {
+  if (distanciasTramoMetros.length <= 1 || puntosRuta.length < 2) {
+    return [puntosRuta];
+  }
+
+  final distancias = _distanciasAcumuladasKm(puntosRuta);
+  final largoTotalPolyline = distancias.last;
+  final largoTotalTramosKm =
+      distanciasTramoMetros.fold(0.0, (s, d) => s + d) / 1000;
+  if (largoTotalTramosKm <= 0) return [puntosRuta];
+
+  final segmentos = <List<LatLng>>[];
+  var idxInicio = 0;
+  var acumuladoKm = 0.0;
+
+  for (var li = 0; li < distanciasTramoMetros.length; li++) {
+    acumuladoKm += distanciasTramoMetros[li] / 1000;
+    final esUltimo = li == distanciasTramoMetros.length - 1;
+    final objetivo = esUltimo
+        ? largoTotalPolyline
+        : (acumuladoKm / largoTotalTramosKm) * largoTotalPolyline;
+
+    var idxCorte = idxInicio;
+    while (idxCorte < distancias.length - 1 && distancias[idxCorte] < objetivo) {
+      idxCorte++;
+    }
+
+    segmentos.add(puntosRuta.sublist(idxInicio, idxCorte + 1));
+    idxInicio = idxCorte;
+  }
+
+  return segmentos;
 }

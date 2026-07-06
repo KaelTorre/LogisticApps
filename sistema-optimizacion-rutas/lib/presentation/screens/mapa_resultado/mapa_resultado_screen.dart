@@ -47,8 +47,34 @@ class _MapaResultadoScreenState extends State<MapaResultadoScreen> {
     (i) => i,
   );
 
+  // Por ruta: si está activo, cada tramo (depósito→1, 1→2, ...) se colorea
+  // distinto en vez de usar un solo color para toda la ruta.
+  late final List<bool> _colorPorTramoPorRuta = List.filled(
+    widget.rutas.length,
+    false,
+  );
+
   void _cambiarColorDeRuta(int indice) {
     setState(() => _posicionColorPorRuta[indice]++);
+  }
+
+  void _alternarColorPorTramo(int indice) {
+    setState(() => _colorPorTramoPorRuta[indice] = !_colorPorTramoPorRuta[indice]);
+  }
+
+  /// Color de un tramo puntual dentro de la ruta [rutaIndex]. Con "color por
+  /// tramo" desactivado, [segmentoIndex] se ignora y todos comparten el
+  /// mismo color de la ruta — así esta misma función sirve tanto para
+  /// colorear los segmentos de la polyline como los marcadores numerados de
+  /// cada parada (el índice de parada y el de tramo/leg coinciden: el tramo
+  /// `j` es el que termina en la parada `j`).
+  ColorRuta _colorDeSegmento(int rutaIndex, int segmentoIndex) {
+    if (widget.rutas[rutaIndex].rutaAsignada.vehiculo == null) {
+      return colorSinAsignar;
+    }
+    return _colorPorTramoPorRuta[rutaIndex]
+        ? colorParaRuta(segmentoIndex)
+        : colorParaRuta(_posicionColorPorRuta[rutaIndex]);
   }
 
   @override
@@ -61,11 +87,21 @@ class _MapaResultadoScreenState extends State<MapaResultadoScreen> {
       puntoDeposito,
       for (final ruta in widget.rutas) ...ruta.puntosRuta,
     ];
-    final colores = [
+    final segmentosPorRuta = [
       for (var i = 0; i < widget.rutas.length; i++)
-        widget.rutas[i].rutaAsignada.vehiculo != null
-            ? colorParaRuta(_posicionColorPorRuta[i])
-            : colorSinAsignar,
+        (_colorPorTramoPorRuta[i] &&
+                widget.rutas[i].distanciasPorTramoMetros.isNotEmpty)
+            ? dividirPolylinePorTramos(
+                widget.rutas[i].puntosRuta,
+                widget.rutas[i].distanciasPorTramoMetros,
+              )
+            : [widget.rutas[i].puntosRuta],
+    ];
+    // Color "de resumen" por ruta (para el punto de color y el link
+    // compartido): el de la posición actual, sin importar si además se está
+    // coloreando por tramo en el mapa.
+    final colores = [
+      for (var i = 0; i < widget.rutas.length; i++) _colorDeSegmento(i, 0),
     ];
 
     return Scaffold(
@@ -76,14 +112,18 @@ class _MapaResultadoScreenState extends State<MapaResultadoScreen> {
             puntoDeposito: puntoDeposito,
             todosLosPuntos: todosLosPuntos,
             rutas: widget.rutas,
-            colores: colores,
+            segmentosPorRuta: segmentosPorRuta,
+            colorDeSegmento: _colorDeSegmento,
           );
           final panel = _PanelRutas(
             deposito: widget.deposito,
             rutas: widget.rutas,
             colores: colores,
+            colorPorTramoPorRuta: _colorPorTramoPorRuta,
+            colorDeSegmento: _colorDeSegmento,
             vehiculosFaltantes: widget.vehiculosFaltantes,
             onCambiarColor: _cambiarColorDeRuta,
+            onAlternarColorPorTramo: _alternarColorPorTramo,
           );
 
           if (constraints.maxWidth >= 900) {
@@ -115,13 +155,15 @@ class _Mapa extends StatelessWidget {
     required this.puntoDeposito,
     required this.todosLosPuntos,
     required this.rutas,
-    required this.colores,
+    required this.segmentosPorRuta,
+    required this.colorDeSegmento,
   });
 
   final LatLng puntoDeposito;
   final List<LatLng> todosLosPuntos;
   final List<RutaConGeometria> rutas;
-  final List<ColorRuta> colores;
+  final List<List<List<LatLng>>> segmentosPorRuta;
+  final ColorRuta Function(int rutaIndex, int segmentoIndex) colorDeSegmento;
 
   @override
   Widget build(BuildContext context) {
@@ -142,27 +184,32 @@ class _Mapa extends StatelessWidget {
         ),
         PolylineLayer(
           polylines: [
-            for (final (i, ruta) in rutas.indexed)
-              if (ruta.puntosRuta.isNotEmpty)
-                Polyline(
-                  points: ruta.puntosRuta,
-                  color: colores[i].resolver(brightness),
-                  strokeWidth: 4,
-                ),
+            for (final (i, segmentos) in segmentosPorRuta.indexed)
+              for (final (j, segmento) in segmentos.indexed)
+                if (segmento.isNotEmpty)
+                  Polyline(
+                    points: segmento,
+                    color: colorDeSegmento(i, j).resolver(brightness),
+                    strokeWidth: 4,
+                  ),
           ],
         ),
         MarkerLayer(
           markers: [
-            for (final (i, ruta) in rutas.indexed)
-              if (ruta.puntosRuta.isNotEmpty)
-                for (final flecha in muestrearFlechasEnRuta(ruta.puntosRuta))
+            for (final (i, segmentos) in segmentosPorRuta.indexed)
+              for (final (j, segmento) in segmentos.indexed)
+                for (final flecha in muestrearFlechasEnRuta(
+                  segmento,
+                  minimo: segmentos.length > 1 ? 1 : 3,
+                  maximo: segmentos.length > 1 ? 8 : 20,
+                ))
                   Marker(
                     point: flecha.punto,
                     width: 22,
                     height: 22,
                     child: _MarcadorFlecha(
                       rumboGrados: flecha.rumboGrados,
-                      color: colores[i].resolver(brightness),
+                      color: colorDeSegmento(i, j).resolver(brightness),
                     ),
                   ),
           ],
@@ -183,7 +230,7 @@ class _Mapa extends StatelessWidget {
                   height: 26,
                   child: _MarcadorParada(
                     numero: entrada.$1 + 1,
-                    color: colores[i].resolver(brightness),
+                    color: colorDeSegmento(i, entrada.$1).resolver(brightness),
                   ),
                 ),
           ],
@@ -301,15 +348,21 @@ class _PanelRutas extends StatelessWidget {
     required this.deposito,
     required this.rutas,
     required this.colores,
+    required this.colorPorTramoPorRuta,
+    required this.colorDeSegmento,
     required this.vehiculosFaltantes,
     required this.onCambiarColor,
+    required this.onAlternarColorPorTramo,
   });
 
   final Deposito deposito;
   final List<RutaConGeometria> rutas;
   final List<ColorRuta> colores;
+  final List<bool> colorPorTramoPorRuta;
+  final ColorRuta Function(int rutaIndex, int segmentoIndex) colorDeSegmento;
   final int vehiculosFaltantes;
   final void Function(int indice) onCambiarColor;
+  final void Function(int indice) onAlternarColorPorTramo;
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +378,10 @@ class _PanelRutas extends StatelessWidget {
             deposito: deposito,
             ruta: ruta,
             color: colores[i],
+            colorPorTramoActivo: colorPorTramoPorRuta[i],
+            colorDeSegmento: (segmentoIndex) => colorDeSegmento(i, segmentoIndex),
             onCambiarColor: () => onCambiarColor(i),
+            onAlternarColorPorTramo: () => onAlternarColorPorTramo(i),
           ),
           const SizedBox(height: 12),
         ],
@@ -370,13 +426,19 @@ class _TarjetaRuta extends StatelessWidget {
     required this.deposito,
     required this.ruta,
     required this.color,
+    required this.colorPorTramoActivo,
+    required this.colorDeSegmento,
     required this.onCambiarColor,
+    required this.onAlternarColorPorTramo,
   });
 
   final Deposito deposito;
   final RutaConGeometria ruta;
   final ColorRuta color;
+  final bool colorPorTramoActivo;
+  final ColorRuta Function(int segmentoIndex) colorDeSegmento;
   final VoidCallback onCambiarColor;
+  final VoidCallback onAlternarColorPorTramo;
 
   @override
   Widget build(BuildContext context) {
@@ -414,12 +476,27 @@ class _TarjetaRuta extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                if (vehiculo != null)
+                if (vehiculo != null) ...[
                   IconButton(
                     tooltip: 'Cambiar el color de esta ruta',
                     icon: const Icon(LucideIcons.palette, size: 20),
                     onPressed: onCambiarColor,
                   ),
+                  if (ruta.rutaAsignada.paradas.length > 1)
+                    IconButton(
+                      tooltip: colorPorTramoActivo
+                          ? 'Un solo color para toda la ruta'
+                          : 'Colorear cada tramo distinto',
+                      icon: const Icon(LucideIcons.split, size: 20),
+                      isSelected: colorPorTramoActivo,
+                      selectedIcon: Icon(
+                        LucideIcons.split,
+                        size: 20,
+                        color: colorScheme.primary,
+                      ),
+                      onPressed: onAlternarColorPorTramo,
+                    ),
+                ],
                 IconButton(
                   tooltip:
                       'Exportar a Google Maps (máx. $limiteWaypointsGoogleMaps paradas)',
@@ -456,7 +533,7 @@ class _TarjetaRuta extends StatelessWidget {
                       height: 20,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: colorResuelto,
+                        color: colorDeSegmento(entrada.$1).resolver(brightness),
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -538,9 +615,14 @@ class _TarjetaRuta extends StatelessWidget {
     final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!context.mounted || abierto) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('No se pudo abrir Google Maps.')),
-    );
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo abrir Google Maps.'),
+          showCloseIcon: true,
+        ),
+      );
   }
 
   Future<void> _compartirLinkCompleto(BuildContext context) async {
@@ -554,14 +636,21 @@ class _TarjetaRuta extends StatelessWidget {
     await Clipboard.setData(ClipboardData(text: uri.toString()));
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Link copiado — pégalo en WhatsApp, correo, etc.'),
-        action: SnackBarAction(
-          label: 'Abrir',
-          onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
+    // `clearSnackBars` evita que toques repetidos del botón encolen varios
+    // SnackBars uno detrás del otro (con eso parecía que "nunca se cerraba":
+    // en realidad cada uno sí terminaba, pero ya había otro esperando).
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: const Text('Link copiado — pégalo en WhatsApp, correo, etc.'),
+          showCloseIcon: true,
+          action: SnackBarAction(
+            label: 'Abrir',
+            onPressed: () =>
+                launchUrl(uri, mode: LaunchMode.externalApplication),
+          ),
         ),
-      ),
-    );
+      );
   }
 }

@@ -305,30 +305,52 @@ async function iniciar() {
     maxZoom: 19,
   }).addTo(mapa);
 
-  const capaRuta = L.layerGroup().addTo(mapa);
+  const capaParadas = L.layerGroup().addTo(mapa);
+  // Un layerGroup de Leaflet por tramo (polyline + flechas), para poder
+  // mostrar/ocultar cada uno por separado al pasar el mouse o hacer click en
+  // la lista, sin tocar los demás.
+  let gruposPorTramo = [];
   let colorearPorTramo = false;
+  let tramoFijado = null; // índice fijado por click, o null si no hay nada fijo
 
   function colorDeTramo(indiceTramo) {
     return colorearPorTramo ? colorParaIndice(indiceTramo) : colorUnico;
   }
 
   function dibujarRuta() {
-    capaRuta.clearLayers();
-
-    tramos.forEach((puntosTramo, i) => {
-      L.polyline(puntosTramo, { color: colorDeTramo(i), weight: 4 }).addTo(capaRuta);
+    gruposPorTramo.forEach((grupo) => mapa.removeLayer(grupo));
+    gruposPorTramo = tramos.map((puntosTramo, i) => {
+      const grupo = L.layerGroup();
+      L.polyline(puntosTramo, { color: colorDeTramo(i), weight: 4 }).addTo(grupo);
       for (const flecha of muestrearFlechasEnRuta(puntosTramo, 2, 1, 8)) {
         L.marker(flecha.punto, {
           icon: iconoFlecha(flecha.rumbo, colorDeTramo(i)),
-        }).addTo(capaRuta);
+        }).addTo(grupo);
       }
+      return grupo.addTo(mapa);
     });
 
+    capaParadas.clearLayers();
     paradas.forEach((p, i) => {
       const [nombre, lat, lon] = p;
       L.marker([lat, lon], { icon: iconoNumerado(i + 1, colorDeTramo(i)) })
-        .addTo(capaRuta)
+        .addTo(capaParadas)
         .bindPopup(`${i + 1}. ${nombre}`);
+    });
+
+    tramoFijado = null;
+  }
+
+  // Muestra solo el tramo `indice` (el resto se oculta); `null` = mostrar
+  // todos. Los marcadores numerados de las paradas se quedan siempre
+  // visibles, sirven de referencia con la lista independientemente de cuál
+  // tramo esté resaltado.
+  function mostrarSoloTramo(indice) {
+    gruposPorTramo.forEach((grupo, i) => {
+      const visible = indice === null || i === indice;
+      const estaEnMapa = mapa.hasLayer(grupo);
+      if (visible && !estaEnMapa) mapa.addLayer(grupo);
+      if (!visible && estaEnMapa) mapa.removeLayer(grupo);
     });
   }
 
@@ -365,6 +387,28 @@ async function iniciar() {
           <div>${nombre}</div>
           ${distanciaTramoKm ? `<div class="distancia-tramo">${distanciaTramoKm} km ${i === 0 ? 'desde el depósito' : 'desde la parada anterior'}</div>` : ''}
         </span>`;
+
+      li.addEventListener('mouseenter', () => {
+        if (tramoFijado === null) mostrarSoloTramo(i);
+      });
+      li.addEventListener('mouseleave', () => {
+        if (tramoFijado === null) mostrarSoloTramo(null);
+      });
+      li.addEventListener('click', () => {
+        if (tramoFijado === i) {
+          tramoFijado = null;
+          li.classList.remove('fijado');
+          mostrarSoloTramo(null);
+        } else {
+          listaEl
+            .querySelectorAll('li.fijado')
+            .forEach((el) => el.classList.remove('fijado'));
+          tramoFijado = i;
+          li.classList.add('fijado');
+          mostrarSoloTramo(i);
+        }
+      });
+
       listaEl.appendChild(li);
     });
   }
