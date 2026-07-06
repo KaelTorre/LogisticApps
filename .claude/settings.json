@@ -117,7 +117,12 @@
       "Bash(grep -rn \"userVersion\\\\|void execute\\(\" /home/kslap/.pub-cache/hosted/pub.dev/sqlite3-*/lib/src/database.dart 2>/dev/null | head -10 *)",
       "Bash(DISPLAY=:99 xdotool key --window 0x200003 ctrl+a)",
       "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"NOMBRE EDITADO DESPUES\")",
-      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"Universidad Nacional de Ucayali\")"
+      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"Universidad Nacional de Ucayali\")",
+      "Bash(DISPLAY=:99 xclip -selection clipboard -o -display :99)",
+      "Bash(DISPLAY=:99 xsel --clipboard)",
+      "Bash(nohup python3 -m http.server 8765)",
+      "Bash(curl -sI http://localhost:8765/index.html)",
+      "Bash(grep -n \"^- \\\\[x\\\\] Se quitó \\\\`debugShowCheckedModeBanner\\\\`\" /home/kslap/Dev/LOGISTICA/LogisticApps/sistema-optimizacion-rutas/CLAUDE.md)"
     ]
   }
 }

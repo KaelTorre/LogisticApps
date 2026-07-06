@@ -13,16 +13,13 @@ class _ModuloInicio {
     required this.icono,
     required this.titulo,
     required this.descripcion,
-    this.pantalla,
+    required this.pantalla,
   });
 
   final IconData icono;
   final String titulo;
   final String descripcion;
-
-  /// Si es `null`, la tarjeta muestra "próximamente" (módulo aún no
-  /// construido en esta fase).
-  final WidgetBuilder? pantalla;
+  final WidgetBuilder pantalla;
 }
 
 final List<_ModuloInicio> _modulos = [
@@ -49,11 +46,6 @@ final List<_ModuloInicio> _modulos = [
     titulo: 'Optimización',
     descripcion: 'Calcular rutas con Ahorros o Barrido.',
     pantalla: (_) => const OptimizacionScreen(),
-  ),
-  const _ModuloInicio(
-    icono: LucideIcons.map,
-    titulo: 'Resultado en mapa',
-    descripcion: 'Se abre automáticamente al calcular una ruta.',
   ),
   _ModuloInicio(
     icono: LucideIcons.history,
@@ -121,16 +113,9 @@ class _TarjetaModulo extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          final pantalla = modulo.pantalla;
-          if (pantalla == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${modulo.titulo}: próximamente')),
-            );
-            return;
-          }
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: pantalla));
+          ).push(MaterialPageRoute(builder: modulo.pantalla));
         },
         child: Padding(
           padding: const EdgeInsets.all(20),

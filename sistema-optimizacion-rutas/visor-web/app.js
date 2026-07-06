@@ -60,11 +60,7 @@ const SVG_WAREHOUSE = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height
 // cada tramo — mismo ajuste que en mapa_resultado_screen.dart.
 const SVG_TRIANGULO = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"><polygon points="7,0 14,14 0,14" fill="currentColor" stroke="#fff" stroke-width="1"/></svg>`;
 
-function decodificarDatosDeLaUrl() {
-  const parametros = new URLSearchParams(location.hash.slice(1));
-  const codificado = parametros.get('d');
-  if (!codificado) return null;
-
+function base64UrlABytes(codificado) {
   const base64 = codificado
     .replace(/-/g, '+')
     .replace(/_/g, '/')
@@ -72,6 +68,44 @@ function decodificarDatosDeLaUrl() {
   const binario = atob(base64);
   const bytes = new Uint8Array(binario.length);
   for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+  return bytes;
+}
+
+// Descomprime DEFLATE crudo (sin encabezado zlib/gzip) con la API nativa del
+// navegador — sin librerías externas. Requiere un navegador relativamente
+// reciente (Chrome/Edge 80+, Firefox 113+, Safari 16.4+); si no está
+// disponible, lanza para que `iniciar()` muestre un mensaje claro en vez de
+// fallar en silencio.
+async function inflateRaw(bytes) {
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('NAVEGADOR_SIN_SOPORTE');
+  }
+  const flujo = new DecompressionStream('deflate-raw');
+  const escritor = flujo.writable.getWriter();
+  escritor.write(bytes);
+  escritor.close();
+  const salida = await new Response(flujo.readable).arrayBuffer();
+  return new Uint8Array(salida);
+}
+
+// `z=` es el formato actual (JSON comprimido con DEFLATE crudo, ver
+// core/exportar_visor_web.dart). `d=` es el formato heredado (JSON sin
+// comprimir) — la app ya no lo genera, pero un link compartido antes de
+// este cambio debe seguir abriendo.
+async function decodificarDatosDeLaUrl() {
+  const parametros = new URLSearchParams(location.hash.slice(1));
+  const comprimido = parametros.get('z');
+  const legado = parametros.get('d');
+
+  let bytes;
+  if (comprimido) {
+    bytes = await inflateRaw(base64UrlABytes(comprimido));
+  } else if (legado) {
+    bytes = base64UrlABytes(legado);
+  } else {
+    return null;
+  }
+
   const json = new TextDecoder('utf-8').decode(bytes);
   return JSON.parse(json);
 }
@@ -242,7 +276,19 @@ function mostrarError(mensaje) {
 }
 
 async function iniciar() {
-  const datos = decodificarDatosDeLaUrl();
+  let datos;
+  try {
+    datos = await decodificarDatosDeLaUrl();
+  } catch (e) {
+    if (e instanceof Error && e.message === 'NAVEGADOR_SIN_SOPORTE') {
+      mostrarError(
+        'Tu navegador es muy antiguo para abrir este link. Probá con una ' +
+          'versión reciente de Chrome, Firefox, Edge o Safari.',
+      );
+      return;
+    }
+    throw e;
+  }
   if (!datos) {
     mostrarError(
       'Este link no trae datos de ninguna ruta. Pídele a quien te lo ' +
