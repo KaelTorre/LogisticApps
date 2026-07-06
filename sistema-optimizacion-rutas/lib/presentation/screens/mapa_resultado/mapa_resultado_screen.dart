@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/exportar_google_maps.dart';
 import '../../../core/exportar_visor_web.dart';
 import '../../../core/paleta_rutas.dart';
 import '../../../core/utils/geo_utils.dart';
@@ -498,12 +497,6 @@ class _TarjetaRuta extends StatelessWidget {
                     ),
                 ],
                 IconButton(
-                  tooltip:
-                      'Exportar a Google Maps (máx. $limiteWaypointsGoogleMaps paradas)',
-                  icon: const Icon(LucideIcons.externalLink, size: 20),
-                  onPressed: () => _exportarAGoogleMaps(context),
-                ),
-                IconButton(
                   tooltip: 'Compartir link completo (sin límite de paradas)',
                   icon: const Icon(LucideIcons.link, size: 20),
                   onPressed: () => _compartirLinkCompleto(context),
@@ -573,56 +566,6 @@ class _TarjetaRuta extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _exportarAGoogleMaps(BuildContext context) async {
-    final paradas = ruta.rutaAsignada.paradas
-        .map((p) => LatLng(p.latitud, p.longitud))
-        .toList();
-
-    if (paradas.length > limiteWaypointsGoogleMaps) {
-      final continuar = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Ruta con muchas paradas'),
-          content: Text(
-            'Esta ruta tiene ${paradas.length} paradas. Google Maps solo '
-            'admite hasta $limiteWaypointsGoogleMaps en computadoras (y '
-            'apenas $limiteWaypointsGoogleMapsMovil si el link se abre en el '
-            'navegador de un celular, aunque la app de Google Maps suele '
-            'admitir más). Se exportarán solo las primeras '
-            '$limiteWaypointsGoogleMaps; el resto no aparecerá.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Exportar de todas formas'),
-            ),
-          ],
-        ),
-      );
-      if (continuar != true) return;
-    }
-
-    final uri = construirUrlGoogleMaps(
-      deposito: LatLng(deposito.latitud, deposito.longitud),
-      paradas: paradas,
-    );
-    final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
-
-    if (!context.mounted || abierto) return;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo abrir Google Maps.'),
-          showCloseIcon: true,
-        ),
-      );
   }
 
   Future<void> _compartirLinkCompleto(BuildContext context) async {
