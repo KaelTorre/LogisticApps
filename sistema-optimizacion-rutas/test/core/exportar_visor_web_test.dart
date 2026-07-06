@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -14,8 +15,18 @@ const _deposito = Deposito(
 
 const _colorDePrueba = Color(0xFF1BAF7A);
 
+/// Espejo de `visor-web/app.js`'s `inflateRaw` + decode, para verificar acá
+/// (sin navegador) que lo que arma `construirUrlVisorWeb` es exactamente lo
+/// que el visor web va a poder leer.
+Map<String, dynamic> _decodificarFragmentoZ(String fragmento) {
+  final codificado = fragmento.substring('z='.length);
+  final comprimido = base64Url.decode(codificado);
+  final json = utf8.decode(ZLibDecoder(raw: true).convert(comprimido));
+  return jsonDecode(json) as Map<String, dynamic>;
+}
+
 void main() {
-  test('arma la URL sobre visorWebBaseUrl, con los datos en el fragmento', () {
+  test('arma la URL sobre visorWebBaseUrl, con los datos comprimidos en el fragmento', () {
     final uri = construirUrlVisorWeb(
       deposito: _deposito,
       color: _colorDePrueba,
@@ -26,7 +37,7 @@ void main() {
 
     expect(uri.toString(), startsWith('https://kaeltorre.github.io/'));
     expect(uri.query, isEmpty, reason: 'los datos van en el fragmento, no en la query');
-    expect(uri.fragment, startsWith('d='));
+    expect(uri.fragment, startsWith('z='));
   });
 
   test('el fragmento decodifica de vuelta a depósito + paradas + vehículo + color', () {
@@ -40,9 +51,7 @@ void main() {
       ],
     );
 
-    final codificado = uri.fragment.substring('d='.length);
-    final json = utf8.decode(base64Url.decode(codificado));
-    final datos = jsonDecode(json) as Map<String, dynamic>;
+    final datos = _decodificarFragmentoZ(uri.fragment);
 
     expect(datos['dep'], ['Oficina', -8.375482, -74.556342]);
     expect(datos['veh'], 'Camión Reparto 1');
@@ -59,9 +68,32 @@ void main() {
       color: _colorDePrueba,
       paradas: const [],
     );
-    final codificado = uri.fragment.substring('d='.length);
-    final datos = jsonDecode(utf8.decode(base64Url.decode(codificado))) as Map;
+    final datos = _decodificarFragmentoZ(uri.fragment);
 
     expect(datos.containsKey('veh'), isFalse);
+  });
+
+  test('el link comprimido es más corto que el equivalente sin comprimir', () {
+    final paradas = List.generate(
+      19,
+      (i) => PuntoEntrega(
+        nombre: 'Punto de entrega número $i con un nombre bien largo',
+        latitud: -8.3 - i * 0.001,
+        longitud: -74.5 - i * 0.001,
+      ),
+    );
+    final uri = construirUrlVisorWeb(
+      deposito: _deposito,
+      color: _colorDePrueba,
+      vehiculoNombre: 'Camión Reparto 1',
+      paradas: paradas,
+    );
+
+    final datos = _decodificarFragmentoZ(uri.fragment);
+    final sinComprimir = base64Url.encode(
+      utf8.encode(jsonEncode(datos)),
+    );
+
+    expect(uri.fragment.length, lessThan(sinComprimir.length));
   });
 }

@@ -103,7 +103,27 @@
       "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_1_hover5.png)",
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1200 446 click 1)",
       "Bash(import -display :99 -window 0x200003 /tmp/shots/nodos_test_2_fijado.png)",
-      "Bash(kill -9 314510 314512)"
+      "Bash(kill -9 314510 314512)",
+      "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
+      "Bash(curl -s https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/app.js)",
+      "Bash(curl -s \"https://router.project-osrm.org/route/v1/driving/-74.556342,-8.375482;-74.577328,-8.394832;-74.574080,-8.385646;-74.556342,-8.375482?overview=full&geometries=polyline\")",
+      "Bash(flutter analyze *)",
+      "Bash(flutter test *)",
+      "Bash(grep -rn \"static NativeDatabase opened\\\\|factory NativeDatabase.opened\\\\|NativeDatabase.opened\" /home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/ 2>/dev/null | head -10)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/**)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/**)",
+      "Read(//home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/src/native/**)",
+      "Bash(cat /home/kslap/.pub-cache/hosted/pub.dev/drift-2.34.0/lib/native.dart)",
+      "Bash(grep -rn \"userVersion\\\\|void execute\\(\" /home/kslap/.pub-cache/hosted/pub.dev/sqlite3-*/lib/src/database.dart 2>/dev/null | head -10 *)",
+      "Bash(DISPLAY=:99 xdotool key --window 0x200003 ctrl+a)",
+      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"NOMBRE EDITADO DESPUES\")",
+      "Bash(DISPLAY=:99 xdotool type --window 0x200003 -- \"Universidad Nacional de Ucayali\")",
+      "Bash(DISPLAY=:99 xclip -selection clipboard -o -display :99)",
+      "Bash(DISPLAY=:99 xsel --clipboard)",
+      "Bash(nohup python3 -m http.server 8765)",
+      "Bash(curl -sI http://localhost:8765/index.html)",
+      "Bash(grep -n \"^- \\\\[x\\\\] Se quitó \\\\`debugShowCheckedModeBanner\\\\`\" /home/kslap/Dev/LOGISTICA/LogisticApps/sistema-optimizacion-rutas/CLAUDE.md)",
+      "Bash(grep -rn \"static const IconData info\\\\b\" /home/kslap/.pub-cache/hosted/pub.dev/lucide_icons_flutter-*/lib/ 2>/dev/null | head -3)"
     ]
   }
 }

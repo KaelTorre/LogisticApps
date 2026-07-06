@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'constants.dart';
@@ -8,9 +9,18 @@ import '../data/models/punto_entrega.dart';
 /// Arma el link al visor de rutas propio (`visor-web/`), alojado en GitHub
 /// Pages — sin el límite de 9/3 waypoints de un link de Google Maps (ver
 /// CLAUDE.md sección 3.1). Los datos viajan codificados en el **fragmento**
-/// de la URL (`#d=...`), nunca llegan a ningún servidor: la página los lee
+/// de la URL (`#z=...`), nunca llegan a ningún servidor: la página los lee
 /// en el navegador de quien la abre y le pide la geometría real a OSRM
 /// directamente desde ahí.
+///
+/// El JSON se comprime con DEFLATE crudo (`ZLibEncoder(raw: true)`, sin
+/// encabezado zlib/gzip) antes de codificarlo en base64 — reduce el link
+/// bastante (~45% menos caracteres con 19 paradas) y `visor-web/app.js` lo
+/// descomprime con la API nativa `DecompressionStream('deflate-raw')` del
+/// navegador, sin depender de ninguna librería externa. `d=` (sin comprimir)
+/// se mantiene como formato heredado — el visor web sigue leyéndolo para no
+/// romper links ya compartidos antes de este cambio, pero la app ya no lo
+/// genera.
 ///
 /// [color] es el mismo color con el que esa ruta se ve en la pantalla de
 /// Mapa (ya resuelto para el tema actual) — se manda como hex para que el
@@ -30,8 +40,12 @@ Uri construirUrlVisorWeb({
         .toList(),
   };
 
-  final codificado = base64Url.encode(utf8.encode(jsonEncode(datos)));
-  return Uri.parse(visorWebBaseUrl).replace(fragment: 'd=$codificado');
+  final comprimido = ZLibEncoder(
+    raw: true,
+    level: 9,
+  ).convert(utf8.encode(jsonEncode(datos)));
+  final codificado = base64Url.encode(comprimido);
+  return Uri.parse(visorWebBaseUrl).replace(fragment: 'z=$codificado');
 }
 
 String _colorAHex(Color color) {

@@ -3,8 +3,7 @@ import 'package:drift/drift.dart' show Value;
 import '../local/database.dart';
 import '../models/punto_entrega.dart';
 
-/// Repositorio de puntos de entrega. Por ahora solo lectura + siembra del
-/// dataset de prueba — el CRUD editable llega en una fase posterior.
+/// Repositorio de puntos de entrega: catálogo editable de clientes/destinos.
 class PuntoEntregaRepository {
   PuntoEntregaRepository(this._database);
 
@@ -13,6 +12,42 @@ class PuntoEntregaRepository {
   Future<List<PuntoEntrega>> obtenerTodos() async {
     final filas = await _database.select(_database.puntoEntregaTable).get();
     return filas.map(_aDominio).toList();
+  }
+
+  Future<int> crear(PuntoEntrega punto) {
+    return _database
+        .into(_database.puntoEntregaTable)
+        .insert(
+          PuntoEntregaTableCompanion.insert(
+            nombre: punto.nombre,
+            latitud: punto.latitud,
+            longitud: punto.longitud,
+            demanda: Value(punto.demanda),
+            ventanaInicio: Value(punto.ventanaInicio),
+            ventanaFin: Value(punto.ventanaFin),
+          ),
+        );
+  }
+
+  Future<void> actualizar(PuntoEntrega punto) async {
+    await (_database.update(
+      _database.puntoEntregaTable,
+    )..where((t) => t.id.equals(punto.id!))).write(
+      PuntoEntregaTableCompanion(
+        nombre: Value(punto.nombre),
+        latitud: Value(punto.latitud),
+        longitud: Value(punto.longitud),
+        demanda: Value(punto.demanda),
+        ventanaInicio: Value(punto.ventanaInicio),
+        ventanaFin: Value(punto.ventanaFin),
+      ),
+    );
+  }
+
+  Future<void> eliminar(int id) async {
+    await (_database.delete(
+      _database.puntoEntregaTable,
+    )..where((t) => t.id.equals(id))).go();
   }
 
   /// Inserta [puntos] solo si la tabla todavía está vacía (precarga del

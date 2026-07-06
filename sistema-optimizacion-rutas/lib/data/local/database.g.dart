@@ -1134,16 +1134,12 @@ class VehiculoTableCompanion extends UpdateCompanion<VehiculoTableData> {
   }
 }
 
-class $EscenarioOptimizacionTableTable extends EscenarioOptimizacionTable
-    with
-        TableInfo<
-          $EscenarioOptimizacionTableTable,
-          EscenarioOptimizacionTableData
-        > {
+class $HistorialCalculoTableTable extends HistorialCalculoTable
+    with TableInfo<$HistorialCalculoTableTable, HistorialCalculoTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $EscenarioOptimizacionTableTable(this.attachedDatabase, [this._alias]);
+  $HistorialCalculoTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1157,57 +1153,114 @@ class $EscenarioOptimizacionTableTable extends EscenarioOptimizacionTable
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _depositoIdMeta = const VerificationMeta(
-    'depositoId',
+  static const VerificationMeta _fechaCalculoMeta = const VerificationMeta(
+    'fechaCalculo',
   );
   @override
-  late final GeneratedColumn<int> depositoId = GeneratedColumn<int>(
-    'deposito_id',
+  late final GeneratedColumn<String> fechaCalculo = GeneratedColumn<String>(
+    'fecha_calculo',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _metodoMeta = const VerificationMeta('metodo');
+  @override
+  late final GeneratedColumn<String> metodo = GeneratedColumn<String>(
+    'metodo',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _depositoNombreMeta = const VerificationMeta(
+    'depositoNombre',
+  );
+  @override
+  late final GeneratedColumn<String> depositoNombre = GeneratedColumn<String>(
+    'deposito_nombre',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _depositoLatitudMeta = const VerificationMeta(
+    'depositoLatitud',
+  );
+  @override
+  late final GeneratedColumn<double> depositoLatitud = GeneratedColumn<double>(
+    'deposito_latitud',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _depositoLongitudMeta = const VerificationMeta(
+    'depositoLongitud',
+  );
+  @override
+  late final GeneratedColumn<double> depositoLongitud = GeneratedColumn<double>(
+    'deposito_longitud',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vehiculosFaltantesMeta =
+      const VerificationMeta('vehiculosFaltantes');
+  @override
+  late final GeneratedColumn<int> vehiculosFaltantes = GeneratedColumn<int>(
+    'vehiculos_faltantes',
     aliasedName,
     false,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES deposito (id)',
-    ),
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
-  static const VerificationMeta _fechaCreacionMeta = const VerificationMeta(
-    'fechaCreacion',
+  static const VerificationMeta _distanciaTotalMetrosMeta =
+      const VerificationMeta('distanciaTotalMetros');
+  @override
+  late final GeneratedColumn<double> distanciaTotalMetros =
+      GeneratedColumn<double>(
+        'distancia_total_metros',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      );
+  static const VerificationMeta _cantidadRutasMeta = const VerificationMeta(
+    'cantidadRutas',
   );
   @override
-  late final GeneratedColumn<String> fechaCreacion = GeneratedColumn<String>(
-    'fecha_creacion',
+  late final GeneratedColumn<int> cantidadRutas = GeneratedColumn<int>(
+    'cantidad_rutas',
     aliasedName,
     false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _metodoUsadoMeta = const VerificationMeta(
-    'metodoUsado',
-  );
-  @override
-  late final GeneratedColumn<String> metodoUsado = GeneratedColumn<String>(
-    'metodo_usado',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    depositoId,
-    fechaCreacion,
-    metodoUsado,
+    fechaCalculo,
+    metodo,
+    depositoNombre,
+    depositoLatitud,
+    depositoLongitud,
+    vehiculosFaltantes,
+    distanciaTotalMetros,
+    cantidadRutas,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'escenario_optimizacion';
+  static const String $name = 'historial_calculo';
   @override
   VerificationContext validateIntegrity(
-    Insertable<EscenarioOptimizacionTableData> instance, {
+    Insertable<HistorialCalculoTableData> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -1215,35 +1268,84 @@ class $EscenarioOptimizacionTableTable extends EscenarioOptimizacionTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('deposito_id')) {
+    if (data.containsKey('fecha_calculo')) {
       context.handle(
-        _depositoIdMeta,
-        depositoId.isAcceptableOrUnknown(data['deposito_id']!, _depositoIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_depositoIdMeta);
-    }
-    if (data.containsKey('fecha_creacion')) {
-      context.handle(
-        _fechaCreacionMeta,
-        fechaCreacion.isAcceptableOrUnknown(
-          data['fecha_creacion']!,
-          _fechaCreacionMeta,
+        _fechaCalculoMeta,
+        fechaCalculo.isAcceptableOrUnknown(
+          data['fecha_calculo']!,
+          _fechaCalculoMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_fechaCreacionMeta);
+      context.missing(_fechaCalculoMeta);
     }
-    if (data.containsKey('metodo_usado')) {
+    if (data.containsKey('metodo')) {
       context.handle(
-        _metodoUsadoMeta,
-        metodoUsado.isAcceptableOrUnknown(
-          data['metodo_usado']!,
-          _metodoUsadoMeta,
+        _metodoMeta,
+        metodo.isAcceptableOrUnknown(data['metodo']!, _metodoMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_metodoMeta);
+    }
+    if (data.containsKey('deposito_nombre')) {
+      context.handle(
+        _depositoNombreMeta,
+        depositoNombre.isAcceptableOrUnknown(
+          data['deposito_nombre']!,
+          _depositoNombreMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_metodoUsadoMeta);
+      context.missing(_depositoNombreMeta);
+    }
+    if (data.containsKey('deposito_latitud')) {
+      context.handle(
+        _depositoLatitudMeta,
+        depositoLatitud.isAcceptableOrUnknown(
+          data['deposito_latitud']!,
+          _depositoLatitudMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_depositoLatitudMeta);
+    }
+    if (data.containsKey('deposito_longitud')) {
+      context.handle(
+        _depositoLongitudMeta,
+        depositoLongitud.isAcceptableOrUnknown(
+          data['deposito_longitud']!,
+          _depositoLongitudMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_depositoLongitudMeta);
+    }
+    if (data.containsKey('vehiculos_faltantes')) {
+      context.handle(
+        _vehiculosFaltantesMeta,
+        vehiculosFaltantes.isAcceptableOrUnknown(
+          data['vehiculos_faltantes']!,
+          _vehiculosFaltantesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('distancia_total_metros')) {
+      context.handle(
+        _distanciaTotalMetrosMeta,
+        distanciaTotalMetros.isAcceptableOrUnknown(
+          data['distancia_total_metros']!,
+          _distanciaTotalMetrosMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cantidad_rutas')) {
+      context.handle(
+        _cantidadRutasMeta,
+        cantidadRutas.isAcceptableOrUnknown(
+          data['cantidad_rutas']!,
+          _cantidadRutasMeta,
+        ),
+      );
     }
     return context;
   }
@@ -1251,78 +1353,125 @@ class $EscenarioOptimizacionTableTable extends EscenarioOptimizacionTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  EscenarioOptimizacionTableData map(
+  HistorialCalculoTableData map(
     Map<String, dynamic> data, {
     String? tablePrefix,
   }) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return EscenarioOptimizacionTableData(
+    return HistorialCalculoTableData(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      depositoId: attachedDatabase.typeMapping.read(
+      fechaCalculo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fecha_calculo'],
+      )!,
+      metodo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metodo'],
+      )!,
+      depositoNombre: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deposito_nombre'],
+      )!,
+      depositoLatitud: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}deposito_latitud'],
+      )!,
+      depositoLongitud: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}deposito_longitud'],
+      )!,
+      vehiculosFaltantes: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}deposito_id'],
+        data['${effectivePrefix}vehiculos_faltantes'],
       )!,
-      fechaCreacion: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}fecha_creacion'],
+      distanciaTotalMetros: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}distancia_total_metros'],
       )!,
-      metodoUsado: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}metodo_usado'],
+      cantidadRutas: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cantidad_rutas'],
       )!,
     );
   }
 
   @override
-  $EscenarioOptimizacionTableTable createAlias(String alias) {
-    return $EscenarioOptimizacionTableTable(attachedDatabase, alias);
+  $HistorialCalculoTableTable createAlias(String alias) {
+    return $HistorialCalculoTableTable(attachedDatabase, alias);
   }
 }
 
-class EscenarioOptimizacionTableData extends DataClass
-    implements Insertable<EscenarioOptimizacionTableData> {
+class HistorialCalculoTableData extends DataClass
+    implements Insertable<HistorialCalculoTableData> {
   final int id;
-  final int depositoId;
-  final String fechaCreacion;
-  final String metodoUsado;
-  const EscenarioOptimizacionTableData({
+  final String fechaCalculo;
+  final String metodo;
+  final String depositoNombre;
+  final double depositoLatitud;
+  final double depositoLongitud;
+  final int vehiculosFaltantes;
+  final double distanciaTotalMetros;
+  final int cantidadRutas;
+  const HistorialCalculoTableData({
     required this.id,
-    required this.depositoId,
-    required this.fechaCreacion,
-    required this.metodoUsado,
+    required this.fechaCalculo,
+    required this.metodo,
+    required this.depositoNombre,
+    required this.depositoLatitud,
+    required this.depositoLongitud,
+    required this.vehiculosFaltantes,
+    required this.distanciaTotalMetros,
+    required this.cantidadRutas,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['deposito_id'] = Variable<int>(depositoId);
-    map['fecha_creacion'] = Variable<String>(fechaCreacion);
-    map['metodo_usado'] = Variable<String>(metodoUsado);
+    map['fecha_calculo'] = Variable<String>(fechaCalculo);
+    map['metodo'] = Variable<String>(metodo);
+    map['deposito_nombre'] = Variable<String>(depositoNombre);
+    map['deposito_latitud'] = Variable<double>(depositoLatitud);
+    map['deposito_longitud'] = Variable<double>(depositoLongitud);
+    map['vehiculos_faltantes'] = Variable<int>(vehiculosFaltantes);
+    map['distancia_total_metros'] = Variable<double>(distanciaTotalMetros);
+    map['cantidad_rutas'] = Variable<int>(cantidadRutas);
     return map;
   }
 
-  EscenarioOptimizacionTableCompanion toCompanion(bool nullToAbsent) {
-    return EscenarioOptimizacionTableCompanion(
+  HistorialCalculoTableCompanion toCompanion(bool nullToAbsent) {
+    return HistorialCalculoTableCompanion(
       id: Value(id),
-      depositoId: Value(depositoId),
-      fechaCreacion: Value(fechaCreacion),
-      metodoUsado: Value(metodoUsado),
+      fechaCalculo: Value(fechaCalculo),
+      metodo: Value(metodo),
+      depositoNombre: Value(depositoNombre),
+      depositoLatitud: Value(depositoLatitud),
+      depositoLongitud: Value(depositoLongitud),
+      vehiculosFaltantes: Value(vehiculosFaltantes),
+      distanciaTotalMetros: Value(distanciaTotalMetros),
+      cantidadRutas: Value(cantidadRutas),
     );
   }
 
-  factory EscenarioOptimizacionTableData.fromJson(
+  factory HistorialCalculoTableData.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return EscenarioOptimizacionTableData(
+    return HistorialCalculoTableData(
       id: serializer.fromJson<int>(json['id']),
-      depositoId: serializer.fromJson<int>(json['depositoId']),
-      fechaCreacion: serializer.fromJson<String>(json['fechaCreacion']),
-      metodoUsado: serializer.fromJson<String>(json['metodoUsado']),
+      fechaCalculo: serializer.fromJson<String>(json['fechaCalculo']),
+      metodo: serializer.fromJson<String>(json['metodo']),
+      depositoNombre: serializer.fromJson<String>(json['depositoNombre']),
+      depositoLatitud: serializer.fromJson<double>(json['depositoLatitud']),
+      depositoLongitud: serializer.fromJson<double>(json['depositoLongitud']),
+      vehiculosFaltantes: serializer.fromJson<int>(json['vehiculosFaltantes']),
+      distanciaTotalMetros: serializer.fromJson<double>(
+        json['distanciaTotalMetros'],
+      ),
+      cantidadRutas: serializer.fromJson<int>(json['cantidadRutas']),
     );
   }
   @override
@@ -1330,108 +1479,194 @@ class EscenarioOptimizacionTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'depositoId': serializer.toJson<int>(depositoId),
-      'fechaCreacion': serializer.toJson<String>(fechaCreacion),
-      'metodoUsado': serializer.toJson<String>(metodoUsado),
+      'fechaCalculo': serializer.toJson<String>(fechaCalculo),
+      'metodo': serializer.toJson<String>(metodo),
+      'depositoNombre': serializer.toJson<String>(depositoNombre),
+      'depositoLatitud': serializer.toJson<double>(depositoLatitud),
+      'depositoLongitud': serializer.toJson<double>(depositoLongitud),
+      'vehiculosFaltantes': serializer.toJson<int>(vehiculosFaltantes),
+      'distanciaTotalMetros': serializer.toJson<double>(distanciaTotalMetros),
+      'cantidadRutas': serializer.toJson<int>(cantidadRutas),
     };
   }
 
-  EscenarioOptimizacionTableData copyWith({
+  HistorialCalculoTableData copyWith({
     int? id,
-    int? depositoId,
-    String? fechaCreacion,
-    String? metodoUsado,
-  }) => EscenarioOptimizacionTableData(
+    String? fechaCalculo,
+    String? metodo,
+    String? depositoNombre,
+    double? depositoLatitud,
+    double? depositoLongitud,
+    int? vehiculosFaltantes,
+    double? distanciaTotalMetros,
+    int? cantidadRutas,
+  }) => HistorialCalculoTableData(
     id: id ?? this.id,
-    depositoId: depositoId ?? this.depositoId,
-    fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-    metodoUsado: metodoUsado ?? this.metodoUsado,
+    fechaCalculo: fechaCalculo ?? this.fechaCalculo,
+    metodo: metodo ?? this.metodo,
+    depositoNombre: depositoNombre ?? this.depositoNombre,
+    depositoLatitud: depositoLatitud ?? this.depositoLatitud,
+    depositoLongitud: depositoLongitud ?? this.depositoLongitud,
+    vehiculosFaltantes: vehiculosFaltantes ?? this.vehiculosFaltantes,
+    distanciaTotalMetros: distanciaTotalMetros ?? this.distanciaTotalMetros,
+    cantidadRutas: cantidadRutas ?? this.cantidadRutas,
   );
-  EscenarioOptimizacionTableData copyWithCompanion(
-    EscenarioOptimizacionTableCompanion data,
+  HistorialCalculoTableData copyWithCompanion(
+    HistorialCalculoTableCompanion data,
   ) {
-    return EscenarioOptimizacionTableData(
+    return HistorialCalculoTableData(
       id: data.id.present ? data.id.value : this.id,
-      depositoId: data.depositoId.present
-          ? data.depositoId.value
-          : this.depositoId,
-      fechaCreacion: data.fechaCreacion.present
-          ? data.fechaCreacion.value
-          : this.fechaCreacion,
-      metodoUsado: data.metodoUsado.present
-          ? data.metodoUsado.value
-          : this.metodoUsado,
+      fechaCalculo: data.fechaCalculo.present
+          ? data.fechaCalculo.value
+          : this.fechaCalculo,
+      metodo: data.metodo.present ? data.metodo.value : this.metodo,
+      depositoNombre: data.depositoNombre.present
+          ? data.depositoNombre.value
+          : this.depositoNombre,
+      depositoLatitud: data.depositoLatitud.present
+          ? data.depositoLatitud.value
+          : this.depositoLatitud,
+      depositoLongitud: data.depositoLongitud.present
+          ? data.depositoLongitud.value
+          : this.depositoLongitud,
+      vehiculosFaltantes: data.vehiculosFaltantes.present
+          ? data.vehiculosFaltantes.value
+          : this.vehiculosFaltantes,
+      distanciaTotalMetros: data.distanciaTotalMetros.present
+          ? data.distanciaTotalMetros.value
+          : this.distanciaTotalMetros,
+      cantidadRutas: data.cantidadRutas.present
+          ? data.cantidadRutas.value
+          : this.cantidadRutas,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('EscenarioOptimizacionTableData(')
+    return (StringBuffer('HistorialCalculoTableData(')
           ..write('id: $id, ')
-          ..write('depositoId: $depositoId, ')
-          ..write('fechaCreacion: $fechaCreacion, ')
-          ..write('metodoUsado: $metodoUsado')
+          ..write('fechaCalculo: $fechaCalculo, ')
+          ..write('metodo: $metodo, ')
+          ..write('depositoNombre: $depositoNombre, ')
+          ..write('depositoLatitud: $depositoLatitud, ')
+          ..write('depositoLongitud: $depositoLongitud, ')
+          ..write('vehiculosFaltantes: $vehiculosFaltantes, ')
+          ..write('distanciaTotalMetros: $distanciaTotalMetros, ')
+          ..write('cantidadRutas: $cantidadRutas')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, depositoId, fechaCreacion, metodoUsado);
+  int get hashCode => Object.hash(
+    id,
+    fechaCalculo,
+    metodo,
+    depositoNombre,
+    depositoLatitud,
+    depositoLongitud,
+    vehiculosFaltantes,
+    distanciaTotalMetros,
+    cantidadRutas,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is EscenarioOptimizacionTableData &&
+      (other is HistorialCalculoTableData &&
           other.id == this.id &&
-          other.depositoId == this.depositoId &&
-          other.fechaCreacion == this.fechaCreacion &&
-          other.metodoUsado == this.metodoUsado);
+          other.fechaCalculo == this.fechaCalculo &&
+          other.metodo == this.metodo &&
+          other.depositoNombre == this.depositoNombre &&
+          other.depositoLatitud == this.depositoLatitud &&
+          other.depositoLongitud == this.depositoLongitud &&
+          other.vehiculosFaltantes == this.vehiculosFaltantes &&
+          other.distanciaTotalMetros == this.distanciaTotalMetros &&
+          other.cantidadRutas == this.cantidadRutas);
 }
 
-class EscenarioOptimizacionTableCompanion
-    extends UpdateCompanion<EscenarioOptimizacionTableData> {
+class HistorialCalculoTableCompanion
+    extends UpdateCompanion<HistorialCalculoTableData> {
   final Value<int> id;
-  final Value<int> depositoId;
-  final Value<String> fechaCreacion;
-  final Value<String> metodoUsado;
-  const EscenarioOptimizacionTableCompanion({
+  final Value<String> fechaCalculo;
+  final Value<String> metodo;
+  final Value<String> depositoNombre;
+  final Value<double> depositoLatitud;
+  final Value<double> depositoLongitud;
+  final Value<int> vehiculosFaltantes;
+  final Value<double> distanciaTotalMetros;
+  final Value<int> cantidadRutas;
+  const HistorialCalculoTableCompanion({
     this.id = const Value.absent(),
-    this.depositoId = const Value.absent(),
-    this.fechaCreacion = const Value.absent(),
-    this.metodoUsado = const Value.absent(),
+    this.fechaCalculo = const Value.absent(),
+    this.metodo = const Value.absent(),
+    this.depositoNombre = const Value.absent(),
+    this.depositoLatitud = const Value.absent(),
+    this.depositoLongitud = const Value.absent(),
+    this.vehiculosFaltantes = const Value.absent(),
+    this.distanciaTotalMetros = const Value.absent(),
+    this.cantidadRutas = const Value.absent(),
   });
-  EscenarioOptimizacionTableCompanion.insert({
+  HistorialCalculoTableCompanion.insert({
     this.id = const Value.absent(),
-    required int depositoId,
-    required String fechaCreacion,
-    required String metodoUsado,
-  }) : depositoId = Value(depositoId),
-       fechaCreacion = Value(fechaCreacion),
-       metodoUsado = Value(metodoUsado);
-  static Insertable<EscenarioOptimizacionTableData> custom({
+    required String fechaCalculo,
+    required String metodo,
+    required String depositoNombre,
+    required double depositoLatitud,
+    required double depositoLongitud,
+    this.vehiculosFaltantes = const Value.absent(),
+    this.distanciaTotalMetros = const Value.absent(),
+    this.cantidadRutas = const Value.absent(),
+  }) : fechaCalculo = Value(fechaCalculo),
+       metodo = Value(metodo),
+       depositoNombre = Value(depositoNombre),
+       depositoLatitud = Value(depositoLatitud),
+       depositoLongitud = Value(depositoLongitud);
+  static Insertable<HistorialCalculoTableData> custom({
     Expression<int>? id,
-    Expression<int>? depositoId,
-    Expression<String>? fechaCreacion,
-    Expression<String>? metodoUsado,
+    Expression<String>? fechaCalculo,
+    Expression<String>? metodo,
+    Expression<String>? depositoNombre,
+    Expression<double>? depositoLatitud,
+    Expression<double>? depositoLongitud,
+    Expression<int>? vehiculosFaltantes,
+    Expression<double>? distanciaTotalMetros,
+    Expression<int>? cantidadRutas,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (depositoId != null) 'deposito_id': depositoId,
-      if (fechaCreacion != null) 'fecha_creacion': fechaCreacion,
-      if (metodoUsado != null) 'metodo_usado': metodoUsado,
+      if (fechaCalculo != null) 'fecha_calculo': fechaCalculo,
+      if (metodo != null) 'metodo': metodo,
+      if (depositoNombre != null) 'deposito_nombre': depositoNombre,
+      if (depositoLatitud != null) 'deposito_latitud': depositoLatitud,
+      if (depositoLongitud != null) 'deposito_longitud': depositoLongitud,
+      if (vehiculosFaltantes != null) 'vehiculos_faltantes': vehiculosFaltantes,
+      if (distanciaTotalMetros != null)
+        'distancia_total_metros': distanciaTotalMetros,
+      if (cantidadRutas != null) 'cantidad_rutas': cantidadRutas,
     });
   }
 
-  EscenarioOptimizacionTableCompanion copyWith({
+  HistorialCalculoTableCompanion copyWith({
     Value<int>? id,
-    Value<int>? depositoId,
-    Value<String>? fechaCreacion,
-    Value<String>? metodoUsado,
+    Value<String>? fechaCalculo,
+    Value<String>? metodo,
+    Value<String>? depositoNombre,
+    Value<double>? depositoLatitud,
+    Value<double>? depositoLongitud,
+    Value<int>? vehiculosFaltantes,
+    Value<double>? distanciaTotalMetros,
+    Value<int>? cantidadRutas,
   }) {
-    return EscenarioOptimizacionTableCompanion(
+    return HistorialCalculoTableCompanion(
       id: id ?? this.id,
-      depositoId: depositoId ?? this.depositoId,
-      fechaCreacion: fechaCreacion ?? this.fechaCreacion,
-      metodoUsado: metodoUsado ?? this.metodoUsado,
+      fechaCalculo: fechaCalculo ?? this.fechaCalculo,
+      metodo: metodo ?? this.metodo,
+      depositoNombre: depositoNombre ?? this.depositoNombre,
+      depositoLatitud: depositoLatitud ?? this.depositoLatitud,
+      depositoLongitud: depositoLongitud ?? this.depositoLongitud,
+      vehiculosFaltantes: vehiculosFaltantes ?? this.vehiculosFaltantes,
+      distanciaTotalMetros: distanciaTotalMetros ?? this.distanciaTotalMetros,
+      cantidadRutas: cantidadRutas ?? this.cantidadRutas,
     );
   }
 
@@ -1441,519 +1676,58 @@ class EscenarioOptimizacionTableCompanion
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (depositoId.present) {
-      map['deposito_id'] = Variable<int>(depositoId.value);
+    if (fechaCalculo.present) {
+      map['fecha_calculo'] = Variable<String>(fechaCalculo.value);
     }
-    if (fechaCreacion.present) {
-      map['fecha_creacion'] = Variable<String>(fechaCreacion.value);
+    if (metodo.present) {
+      map['metodo'] = Variable<String>(metodo.value);
     }
-    if (metodoUsado.present) {
-      map['metodo_usado'] = Variable<String>(metodoUsado.value);
+    if (depositoNombre.present) {
+      map['deposito_nombre'] = Variable<String>(depositoNombre.value);
+    }
+    if (depositoLatitud.present) {
+      map['deposito_latitud'] = Variable<double>(depositoLatitud.value);
+    }
+    if (depositoLongitud.present) {
+      map['deposito_longitud'] = Variable<double>(depositoLongitud.value);
+    }
+    if (vehiculosFaltantes.present) {
+      map['vehiculos_faltantes'] = Variable<int>(vehiculosFaltantes.value);
+    }
+    if (distanciaTotalMetros.present) {
+      map['distancia_total_metros'] = Variable<double>(
+        distanciaTotalMetros.value,
+      );
+    }
+    if (cantidadRutas.present) {
+      map['cantidad_rutas'] = Variable<int>(cantidadRutas.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('EscenarioOptimizacionTableCompanion(')
+    return (StringBuffer('HistorialCalculoTableCompanion(')
           ..write('id: $id, ')
-          ..write('depositoId: $depositoId, ')
-          ..write('fechaCreacion: $fechaCreacion, ')
-          ..write('metodoUsado: $metodoUsado')
+          ..write('fechaCalculo: $fechaCalculo, ')
+          ..write('metodo: $metodo, ')
+          ..write('depositoNombre: $depositoNombre, ')
+          ..write('depositoLatitud: $depositoLatitud, ')
+          ..write('depositoLongitud: $depositoLongitud, ')
+          ..write('vehiculosFaltantes: $vehiculosFaltantes, ')
+          ..write('distanciaTotalMetros: $distanciaTotalMetros, ')
+          ..write('cantidadRutas: $cantidadRutas')
           ..write(')'))
         .toString();
   }
 }
 
-class $EscenarioPuntoTableTable extends EscenarioPuntoTable
-    with TableInfo<$EscenarioPuntoTableTable, EscenarioPuntoTableData> {
+class $HistorialRutaTableTable extends HistorialRutaTable
+    with TableInfo<$HistorialRutaTableTable, HistorialRutaTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $EscenarioPuntoTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _escenarioIdMeta = const VerificationMeta(
-    'escenarioId',
-  );
-  @override
-  late final GeneratedColumn<int> escenarioId = GeneratedColumn<int>(
-    'escenario_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES escenario_optimizacion (id)',
-    ),
-  );
-  static const VerificationMeta _puntoEntregaIdMeta = const VerificationMeta(
-    'puntoEntregaId',
-  );
-  @override
-  late final GeneratedColumn<int> puntoEntregaId = GeneratedColumn<int>(
-    'punto_entrega_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES punto_entrega (id)',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [escenarioId, puntoEntregaId];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'escenario_punto';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<EscenarioPuntoTableData> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('escenario_id')) {
-      context.handle(
-        _escenarioIdMeta,
-        escenarioId.isAcceptableOrUnknown(
-          data['escenario_id']!,
-          _escenarioIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_escenarioIdMeta);
-    }
-    if (data.containsKey('punto_entrega_id')) {
-      context.handle(
-        _puntoEntregaIdMeta,
-        puntoEntregaId.isAcceptableOrUnknown(
-          data['punto_entrega_id']!,
-          _puntoEntregaIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_puntoEntregaIdMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => const {};
-  @override
-  EscenarioPuntoTableData map(
-    Map<String, dynamic> data, {
-    String? tablePrefix,
-  }) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return EscenarioPuntoTableData(
-      escenarioId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}escenario_id'],
-      )!,
-      puntoEntregaId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}punto_entrega_id'],
-      )!,
-    );
-  }
-
-  @override
-  $EscenarioPuntoTableTable createAlias(String alias) {
-    return $EscenarioPuntoTableTable(attachedDatabase, alias);
-  }
-}
-
-class EscenarioPuntoTableData extends DataClass
-    implements Insertable<EscenarioPuntoTableData> {
-  final int escenarioId;
-  final int puntoEntregaId;
-  const EscenarioPuntoTableData({
-    required this.escenarioId,
-    required this.puntoEntregaId,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['escenario_id'] = Variable<int>(escenarioId);
-    map['punto_entrega_id'] = Variable<int>(puntoEntregaId);
-    return map;
-  }
-
-  EscenarioPuntoTableCompanion toCompanion(bool nullToAbsent) {
-    return EscenarioPuntoTableCompanion(
-      escenarioId: Value(escenarioId),
-      puntoEntregaId: Value(puntoEntregaId),
-    );
-  }
-
-  factory EscenarioPuntoTableData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return EscenarioPuntoTableData(
-      escenarioId: serializer.fromJson<int>(json['escenarioId']),
-      puntoEntregaId: serializer.fromJson<int>(json['puntoEntregaId']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'escenarioId': serializer.toJson<int>(escenarioId),
-      'puntoEntregaId': serializer.toJson<int>(puntoEntregaId),
-    };
-  }
-
-  EscenarioPuntoTableData copyWith({int? escenarioId, int? puntoEntregaId}) =>
-      EscenarioPuntoTableData(
-        escenarioId: escenarioId ?? this.escenarioId,
-        puntoEntregaId: puntoEntregaId ?? this.puntoEntregaId,
-      );
-  EscenarioPuntoTableData copyWithCompanion(EscenarioPuntoTableCompanion data) {
-    return EscenarioPuntoTableData(
-      escenarioId: data.escenarioId.present
-          ? data.escenarioId.value
-          : this.escenarioId,
-      puntoEntregaId: data.puntoEntregaId.present
-          ? data.puntoEntregaId.value
-          : this.puntoEntregaId,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('EscenarioPuntoTableData(')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('puntoEntregaId: $puntoEntregaId')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(escenarioId, puntoEntregaId);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is EscenarioPuntoTableData &&
-          other.escenarioId == this.escenarioId &&
-          other.puntoEntregaId == this.puntoEntregaId);
-}
-
-class EscenarioPuntoTableCompanion
-    extends UpdateCompanion<EscenarioPuntoTableData> {
-  final Value<int> escenarioId;
-  final Value<int> puntoEntregaId;
-  final Value<int> rowid;
-  const EscenarioPuntoTableCompanion({
-    this.escenarioId = const Value.absent(),
-    this.puntoEntregaId = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  EscenarioPuntoTableCompanion.insert({
-    required int escenarioId,
-    required int puntoEntregaId,
-    this.rowid = const Value.absent(),
-  }) : escenarioId = Value(escenarioId),
-       puntoEntregaId = Value(puntoEntregaId);
-  static Insertable<EscenarioPuntoTableData> custom({
-    Expression<int>? escenarioId,
-    Expression<int>? puntoEntregaId,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (escenarioId != null) 'escenario_id': escenarioId,
-      if (puntoEntregaId != null) 'punto_entrega_id': puntoEntregaId,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  EscenarioPuntoTableCompanion copyWith({
-    Value<int>? escenarioId,
-    Value<int>? puntoEntregaId,
-    Value<int>? rowid,
-  }) {
-    return EscenarioPuntoTableCompanion(
-      escenarioId: escenarioId ?? this.escenarioId,
-      puntoEntregaId: puntoEntregaId ?? this.puntoEntregaId,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (escenarioId.present) {
-      map['escenario_id'] = Variable<int>(escenarioId.value);
-    }
-    if (puntoEntregaId.present) {
-      map['punto_entrega_id'] = Variable<int>(puntoEntregaId.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('EscenarioPuntoTableCompanion(')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('puntoEntregaId: $puntoEntregaId, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $EscenarioVehiculoTableTable extends EscenarioVehiculoTable
-    with TableInfo<$EscenarioVehiculoTableTable, EscenarioVehiculoTableData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $EscenarioVehiculoTableTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _escenarioIdMeta = const VerificationMeta(
-    'escenarioId',
-  );
-  @override
-  late final GeneratedColumn<int> escenarioId = GeneratedColumn<int>(
-    'escenario_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES escenario_optimizacion (id)',
-    ),
-  );
-  static const VerificationMeta _vehiculoIdMeta = const VerificationMeta(
-    'vehiculoId',
-  );
-  @override
-  late final GeneratedColumn<int> vehiculoId = GeneratedColumn<int>(
-    'vehiculo_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES vehiculo (id)',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [escenarioId, vehiculoId];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'escenario_vehiculo';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<EscenarioVehiculoTableData> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('escenario_id')) {
-      context.handle(
-        _escenarioIdMeta,
-        escenarioId.isAcceptableOrUnknown(
-          data['escenario_id']!,
-          _escenarioIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_escenarioIdMeta);
-    }
-    if (data.containsKey('vehiculo_id')) {
-      context.handle(
-        _vehiculoIdMeta,
-        vehiculoId.isAcceptableOrUnknown(data['vehiculo_id']!, _vehiculoIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_vehiculoIdMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => const {};
-  @override
-  EscenarioVehiculoTableData map(
-    Map<String, dynamic> data, {
-    String? tablePrefix,
-  }) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return EscenarioVehiculoTableData(
-      escenarioId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}escenario_id'],
-      )!,
-      vehiculoId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}vehiculo_id'],
-      )!,
-    );
-  }
-
-  @override
-  $EscenarioVehiculoTableTable createAlias(String alias) {
-    return $EscenarioVehiculoTableTable(attachedDatabase, alias);
-  }
-}
-
-class EscenarioVehiculoTableData extends DataClass
-    implements Insertable<EscenarioVehiculoTableData> {
-  final int escenarioId;
-  final int vehiculoId;
-  const EscenarioVehiculoTableData({
-    required this.escenarioId,
-    required this.vehiculoId,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['escenario_id'] = Variable<int>(escenarioId);
-    map['vehiculo_id'] = Variable<int>(vehiculoId);
-    return map;
-  }
-
-  EscenarioVehiculoTableCompanion toCompanion(bool nullToAbsent) {
-    return EscenarioVehiculoTableCompanion(
-      escenarioId: Value(escenarioId),
-      vehiculoId: Value(vehiculoId),
-    );
-  }
-
-  factory EscenarioVehiculoTableData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return EscenarioVehiculoTableData(
-      escenarioId: serializer.fromJson<int>(json['escenarioId']),
-      vehiculoId: serializer.fromJson<int>(json['vehiculoId']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'escenarioId': serializer.toJson<int>(escenarioId),
-      'vehiculoId': serializer.toJson<int>(vehiculoId),
-    };
-  }
-
-  EscenarioVehiculoTableData copyWith({int? escenarioId, int? vehiculoId}) =>
-      EscenarioVehiculoTableData(
-        escenarioId: escenarioId ?? this.escenarioId,
-        vehiculoId: vehiculoId ?? this.vehiculoId,
-      );
-  EscenarioVehiculoTableData copyWithCompanion(
-    EscenarioVehiculoTableCompanion data,
-  ) {
-    return EscenarioVehiculoTableData(
-      escenarioId: data.escenarioId.present
-          ? data.escenarioId.value
-          : this.escenarioId,
-      vehiculoId: data.vehiculoId.present
-          ? data.vehiculoId.value
-          : this.vehiculoId,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('EscenarioVehiculoTableData(')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('vehiculoId: $vehiculoId')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(escenarioId, vehiculoId);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is EscenarioVehiculoTableData &&
-          other.escenarioId == this.escenarioId &&
-          other.vehiculoId == this.vehiculoId);
-}
-
-class EscenarioVehiculoTableCompanion
-    extends UpdateCompanion<EscenarioVehiculoTableData> {
-  final Value<int> escenarioId;
-  final Value<int> vehiculoId;
-  final Value<int> rowid;
-  const EscenarioVehiculoTableCompanion({
-    this.escenarioId = const Value.absent(),
-    this.vehiculoId = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  EscenarioVehiculoTableCompanion.insert({
-    required int escenarioId,
-    required int vehiculoId,
-    this.rowid = const Value.absent(),
-  }) : escenarioId = Value(escenarioId),
-       vehiculoId = Value(vehiculoId);
-  static Insertable<EscenarioVehiculoTableData> custom({
-    Expression<int>? escenarioId,
-    Expression<int>? vehiculoId,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (escenarioId != null) 'escenario_id': escenarioId,
-      if (vehiculoId != null) 'vehiculo_id': vehiculoId,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  EscenarioVehiculoTableCompanion copyWith({
-    Value<int>? escenarioId,
-    Value<int>? vehiculoId,
-    Value<int>? rowid,
-  }) {
-    return EscenarioVehiculoTableCompanion(
-      escenarioId: escenarioId ?? this.escenarioId,
-      vehiculoId: vehiculoId ?? this.vehiculoId,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (escenarioId.present) {
-      map['escenario_id'] = Variable<int>(escenarioId.value);
-    }
-    if (vehiculoId.present) {
-      map['vehiculo_id'] = Variable<int>(vehiculoId.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('EscenarioVehiculoTableCompanion(')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('vehiculoId: $vehiculoId, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $RutaResultadoTableTable extends RutaResultadoTable
-    with TableInfo<$RutaResultadoTableTable, RutaResultadoTableData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $RutaResultadoTableTable(this.attachedDatabase, [this._alias]);
+  $HistorialRutaTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1967,66 +1741,117 @@ class $RutaResultadoTableTable extends RutaResultadoTable
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _escenarioIdMeta = const VerificationMeta(
-    'escenarioId',
+  static const VerificationMeta _historialIdMeta = const VerificationMeta(
+    'historialId',
   );
   @override
-  late final GeneratedColumn<int> escenarioId = GeneratedColumn<int>(
-    'escenario_id',
+  late final GeneratedColumn<int> historialId = GeneratedColumn<int>(
+    'historial_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES escenario_optimizacion (id)',
+      'REFERENCES historial_calculo (id)',
     ),
   );
-  static const VerificationMeta _vehiculoIdMeta = const VerificationMeta(
-    'vehiculoId',
-  );
+  static const VerificationMeta _ordenMeta = const VerificationMeta('orden');
   @override
-  late final GeneratedColumn<int> vehiculoId = GeneratedColumn<int>(
-    'vehiculo_id',
+  late final GeneratedColumn<int> orden = GeneratedColumn<int>(
+    'orden',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES vehiculo (id)',
-    ),
   );
-  static const VerificationMeta _secuenciaParadasMeta = const VerificationMeta(
-    'secuenciaParadas',
+  static const VerificationMeta _vehiculoNombreMeta = const VerificationMeta(
+    'vehiculoNombre',
   );
   @override
-  late final GeneratedColumn<String> secuenciaParadas = GeneratedColumn<String>(
-    'secuencia_paradas',
+  late final GeneratedColumn<String> vehiculoNombre = GeneratedColumn<String>(
+    'vehiculo_nombre',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vehiculoCapacidadMaximaMeta =
+      const VerificationMeta('vehiculoCapacidadMaxima');
+  @override
+  late final GeneratedColumn<double> vehiculoCapacidadMaxima =
+      GeneratedColumn<double>(
+        'vehiculo_capacidad_maxima',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _vehiculoCostoEstimadoPorKmMeta =
+      const VerificationMeta('vehiculoCostoEstimadoPorKm');
+  @override
+  late final GeneratedColumn<double> vehiculoCostoEstimadoPorKm =
+      GeneratedColumn<double>(
+        'vehiculo_costo_estimado_por_km',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _vehiculoTipoFlotaMeta = const VerificationMeta(
+    'vehiculoTipoFlota',
+  );
+  @override
+  late final GeneratedColumn<String> vehiculoTipoFlota =
+      GeneratedColumn<String>(
+        'vehiculo_tipo_flota',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _paradasJsonMeta = const VerificationMeta(
+    'paradasJson',
+  );
+  @override
+  late final GeneratedColumn<String> paradasJson = GeneratedColumn<String>(
+    'paradas_json',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _distanciaTotalKmMeta = const VerificationMeta(
-    'distanciaTotalKm',
+  static const VerificationMeta _distanciaMetrosMeta = const VerificationMeta(
+    'distanciaMetros',
   );
   @override
-  late final GeneratedColumn<double> distanciaTotalKm = GeneratedColumn<double>(
-    'distancia_total_km',
+  late final GeneratedColumn<double> distanciaMetros = GeneratedColumn<double>(
+    'distancia_metros',
     aliasedName,
     true,
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _tiempoTotalSegundosMeta =
-      const VerificationMeta('tiempoTotalSegundos');
+  static const VerificationMeta _duracionSegundosMeta = const VerificationMeta(
+    'duracionSegundos',
+  );
   @override
-  late final GeneratedColumn<double> tiempoTotalSegundos =
-      GeneratedColumn<double>(
-        'tiempo_total_segundos',
+  late final GeneratedColumn<double> duracionSegundos = GeneratedColumn<double>(
+    'duracion_segundos',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _distanciasPorTramoMetrosMeta =
+      const VerificationMeta('distanciasPorTramoMetros');
+  @override
+  late final GeneratedColumn<String> distanciasPorTramoMetros =
+      GeneratedColumn<String>(
+        'distancias_por_tramo_metros',
         aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
       );
   static const VerificationMeta _geometriaPolylineMeta = const VerificationMeta(
     'geometriaPolyline',
@@ -2043,21 +1868,26 @@ class $RutaResultadoTableTable extends RutaResultadoTable
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    escenarioId,
-    vehiculoId,
-    secuenciaParadas,
-    distanciaTotalKm,
-    tiempoTotalSegundos,
+    historialId,
+    orden,
+    vehiculoNombre,
+    vehiculoCapacidadMaxima,
+    vehiculoCostoEstimadoPorKm,
+    vehiculoTipoFlota,
+    paradasJson,
+    distanciaMetros,
+    duracionSegundos,
+    distanciasPorTramoMetros,
     geometriaPolyline,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'ruta_resultado';
+  static const String $name = 'historial_ruta';
   @override
   VerificationContext validateIntegrity(
-    Insertable<RutaResultadoTableData> instance, {
+    Insertable<HistorialRutaTableData> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -2065,53 +1895,100 @@ class $RutaResultadoTableTable extends RutaResultadoTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('escenario_id')) {
+    if (data.containsKey('historial_id')) {
       context.handle(
-        _escenarioIdMeta,
-        escenarioId.isAcceptableOrUnknown(
-          data['escenario_id']!,
-          _escenarioIdMeta,
+        _historialIdMeta,
+        historialId.isAcceptableOrUnknown(
+          data['historial_id']!,
+          _historialIdMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_escenarioIdMeta);
+      context.missing(_historialIdMeta);
     }
-    if (data.containsKey('vehiculo_id')) {
+    if (data.containsKey('orden')) {
       context.handle(
-        _vehiculoIdMeta,
-        vehiculoId.isAcceptableOrUnknown(data['vehiculo_id']!, _vehiculoIdMeta),
+        _ordenMeta,
+        orden.isAcceptableOrUnknown(data['orden']!, _ordenMeta),
       );
     } else if (isInserting) {
-      context.missing(_vehiculoIdMeta);
+      context.missing(_ordenMeta);
     }
-    if (data.containsKey('secuencia_paradas')) {
+    if (data.containsKey('vehiculo_nombre')) {
       context.handle(
-        _secuenciaParadasMeta,
-        secuenciaParadas.isAcceptableOrUnknown(
-          data['secuencia_paradas']!,
-          _secuenciaParadasMeta,
+        _vehiculoNombreMeta,
+        vehiculoNombre.isAcceptableOrUnknown(
+          data['vehiculo_nombre']!,
+          _vehiculoNombreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehiculo_capacidad_maxima')) {
+      context.handle(
+        _vehiculoCapacidadMaximaMeta,
+        vehiculoCapacidadMaxima.isAcceptableOrUnknown(
+          data['vehiculo_capacidad_maxima']!,
+          _vehiculoCapacidadMaximaMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehiculo_costo_estimado_por_km')) {
+      context.handle(
+        _vehiculoCostoEstimadoPorKmMeta,
+        vehiculoCostoEstimadoPorKm.isAcceptableOrUnknown(
+          data['vehiculo_costo_estimado_por_km']!,
+          _vehiculoCostoEstimadoPorKmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehiculo_tipo_flota')) {
+      context.handle(
+        _vehiculoTipoFlotaMeta,
+        vehiculoTipoFlota.isAcceptableOrUnknown(
+          data['vehiculo_tipo_flota']!,
+          _vehiculoTipoFlotaMeta,
+        ),
+      );
+    }
+    if (data.containsKey('paradas_json')) {
+      context.handle(
+        _paradasJsonMeta,
+        paradasJson.isAcceptableOrUnknown(
+          data['paradas_json']!,
+          _paradasJsonMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_secuenciaParadasMeta);
+      context.missing(_paradasJsonMeta);
     }
-    if (data.containsKey('distancia_total_km')) {
+    if (data.containsKey('distancia_metros')) {
       context.handle(
-        _distanciaTotalKmMeta,
-        distanciaTotalKm.isAcceptableOrUnknown(
-          data['distancia_total_km']!,
-          _distanciaTotalKmMeta,
+        _distanciaMetrosMeta,
+        distanciaMetros.isAcceptableOrUnknown(
+          data['distancia_metros']!,
+          _distanciaMetrosMeta,
         ),
       );
     }
-    if (data.containsKey('tiempo_total_segundos')) {
+    if (data.containsKey('duracion_segundos')) {
       context.handle(
-        _tiempoTotalSegundosMeta,
-        tiempoTotalSegundos.isAcceptableOrUnknown(
-          data['tiempo_total_segundos']!,
-          _tiempoTotalSegundosMeta,
+        _duracionSegundosMeta,
+        duracionSegundos.isAcceptableOrUnknown(
+          data['duracion_segundos']!,
+          _duracionSegundosMeta,
         ),
       );
+    }
+    if (data.containsKey('distancias_por_tramo_metros')) {
+      context.handle(
+        _distanciasPorTramoMetrosMeta,
+        distanciasPorTramoMetros.isAcceptableOrUnknown(
+          data['distancias_por_tramo_metros']!,
+          _distanciasPorTramoMetrosMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_distanciasPorTramoMetrosMeta);
     }
     if (data.containsKey('geometria_polyline')) {
       context.handle(
@@ -2128,33 +2005,53 @@ class $RutaResultadoTableTable extends RutaResultadoTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  RutaResultadoTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  HistorialRutaTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return RutaResultadoTableData(
+    return HistorialRutaTableData(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      escenarioId: attachedDatabase.typeMapping.read(
+      historialId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}escenario_id'],
+        data['${effectivePrefix}historial_id'],
       )!,
-      vehiculoId: attachedDatabase.typeMapping.read(
+      orden: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}vehiculo_id'],
+        data['${effectivePrefix}orden'],
       )!,
-      secuenciaParadas: attachedDatabase.typeMapping.read(
+      vehiculoNombre: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}secuencia_paradas'],
+        data['${effectivePrefix}vehiculo_nombre'],
+      ),
+      vehiculoCapacidadMaxima: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}vehiculo_capacidad_maxima'],
+      ),
+      vehiculoCostoEstimadoPorKm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}vehiculo_costo_estimado_por_km'],
+      ),
+      vehiculoTipoFlota: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehiculo_tipo_flota'],
+      ),
+      paradasJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}paradas_json'],
       )!,
-      distanciaTotalKm: attachedDatabase.typeMapping.read(
+      distanciaMetros: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}distancia_total_km'],
+        data['${effectivePrefix}distancia_metros'],
       ),
-      tiempoTotalSegundos: attachedDatabase.typeMapping.read(
+      duracionSegundos: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}tiempo_total_segundos'],
+        data['${effectivePrefix}duracion_segundos'],
       ),
+      distanciasPorTramoMetros: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}distancias_por_tramo_metros'],
+      )!,
       geometriaPolyline: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}geometria_polyline'],
@@ -2163,79 +2060,133 @@ class $RutaResultadoTableTable extends RutaResultadoTable
   }
 
   @override
-  $RutaResultadoTableTable createAlias(String alias) {
-    return $RutaResultadoTableTable(attachedDatabase, alias);
+  $HistorialRutaTableTable createAlias(String alias) {
+    return $HistorialRutaTableTable(attachedDatabase, alias);
   }
 }
 
-class RutaResultadoTableData extends DataClass
-    implements Insertable<RutaResultadoTableData> {
+class HistorialRutaTableData extends DataClass
+    implements Insertable<HistorialRutaTableData> {
   final int id;
-  final int escenarioId;
-  final int vehiculoId;
-  final String secuenciaParadas;
-  final double? distanciaTotalKm;
-  final double? tiempoTotalSegundos;
+  final int historialId;
+  final int orden;
+  final String? vehiculoNombre;
+  final double? vehiculoCapacidadMaxima;
+  final double? vehiculoCostoEstimadoPorKm;
+  final String? vehiculoTipoFlota;
+  final String paradasJson;
+  final double? distanciaMetros;
+  final double? duracionSegundos;
+  final String distanciasPorTramoMetros;
   final String? geometriaPolyline;
-  const RutaResultadoTableData({
+  const HistorialRutaTableData({
     required this.id,
-    required this.escenarioId,
-    required this.vehiculoId,
-    required this.secuenciaParadas,
-    this.distanciaTotalKm,
-    this.tiempoTotalSegundos,
+    required this.historialId,
+    required this.orden,
+    this.vehiculoNombre,
+    this.vehiculoCapacidadMaxima,
+    this.vehiculoCostoEstimadoPorKm,
+    this.vehiculoTipoFlota,
+    required this.paradasJson,
+    this.distanciaMetros,
+    this.duracionSegundos,
+    required this.distanciasPorTramoMetros,
     this.geometriaPolyline,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['escenario_id'] = Variable<int>(escenarioId);
-    map['vehiculo_id'] = Variable<int>(vehiculoId);
-    map['secuencia_paradas'] = Variable<String>(secuenciaParadas);
-    if (!nullToAbsent || distanciaTotalKm != null) {
-      map['distancia_total_km'] = Variable<double>(distanciaTotalKm);
+    map['historial_id'] = Variable<int>(historialId);
+    map['orden'] = Variable<int>(orden);
+    if (!nullToAbsent || vehiculoNombre != null) {
+      map['vehiculo_nombre'] = Variable<String>(vehiculoNombre);
     }
-    if (!nullToAbsent || tiempoTotalSegundos != null) {
-      map['tiempo_total_segundos'] = Variable<double>(tiempoTotalSegundos);
+    if (!nullToAbsent || vehiculoCapacidadMaxima != null) {
+      map['vehiculo_capacidad_maxima'] = Variable<double>(
+        vehiculoCapacidadMaxima,
+      );
     }
+    if (!nullToAbsent || vehiculoCostoEstimadoPorKm != null) {
+      map['vehiculo_costo_estimado_por_km'] = Variable<double>(
+        vehiculoCostoEstimadoPorKm,
+      );
+    }
+    if (!nullToAbsent || vehiculoTipoFlota != null) {
+      map['vehiculo_tipo_flota'] = Variable<String>(vehiculoTipoFlota);
+    }
+    map['paradas_json'] = Variable<String>(paradasJson);
+    if (!nullToAbsent || distanciaMetros != null) {
+      map['distancia_metros'] = Variable<double>(distanciaMetros);
+    }
+    if (!nullToAbsent || duracionSegundos != null) {
+      map['duracion_segundos'] = Variable<double>(duracionSegundos);
+    }
+    map['distancias_por_tramo_metros'] = Variable<String>(
+      distanciasPorTramoMetros,
+    );
     if (!nullToAbsent || geometriaPolyline != null) {
       map['geometria_polyline'] = Variable<String>(geometriaPolyline);
     }
     return map;
   }
 
-  RutaResultadoTableCompanion toCompanion(bool nullToAbsent) {
-    return RutaResultadoTableCompanion(
+  HistorialRutaTableCompanion toCompanion(bool nullToAbsent) {
+    return HistorialRutaTableCompanion(
       id: Value(id),
-      escenarioId: Value(escenarioId),
-      vehiculoId: Value(vehiculoId),
-      secuenciaParadas: Value(secuenciaParadas),
-      distanciaTotalKm: distanciaTotalKm == null && nullToAbsent
+      historialId: Value(historialId),
+      orden: Value(orden),
+      vehiculoNombre: vehiculoNombre == null && nullToAbsent
           ? const Value.absent()
-          : Value(distanciaTotalKm),
-      tiempoTotalSegundos: tiempoTotalSegundos == null && nullToAbsent
+          : Value(vehiculoNombre),
+      vehiculoCapacidadMaxima: vehiculoCapacidadMaxima == null && nullToAbsent
           ? const Value.absent()
-          : Value(tiempoTotalSegundos),
+          : Value(vehiculoCapacidadMaxima),
+      vehiculoCostoEstimadoPorKm:
+          vehiculoCostoEstimadoPorKm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vehiculoCostoEstimadoPorKm),
+      vehiculoTipoFlota: vehiculoTipoFlota == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vehiculoTipoFlota),
+      paradasJson: Value(paradasJson),
+      distanciaMetros: distanciaMetros == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distanciaMetros),
+      duracionSegundos: duracionSegundos == null && nullToAbsent
+          ? const Value.absent()
+          : Value(duracionSegundos),
+      distanciasPorTramoMetros: Value(distanciasPorTramoMetros),
       geometriaPolyline: geometriaPolyline == null && nullToAbsent
           ? const Value.absent()
           : Value(geometriaPolyline),
     );
   }
 
-  factory RutaResultadoTableData.fromJson(
+  factory HistorialRutaTableData.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return RutaResultadoTableData(
+    return HistorialRutaTableData(
       id: serializer.fromJson<int>(json['id']),
-      escenarioId: serializer.fromJson<int>(json['escenarioId']),
-      vehiculoId: serializer.fromJson<int>(json['vehiculoId']),
-      secuenciaParadas: serializer.fromJson<String>(json['secuenciaParadas']),
-      distanciaTotalKm: serializer.fromJson<double?>(json['distanciaTotalKm']),
-      tiempoTotalSegundos: serializer.fromJson<double?>(
-        json['tiempoTotalSegundos'],
+      historialId: serializer.fromJson<int>(json['historialId']),
+      orden: serializer.fromJson<int>(json['orden']),
+      vehiculoNombre: serializer.fromJson<String?>(json['vehiculoNombre']),
+      vehiculoCapacidadMaxima: serializer.fromJson<double?>(
+        json['vehiculoCapacidadMaxima'],
+      ),
+      vehiculoCostoEstimadoPorKm: serializer.fromJson<double?>(
+        json['vehiculoCostoEstimadoPorKm'],
+      ),
+      vehiculoTipoFlota: serializer.fromJson<String?>(
+        json['vehiculoTipoFlota'],
+      ),
+      paradasJson: serializer.fromJson<String>(json['paradasJson']),
+      distanciaMetros: serializer.fromJson<double?>(json['distanciaMetros']),
+      duracionSegundos: serializer.fromJson<double?>(json['duracionSegundos']),
+      distanciasPorTramoMetros: serializer.fromJson<String>(
+        json['distanciasPorTramoMetros'],
       ),
       geometriaPolyline: serializer.fromJson<String?>(
         json['geometriaPolyline'],
@@ -2247,56 +2198,99 @@ class RutaResultadoTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'escenarioId': serializer.toJson<int>(escenarioId),
-      'vehiculoId': serializer.toJson<int>(vehiculoId),
-      'secuenciaParadas': serializer.toJson<String>(secuenciaParadas),
-      'distanciaTotalKm': serializer.toJson<double?>(distanciaTotalKm),
-      'tiempoTotalSegundos': serializer.toJson<double?>(tiempoTotalSegundos),
+      'historialId': serializer.toJson<int>(historialId),
+      'orden': serializer.toJson<int>(orden),
+      'vehiculoNombre': serializer.toJson<String?>(vehiculoNombre),
+      'vehiculoCapacidadMaxima': serializer.toJson<double?>(
+        vehiculoCapacidadMaxima,
+      ),
+      'vehiculoCostoEstimadoPorKm': serializer.toJson<double?>(
+        vehiculoCostoEstimadoPorKm,
+      ),
+      'vehiculoTipoFlota': serializer.toJson<String?>(vehiculoTipoFlota),
+      'paradasJson': serializer.toJson<String>(paradasJson),
+      'distanciaMetros': serializer.toJson<double?>(distanciaMetros),
+      'duracionSegundos': serializer.toJson<double?>(duracionSegundos),
+      'distanciasPorTramoMetros': serializer.toJson<String>(
+        distanciasPorTramoMetros,
+      ),
       'geometriaPolyline': serializer.toJson<String?>(geometriaPolyline),
     };
   }
 
-  RutaResultadoTableData copyWith({
+  HistorialRutaTableData copyWith({
     int? id,
-    int? escenarioId,
-    int? vehiculoId,
-    String? secuenciaParadas,
-    Value<double?> distanciaTotalKm = const Value.absent(),
-    Value<double?> tiempoTotalSegundos = const Value.absent(),
+    int? historialId,
+    int? orden,
+    Value<String?> vehiculoNombre = const Value.absent(),
+    Value<double?> vehiculoCapacidadMaxima = const Value.absent(),
+    Value<double?> vehiculoCostoEstimadoPorKm = const Value.absent(),
+    Value<String?> vehiculoTipoFlota = const Value.absent(),
+    String? paradasJson,
+    Value<double?> distanciaMetros = const Value.absent(),
+    Value<double?> duracionSegundos = const Value.absent(),
+    String? distanciasPorTramoMetros,
     Value<String?> geometriaPolyline = const Value.absent(),
-  }) => RutaResultadoTableData(
+  }) => HistorialRutaTableData(
     id: id ?? this.id,
-    escenarioId: escenarioId ?? this.escenarioId,
-    vehiculoId: vehiculoId ?? this.vehiculoId,
-    secuenciaParadas: secuenciaParadas ?? this.secuenciaParadas,
-    distanciaTotalKm: distanciaTotalKm.present
-        ? distanciaTotalKm.value
-        : this.distanciaTotalKm,
-    tiempoTotalSegundos: tiempoTotalSegundos.present
-        ? tiempoTotalSegundos.value
-        : this.tiempoTotalSegundos,
+    historialId: historialId ?? this.historialId,
+    orden: orden ?? this.orden,
+    vehiculoNombre: vehiculoNombre.present
+        ? vehiculoNombre.value
+        : this.vehiculoNombre,
+    vehiculoCapacidadMaxima: vehiculoCapacidadMaxima.present
+        ? vehiculoCapacidadMaxima.value
+        : this.vehiculoCapacidadMaxima,
+    vehiculoCostoEstimadoPorKm: vehiculoCostoEstimadoPorKm.present
+        ? vehiculoCostoEstimadoPorKm.value
+        : this.vehiculoCostoEstimadoPorKm,
+    vehiculoTipoFlota: vehiculoTipoFlota.present
+        ? vehiculoTipoFlota.value
+        : this.vehiculoTipoFlota,
+    paradasJson: paradasJson ?? this.paradasJson,
+    distanciaMetros: distanciaMetros.present
+        ? distanciaMetros.value
+        : this.distanciaMetros,
+    duracionSegundos: duracionSegundos.present
+        ? duracionSegundos.value
+        : this.duracionSegundos,
+    distanciasPorTramoMetros:
+        distanciasPorTramoMetros ?? this.distanciasPorTramoMetros,
     geometriaPolyline: geometriaPolyline.present
         ? geometriaPolyline.value
         : this.geometriaPolyline,
   );
-  RutaResultadoTableData copyWithCompanion(RutaResultadoTableCompanion data) {
-    return RutaResultadoTableData(
+  HistorialRutaTableData copyWithCompanion(HistorialRutaTableCompanion data) {
+    return HistorialRutaTableData(
       id: data.id.present ? data.id.value : this.id,
-      escenarioId: data.escenarioId.present
-          ? data.escenarioId.value
-          : this.escenarioId,
-      vehiculoId: data.vehiculoId.present
-          ? data.vehiculoId.value
-          : this.vehiculoId,
-      secuenciaParadas: data.secuenciaParadas.present
-          ? data.secuenciaParadas.value
-          : this.secuenciaParadas,
-      distanciaTotalKm: data.distanciaTotalKm.present
-          ? data.distanciaTotalKm.value
-          : this.distanciaTotalKm,
-      tiempoTotalSegundos: data.tiempoTotalSegundos.present
-          ? data.tiempoTotalSegundos.value
-          : this.tiempoTotalSegundos,
+      historialId: data.historialId.present
+          ? data.historialId.value
+          : this.historialId,
+      orden: data.orden.present ? data.orden.value : this.orden,
+      vehiculoNombre: data.vehiculoNombre.present
+          ? data.vehiculoNombre.value
+          : this.vehiculoNombre,
+      vehiculoCapacidadMaxima: data.vehiculoCapacidadMaxima.present
+          ? data.vehiculoCapacidadMaxima.value
+          : this.vehiculoCapacidadMaxima,
+      vehiculoCostoEstimadoPorKm: data.vehiculoCostoEstimadoPorKm.present
+          ? data.vehiculoCostoEstimadoPorKm.value
+          : this.vehiculoCostoEstimadoPorKm,
+      vehiculoTipoFlota: data.vehiculoTipoFlota.present
+          ? data.vehiculoTipoFlota.value
+          : this.vehiculoTipoFlota,
+      paradasJson: data.paradasJson.present
+          ? data.paradasJson.value
+          : this.paradasJson,
+      distanciaMetros: data.distanciaMetros.present
+          ? data.distanciaMetros.value
+          : this.distanciaMetros,
+      duracionSegundos: data.duracionSegundos.present
+          ? data.duracionSegundos.value
+          : this.duracionSegundos,
+      distanciasPorTramoMetros: data.distanciasPorTramoMetros.present
+          ? data.distanciasPorTramoMetros.value
+          : this.distanciasPorTramoMetros,
       geometriaPolyline: data.geometriaPolyline.present
           ? data.geometriaPolyline.value
           : this.geometriaPolyline,
@@ -2305,13 +2299,18 @@ class RutaResultadoTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('RutaResultadoTableData(')
+    return (StringBuffer('HistorialRutaTableData(')
           ..write('id: $id, ')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('vehiculoId: $vehiculoId, ')
-          ..write('secuenciaParadas: $secuenciaParadas, ')
-          ..write('distanciaTotalKm: $distanciaTotalKm, ')
-          ..write('tiempoTotalSegundos: $tiempoTotalSegundos, ')
+          ..write('historialId: $historialId, ')
+          ..write('orden: $orden, ')
+          ..write('vehiculoNombre: $vehiculoNombre, ')
+          ..write('vehiculoCapacidadMaxima: $vehiculoCapacidadMaxima, ')
+          ..write('vehiculoCostoEstimadoPorKm: $vehiculoCostoEstimadoPorKm, ')
+          ..write('vehiculoTipoFlota: $vehiculoTipoFlota, ')
+          ..write('paradasJson: $paradasJson, ')
+          ..write('distanciaMetros: $distanciaMetros, ')
+          ..write('duracionSegundos: $duracionSegundos, ')
+          ..write('distanciasPorTramoMetros: $distanciasPorTramoMetros, ')
           ..write('geometriaPolyline: $geometriaPolyline')
           ..write(')'))
         .toString();
@@ -2320,92 +2319,143 @@ class RutaResultadoTableData extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
-    escenarioId,
-    vehiculoId,
-    secuenciaParadas,
-    distanciaTotalKm,
-    tiempoTotalSegundos,
+    historialId,
+    orden,
+    vehiculoNombre,
+    vehiculoCapacidadMaxima,
+    vehiculoCostoEstimadoPorKm,
+    vehiculoTipoFlota,
+    paradasJson,
+    distanciaMetros,
+    duracionSegundos,
+    distanciasPorTramoMetros,
     geometriaPolyline,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is RutaResultadoTableData &&
+      (other is HistorialRutaTableData &&
           other.id == this.id &&
-          other.escenarioId == this.escenarioId &&
-          other.vehiculoId == this.vehiculoId &&
-          other.secuenciaParadas == this.secuenciaParadas &&
-          other.distanciaTotalKm == this.distanciaTotalKm &&
-          other.tiempoTotalSegundos == this.tiempoTotalSegundos &&
+          other.historialId == this.historialId &&
+          other.orden == this.orden &&
+          other.vehiculoNombre == this.vehiculoNombre &&
+          other.vehiculoCapacidadMaxima == this.vehiculoCapacidadMaxima &&
+          other.vehiculoCostoEstimadoPorKm == this.vehiculoCostoEstimadoPorKm &&
+          other.vehiculoTipoFlota == this.vehiculoTipoFlota &&
+          other.paradasJson == this.paradasJson &&
+          other.distanciaMetros == this.distanciaMetros &&
+          other.duracionSegundos == this.duracionSegundos &&
+          other.distanciasPorTramoMetros == this.distanciasPorTramoMetros &&
           other.geometriaPolyline == this.geometriaPolyline);
 }
 
-class RutaResultadoTableCompanion
-    extends UpdateCompanion<RutaResultadoTableData> {
+class HistorialRutaTableCompanion
+    extends UpdateCompanion<HistorialRutaTableData> {
   final Value<int> id;
-  final Value<int> escenarioId;
-  final Value<int> vehiculoId;
-  final Value<String> secuenciaParadas;
-  final Value<double?> distanciaTotalKm;
-  final Value<double?> tiempoTotalSegundos;
+  final Value<int> historialId;
+  final Value<int> orden;
+  final Value<String?> vehiculoNombre;
+  final Value<double?> vehiculoCapacidadMaxima;
+  final Value<double?> vehiculoCostoEstimadoPorKm;
+  final Value<String?> vehiculoTipoFlota;
+  final Value<String> paradasJson;
+  final Value<double?> distanciaMetros;
+  final Value<double?> duracionSegundos;
+  final Value<String> distanciasPorTramoMetros;
   final Value<String?> geometriaPolyline;
-  const RutaResultadoTableCompanion({
+  const HistorialRutaTableCompanion({
     this.id = const Value.absent(),
-    this.escenarioId = const Value.absent(),
-    this.vehiculoId = const Value.absent(),
-    this.secuenciaParadas = const Value.absent(),
-    this.distanciaTotalKm = const Value.absent(),
-    this.tiempoTotalSegundos = const Value.absent(),
+    this.historialId = const Value.absent(),
+    this.orden = const Value.absent(),
+    this.vehiculoNombre = const Value.absent(),
+    this.vehiculoCapacidadMaxima = const Value.absent(),
+    this.vehiculoCostoEstimadoPorKm = const Value.absent(),
+    this.vehiculoTipoFlota = const Value.absent(),
+    this.paradasJson = const Value.absent(),
+    this.distanciaMetros = const Value.absent(),
+    this.duracionSegundos = const Value.absent(),
+    this.distanciasPorTramoMetros = const Value.absent(),
     this.geometriaPolyline = const Value.absent(),
   });
-  RutaResultadoTableCompanion.insert({
+  HistorialRutaTableCompanion.insert({
     this.id = const Value.absent(),
-    required int escenarioId,
-    required int vehiculoId,
-    required String secuenciaParadas,
-    this.distanciaTotalKm = const Value.absent(),
-    this.tiempoTotalSegundos = const Value.absent(),
+    required int historialId,
+    required int orden,
+    this.vehiculoNombre = const Value.absent(),
+    this.vehiculoCapacidadMaxima = const Value.absent(),
+    this.vehiculoCostoEstimadoPorKm = const Value.absent(),
+    this.vehiculoTipoFlota = const Value.absent(),
+    required String paradasJson,
+    this.distanciaMetros = const Value.absent(),
+    this.duracionSegundos = const Value.absent(),
+    required String distanciasPorTramoMetros,
     this.geometriaPolyline = const Value.absent(),
-  }) : escenarioId = Value(escenarioId),
-       vehiculoId = Value(vehiculoId),
-       secuenciaParadas = Value(secuenciaParadas);
-  static Insertable<RutaResultadoTableData> custom({
+  }) : historialId = Value(historialId),
+       orden = Value(orden),
+       paradasJson = Value(paradasJson),
+       distanciasPorTramoMetros = Value(distanciasPorTramoMetros);
+  static Insertable<HistorialRutaTableData> custom({
     Expression<int>? id,
-    Expression<int>? escenarioId,
-    Expression<int>? vehiculoId,
-    Expression<String>? secuenciaParadas,
-    Expression<double>? distanciaTotalKm,
-    Expression<double>? tiempoTotalSegundos,
+    Expression<int>? historialId,
+    Expression<int>? orden,
+    Expression<String>? vehiculoNombre,
+    Expression<double>? vehiculoCapacidadMaxima,
+    Expression<double>? vehiculoCostoEstimadoPorKm,
+    Expression<String>? vehiculoTipoFlota,
+    Expression<String>? paradasJson,
+    Expression<double>? distanciaMetros,
+    Expression<double>? duracionSegundos,
+    Expression<String>? distanciasPorTramoMetros,
     Expression<String>? geometriaPolyline,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (escenarioId != null) 'escenario_id': escenarioId,
-      if (vehiculoId != null) 'vehiculo_id': vehiculoId,
-      if (secuenciaParadas != null) 'secuencia_paradas': secuenciaParadas,
-      if (distanciaTotalKm != null) 'distancia_total_km': distanciaTotalKm,
-      if (tiempoTotalSegundos != null)
-        'tiempo_total_segundos': tiempoTotalSegundos,
+      if (historialId != null) 'historial_id': historialId,
+      if (orden != null) 'orden': orden,
+      if (vehiculoNombre != null) 'vehiculo_nombre': vehiculoNombre,
+      if (vehiculoCapacidadMaxima != null)
+        'vehiculo_capacidad_maxima': vehiculoCapacidadMaxima,
+      if (vehiculoCostoEstimadoPorKm != null)
+        'vehiculo_costo_estimado_por_km': vehiculoCostoEstimadoPorKm,
+      if (vehiculoTipoFlota != null) 'vehiculo_tipo_flota': vehiculoTipoFlota,
+      if (paradasJson != null) 'paradas_json': paradasJson,
+      if (distanciaMetros != null) 'distancia_metros': distanciaMetros,
+      if (duracionSegundos != null) 'duracion_segundos': duracionSegundos,
+      if (distanciasPorTramoMetros != null)
+        'distancias_por_tramo_metros': distanciasPorTramoMetros,
       if (geometriaPolyline != null) 'geometria_polyline': geometriaPolyline,
     });
   }
 
-  RutaResultadoTableCompanion copyWith({
+  HistorialRutaTableCompanion copyWith({
     Value<int>? id,
-    Value<int>? escenarioId,
-    Value<int>? vehiculoId,
-    Value<String>? secuenciaParadas,
-    Value<double?>? distanciaTotalKm,
-    Value<double?>? tiempoTotalSegundos,
+    Value<int>? historialId,
+    Value<int>? orden,
+    Value<String?>? vehiculoNombre,
+    Value<double?>? vehiculoCapacidadMaxima,
+    Value<double?>? vehiculoCostoEstimadoPorKm,
+    Value<String?>? vehiculoTipoFlota,
+    Value<String>? paradasJson,
+    Value<double?>? distanciaMetros,
+    Value<double?>? duracionSegundos,
+    Value<String>? distanciasPorTramoMetros,
     Value<String?>? geometriaPolyline,
   }) {
-    return RutaResultadoTableCompanion(
+    return HistorialRutaTableCompanion(
       id: id ?? this.id,
-      escenarioId: escenarioId ?? this.escenarioId,
-      vehiculoId: vehiculoId ?? this.vehiculoId,
-      secuenciaParadas: secuenciaParadas ?? this.secuenciaParadas,
-      distanciaTotalKm: distanciaTotalKm ?? this.distanciaTotalKm,
-      tiempoTotalSegundos: tiempoTotalSegundos ?? this.tiempoTotalSegundos,
+      historialId: historialId ?? this.historialId,
+      orden: orden ?? this.orden,
+      vehiculoNombre: vehiculoNombre ?? this.vehiculoNombre,
+      vehiculoCapacidadMaxima:
+          vehiculoCapacidadMaxima ?? this.vehiculoCapacidadMaxima,
+      vehiculoCostoEstimadoPorKm:
+          vehiculoCostoEstimadoPorKm ?? this.vehiculoCostoEstimadoPorKm,
+      vehiculoTipoFlota: vehiculoTipoFlota ?? this.vehiculoTipoFlota,
+      paradasJson: paradasJson ?? this.paradasJson,
+      distanciaMetros: distanciaMetros ?? this.distanciaMetros,
+      duracionSegundos: duracionSegundos ?? this.duracionSegundos,
+      distanciasPorTramoMetros:
+          distanciasPorTramoMetros ?? this.distanciasPorTramoMetros,
       geometriaPolyline: geometriaPolyline ?? this.geometriaPolyline,
     );
   }
@@ -2416,21 +2466,40 @@ class RutaResultadoTableCompanion
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (escenarioId.present) {
-      map['escenario_id'] = Variable<int>(escenarioId.value);
+    if (historialId.present) {
+      map['historial_id'] = Variable<int>(historialId.value);
     }
-    if (vehiculoId.present) {
-      map['vehiculo_id'] = Variable<int>(vehiculoId.value);
+    if (orden.present) {
+      map['orden'] = Variable<int>(orden.value);
     }
-    if (secuenciaParadas.present) {
-      map['secuencia_paradas'] = Variable<String>(secuenciaParadas.value);
+    if (vehiculoNombre.present) {
+      map['vehiculo_nombre'] = Variable<String>(vehiculoNombre.value);
     }
-    if (distanciaTotalKm.present) {
-      map['distancia_total_km'] = Variable<double>(distanciaTotalKm.value);
+    if (vehiculoCapacidadMaxima.present) {
+      map['vehiculo_capacidad_maxima'] = Variable<double>(
+        vehiculoCapacidadMaxima.value,
+      );
     }
-    if (tiempoTotalSegundos.present) {
-      map['tiempo_total_segundos'] = Variable<double>(
-        tiempoTotalSegundos.value,
+    if (vehiculoCostoEstimadoPorKm.present) {
+      map['vehiculo_costo_estimado_por_km'] = Variable<double>(
+        vehiculoCostoEstimadoPorKm.value,
+      );
+    }
+    if (vehiculoTipoFlota.present) {
+      map['vehiculo_tipo_flota'] = Variable<String>(vehiculoTipoFlota.value);
+    }
+    if (paradasJson.present) {
+      map['paradas_json'] = Variable<String>(paradasJson.value);
+    }
+    if (distanciaMetros.present) {
+      map['distancia_metros'] = Variable<double>(distanciaMetros.value);
+    }
+    if (duracionSegundos.present) {
+      map['duracion_segundos'] = Variable<double>(duracionSegundos.value);
+    }
+    if (distanciasPorTramoMetros.present) {
+      map['distancias_por_tramo_metros'] = Variable<String>(
+        distanciasPorTramoMetros.value,
       );
     }
     if (geometriaPolyline.present) {
@@ -2441,13 +2510,18 @@ class RutaResultadoTableCompanion
 
   @override
   String toString() {
-    return (StringBuffer('RutaResultadoTableCompanion(')
+    return (StringBuffer('HistorialRutaTableCompanion(')
           ..write('id: $id, ')
-          ..write('escenarioId: $escenarioId, ')
-          ..write('vehiculoId: $vehiculoId, ')
-          ..write('secuenciaParadas: $secuenciaParadas, ')
-          ..write('distanciaTotalKm: $distanciaTotalKm, ')
-          ..write('tiempoTotalSegundos: $tiempoTotalSegundos, ')
+          ..write('historialId: $historialId, ')
+          ..write('orden: $orden, ')
+          ..write('vehiculoNombre: $vehiculoNombre, ')
+          ..write('vehiculoCapacidadMaxima: $vehiculoCapacidadMaxima, ')
+          ..write('vehiculoCostoEstimadoPorKm: $vehiculoCostoEstimadoPorKm, ')
+          ..write('vehiculoTipoFlota: $vehiculoTipoFlota, ')
+          ..write('paradasJson: $paradasJson, ')
+          ..write('distanciaMetros: $distanciaMetros, ')
+          ..write('duracionSegundos: $duracionSegundos, ')
+          ..write('distanciasPorTramoMetros: $distanciasPorTramoMetros, ')
           ..write('geometriaPolyline: $geometriaPolyline')
           ..write(')'))
         .toString();
@@ -2796,14 +2870,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PuntoEntregaTableTable puntoEntregaTable =
       $PuntoEntregaTableTable(this);
   late final $VehiculoTableTable vehiculoTable = $VehiculoTableTable(this);
-  late final $EscenarioOptimizacionTableTable escenarioOptimizacionTable =
-      $EscenarioOptimizacionTableTable(this);
-  late final $EscenarioPuntoTableTable escenarioPuntoTable =
-      $EscenarioPuntoTableTable(this);
-  late final $EscenarioVehiculoTableTable escenarioVehiculoTable =
-      $EscenarioVehiculoTableTable(this);
-  late final $RutaResultadoTableTable rutaResultadoTable =
-      $RutaResultadoTableTable(this);
+  late final $HistorialCalculoTableTable historialCalculoTable =
+      $HistorialCalculoTableTable(this);
+  late final $HistorialRutaTableTable historialRutaTable =
+      $HistorialRutaTableTable(this);
   late final $CacheOsrmTableTable cacheOsrmTable = $CacheOsrmTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2813,10 +2883,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     depositoTable,
     puntoEntregaTable,
     vehiculoTable,
-    escenarioOptimizacionTable,
-    escenarioPuntoTable,
-    escenarioVehiculoTable,
-    rutaResultadoTable,
+    historialCalculoTable,
+    historialRutaTable,
     cacheOsrmTable,
   ];
 }
@@ -2835,41 +2903,6 @@ typedef $$DepositoTableTableUpdateCompanionBuilder =
       Value<double> latitud,
       Value<double> longitud,
     });
-
-final class $$DepositoTableTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $DepositoTableTable, DepositoTableData> {
-  $$DepositoTableTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static MultiTypedResultKey<
-    $EscenarioOptimizacionTableTable,
-    List<EscenarioOptimizacionTableData>
-  >
-  _escenarioOptimizacionTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.escenarioOptimizacionTable,
-        aliasName: 'deposito__id__escenario_optimizacion__deposito_id',
-      );
-
-  $$EscenarioOptimizacionTableTableProcessedTableManager
-  get escenarioOptimizacionTableRefs {
-    final manager = $$EscenarioOptimizacionTableTableTableManager(
-      $_db,
-      $_db.escenarioOptimizacionTable,
-    ).filter((f) => f.depositoId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _escenarioOptimizacionTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
 
 class $$DepositoTableTableFilterComposer
     extends Composer<_$AppDatabase, $DepositoTableTable> {
@@ -2899,33 +2932,6 @@ class $$DepositoTableTableFilterComposer
     column: $table.longitud,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> escenarioOptimizacionTableRefs(
-    Expression<bool> Function($$EscenarioOptimizacionTableTableFilterComposer f)
-    f,
-  ) {
-    final $$EscenarioOptimizacionTableTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.depositoId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableFilterComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$DepositoTableTableOrderingComposer
@@ -2978,35 +2984,6 @@ class $$DepositoTableTableAnnotationComposer
 
   GeneratedColumn<double> get longitud =>
       $composableBuilder(column: $table.longitud, builder: (column) => column);
-
-  Expression<T> escenarioOptimizacionTableRefs<T extends Object>(
-    Expression<T> Function(
-      $$EscenarioOptimizacionTableTableAnnotationComposer a,
-    )
-    f,
-  ) {
-    final $$EscenarioOptimizacionTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.depositoId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$DepositoTableTableTableManager
@@ -3020,9 +2997,16 @@ class $$DepositoTableTableTableManager
           $$DepositoTableTableAnnotationComposer,
           $$DepositoTableTableCreateCompanionBuilder,
           $$DepositoTableTableUpdateCompanionBuilder,
-          (DepositoTableData, $$DepositoTableTableReferences),
+          (
+            DepositoTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $DepositoTableTable,
+              DepositoTableData
+            >,
+          ),
           DepositoTableData,
-          PrefetchHooks Function({bool escenarioOptimizacionTableRefs})
+          PrefetchHooks Function()
         > {
   $$DepositoTableTableTableManager(_$AppDatabase db, $DepositoTableTable table)
     : super(
@@ -3060,46 +3044,9 @@ class $$DepositoTableTableTableManager
                 longitud: longitud,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$DepositoTableTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({escenarioOptimizacionTableRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (escenarioOptimizacionTableRefs)
-                  db.escenarioOptimizacionTable,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (escenarioOptimizacionTableRefs)
-                    await $_getPrefetchedData<
-                      DepositoTableData,
-                      $DepositoTableTable,
-                      EscenarioOptimizacionTableData
-                    >(
-                      currentTable: table,
-                      referencedTable: $$DepositoTableTableReferences
-                          ._escenarioOptimizacionTableRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$DepositoTableTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).escenarioOptimizacionTableRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.depositoId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -3114,9 +3061,12 @@ typedef $$DepositoTableTableProcessedTableManager =
       $$DepositoTableTableAnnotationComposer,
       $$DepositoTableTableCreateCompanionBuilder,
       $$DepositoTableTableUpdateCompanionBuilder,
-      (DepositoTableData, $$DepositoTableTableReferences),
+      (
+        DepositoTableData,
+        BaseReferences<_$AppDatabase, $DepositoTableTable, DepositoTableData>,
+      ),
       DepositoTableData,
-      PrefetchHooks Function({bool escenarioOptimizacionTableRefs})
+      PrefetchHooks Function()
     >;
 typedef $$PuntoEntregaTableTableCreateCompanionBuilder =
     PuntoEntregaTableCompanion Function({
@@ -3138,44 +3088,6 @@ typedef $$PuntoEntregaTableTableUpdateCompanionBuilder =
       Value<String?> ventanaInicio,
       Value<String?> ventanaFin,
     });
-
-final class $$PuntoEntregaTableTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $PuntoEntregaTableTable,
-          PuntoEntregaTableData
-        > {
-  $$PuntoEntregaTableTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static MultiTypedResultKey<
-    $EscenarioPuntoTableTable,
-    List<EscenarioPuntoTableData>
-  >
-  _escenarioPuntoTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.escenarioPuntoTable,
-        aliasName: 'punto_entrega__id__escenario_punto__punto_entrega_id',
-      );
-
-  $$EscenarioPuntoTableTableProcessedTableManager get escenarioPuntoTableRefs {
-    final manager = $$EscenarioPuntoTableTableTableManager(
-      $_db,
-      $_db.escenarioPuntoTable,
-    ).filter((f) => f.puntoEntregaId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _escenarioPuntoTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
 
 class $$PuntoEntregaTableTableFilterComposer
     extends Composer<_$AppDatabase, $PuntoEntregaTableTable> {
@@ -3220,31 +3132,6 @@ class $$PuntoEntregaTableTableFilterComposer
     column: $table.ventanaFin,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> escenarioPuntoTableRefs(
-    Expression<bool> Function($$EscenarioPuntoTableTableFilterComposer f) f,
-  ) {
-    final $$EscenarioPuntoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.escenarioPuntoTable,
-      getReferencedColumn: (t) => t.puntoEntregaId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$EscenarioPuntoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.escenarioPuntoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$PuntoEntregaTableTableOrderingComposer
@@ -3325,32 +3212,6 @@ class $$PuntoEntregaTableTableAnnotationComposer
     column: $table.ventanaFin,
     builder: (column) => column,
   );
-
-  Expression<T> escenarioPuntoTableRefs<T extends Object>(
-    Expression<T> Function($$EscenarioPuntoTableTableAnnotationComposer a) f,
-  ) {
-    final $$EscenarioPuntoTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioPuntoTable,
-          getReferencedColumn: (t) => t.puntoEntregaId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioPuntoTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioPuntoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$PuntoEntregaTableTableTableManager
@@ -3364,9 +3225,16 @@ class $$PuntoEntregaTableTableTableManager
           $$PuntoEntregaTableTableAnnotationComposer,
           $$PuntoEntregaTableTableCreateCompanionBuilder,
           $$PuntoEntregaTableTableUpdateCompanionBuilder,
-          (PuntoEntregaTableData, $$PuntoEntregaTableTableReferences),
+          (
+            PuntoEntregaTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $PuntoEntregaTableTable,
+              PuntoEntregaTableData
+            >,
+          ),
           PuntoEntregaTableData,
-          PrefetchHooks Function({bool escenarioPuntoTableRefs})
+          PrefetchHooks Function()
         > {
   $$PuntoEntregaTableTableTableManager(
     _$AppDatabase db,
@@ -3421,47 +3289,9 @@ class $$PuntoEntregaTableTableTableManager
                 ventanaFin: ventanaFin,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$PuntoEntregaTableTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({escenarioPuntoTableRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (escenarioPuntoTableRefs) db.escenarioPuntoTable,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (escenarioPuntoTableRefs)
-                    await $_getPrefetchedData<
-                      PuntoEntregaTableData,
-                      $PuntoEntregaTableTable,
-                      EscenarioPuntoTableData
-                    >(
-                      currentTable: table,
-                      referencedTable: $$PuntoEntregaTableTableReferences
-                          ._escenarioPuntoTableRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$PuntoEntregaTableTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).escenarioPuntoTableRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.puntoEntregaId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -3476,9 +3306,16 @@ typedef $$PuntoEntregaTableTableProcessedTableManager =
       $$PuntoEntregaTableTableAnnotationComposer,
       $$PuntoEntregaTableTableCreateCompanionBuilder,
       $$PuntoEntregaTableTableUpdateCompanionBuilder,
-      (PuntoEntregaTableData, $$PuntoEntregaTableTableReferences),
+      (
+        PuntoEntregaTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $PuntoEntregaTableTable,
+          PuntoEntregaTableData
+        >,
+      ),
       PuntoEntregaTableData,
-      PrefetchHooks Function({bool escenarioPuntoTableRefs})
+      PrefetchHooks Function()
     >;
 typedef $$VehiculoTableTableCreateCompanionBuilder =
     VehiculoTableCompanion Function({
@@ -3496,65 +3333,6 @@ typedef $$VehiculoTableTableUpdateCompanionBuilder =
       Value<double?> costoEstimadoPorKm,
       Value<String?> tipoFlota,
     });
-
-final class $$VehiculoTableTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $VehiculoTableTable, VehiculoTableData> {
-  $$VehiculoTableTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static MultiTypedResultKey<
-    $EscenarioVehiculoTableTable,
-    List<EscenarioVehiculoTableData>
-  >
-  _escenarioVehiculoTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.escenarioVehiculoTable,
-        aliasName: 'vehiculo__id__escenario_vehiculo__vehiculo_id',
-      );
-
-  $$EscenarioVehiculoTableTableProcessedTableManager
-  get escenarioVehiculoTableRefs {
-    final manager = $$EscenarioVehiculoTableTableTableManager(
-      $_db,
-      $_db.escenarioVehiculoTable,
-    ).filter((f) => f.vehiculoId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _escenarioVehiculoTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<
-    $RutaResultadoTableTable,
-    List<RutaResultadoTableData>
-  >
-  _rutaResultadoTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.rutaResultadoTable,
-        aliasName: 'vehiculo__id__ruta_resultado__vehiculo_id',
-      );
-
-  $$RutaResultadoTableTableProcessedTableManager get rutaResultadoTableRefs {
-    final manager = $$RutaResultadoTableTableTableManager(
-      $_db,
-      $_db.rutaResultadoTable,
-    ).filter((f) => f.vehiculoId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _rutaResultadoTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
 
 class $$VehiculoTableTableFilterComposer
     extends Composer<_$AppDatabase, $VehiculoTableTable> {
@@ -3589,57 +3367,6 @@ class $$VehiculoTableTableFilterComposer
     column: $table.tipoFlota,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> escenarioVehiculoTableRefs(
-    Expression<bool> Function($$EscenarioVehiculoTableTableFilterComposer f) f,
-  ) {
-    final $$EscenarioVehiculoTableTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioVehiculoTable,
-          getReferencedColumn: (t) => t.vehiculoId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioVehiculoTableTableFilterComposer(
-                $db: $db,
-                $table: $db.escenarioVehiculoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<bool> rutaResultadoTableRefs(
-    Expression<bool> Function($$RutaResultadoTableTableFilterComposer f) f,
-  ) {
-    final $$RutaResultadoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.rutaResultadoTable,
-      getReferencedColumn: (t) => t.vehiculoId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RutaResultadoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.rutaResultadoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$VehiculoTableTableOrderingComposer
@@ -3704,58 +3431,6 @@ class $$VehiculoTableTableAnnotationComposer
 
   GeneratedColumn<String> get tipoFlota =>
       $composableBuilder(column: $table.tipoFlota, builder: (column) => column);
-
-  Expression<T> escenarioVehiculoTableRefs<T extends Object>(
-    Expression<T> Function($$EscenarioVehiculoTableTableAnnotationComposer a) f,
-  ) {
-    final $$EscenarioVehiculoTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioVehiculoTable,
-          getReferencedColumn: (t) => t.vehiculoId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioVehiculoTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioVehiculoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<T> rutaResultadoTableRefs<T extends Object>(
-    Expression<T> Function($$RutaResultadoTableTableAnnotationComposer a) f,
-  ) {
-    final $$RutaResultadoTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.rutaResultadoTable,
-          getReferencedColumn: (t) => t.vehiculoId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$RutaResultadoTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.rutaResultadoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$VehiculoTableTableTableManager
@@ -3769,12 +3444,16 @@ class $$VehiculoTableTableTableManager
           $$VehiculoTableTableAnnotationComposer,
           $$VehiculoTableTableCreateCompanionBuilder,
           $$VehiculoTableTableUpdateCompanionBuilder,
-          (VehiculoTableData, $$VehiculoTableTableReferences),
+          (
+            VehiculoTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $VehiculoTableTable,
+              VehiculoTableData
+            >,
+          ),
           VehiculoTableData,
-          PrefetchHooks Function({
-            bool escenarioVehiculoTableRefs,
-            bool rutaResultadoTableRefs,
-          })
+          PrefetchHooks Function()
         > {
   $$VehiculoTableTableTableManager(_$AppDatabase db, $VehiculoTableTable table)
     : super(
@@ -3816,73 +3495,9 @@ class $$VehiculoTableTableTableManager
                 tipoFlota: tipoFlota,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$VehiculoTableTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback:
-              ({
-                escenarioVehiculoTableRefs = false,
-                rutaResultadoTableRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (escenarioVehiculoTableRefs) db.escenarioVehiculoTable,
-                    if (rutaResultadoTableRefs) db.rutaResultadoTable,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (escenarioVehiculoTableRefs)
-                        await $_getPrefetchedData<
-                          VehiculoTableData,
-                          $VehiculoTableTable,
-                          EscenarioVehiculoTableData
-                        >(
-                          currentTable: table,
-                          referencedTable: $$VehiculoTableTableReferences
-                              ._escenarioVehiculoTableRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$VehiculoTableTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).escenarioVehiculoTableRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.vehiculoId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (rutaResultadoTableRefs)
-                        await $_getPrefetchedData<
-                          VehiculoTableData,
-                          $VehiculoTableTable,
-                          RutaResultadoTableData
-                        >(
-                          currentTable: table,
-                          referencedTable: $$VehiculoTableTableReferences
-                              ._rutaResultadoTableRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$VehiculoTableTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).rutaResultadoTableRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.vehiculoId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -3897,127 +3512,69 @@ typedef $$VehiculoTableTableProcessedTableManager =
       $$VehiculoTableTableAnnotationComposer,
       $$VehiculoTableTableCreateCompanionBuilder,
       $$VehiculoTableTableUpdateCompanionBuilder,
-      (VehiculoTableData, $$VehiculoTableTableReferences),
+      (
+        VehiculoTableData,
+        BaseReferences<_$AppDatabase, $VehiculoTableTable, VehiculoTableData>,
+      ),
       VehiculoTableData,
-      PrefetchHooks Function({
-        bool escenarioVehiculoTableRefs,
-        bool rutaResultadoTableRefs,
-      })
+      PrefetchHooks Function()
     >;
-typedef $$EscenarioOptimizacionTableTableCreateCompanionBuilder =
-    EscenarioOptimizacionTableCompanion Function({
+typedef $$HistorialCalculoTableTableCreateCompanionBuilder =
+    HistorialCalculoTableCompanion Function({
       Value<int> id,
-      required int depositoId,
-      required String fechaCreacion,
-      required String metodoUsado,
+      required String fechaCalculo,
+      required String metodo,
+      required String depositoNombre,
+      required double depositoLatitud,
+      required double depositoLongitud,
+      Value<int> vehiculosFaltantes,
+      Value<double> distanciaTotalMetros,
+      Value<int> cantidadRutas,
     });
-typedef $$EscenarioOptimizacionTableTableUpdateCompanionBuilder =
-    EscenarioOptimizacionTableCompanion Function({
+typedef $$HistorialCalculoTableTableUpdateCompanionBuilder =
+    HistorialCalculoTableCompanion Function({
       Value<int> id,
-      Value<int> depositoId,
-      Value<String> fechaCreacion,
-      Value<String> metodoUsado,
+      Value<String> fechaCalculo,
+      Value<String> metodo,
+      Value<String> depositoNombre,
+      Value<double> depositoLatitud,
+      Value<double> depositoLongitud,
+      Value<int> vehiculosFaltantes,
+      Value<double> distanciaTotalMetros,
+      Value<int> cantidadRutas,
     });
 
-final class $$EscenarioOptimizacionTableTableReferences
+final class $$HistorialCalculoTableTableReferences
     extends
         BaseReferences<
           _$AppDatabase,
-          $EscenarioOptimizacionTableTable,
-          EscenarioOptimizacionTableData
+          $HistorialCalculoTableTable,
+          HistorialCalculoTableData
         > {
-  $$EscenarioOptimizacionTableTableReferences(
+  $$HistorialCalculoTableTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $DepositoTableTable _depositoIdTable(_$AppDatabase db) => db
-      .depositoTable
-      .createAlias('escenario_optimizacion__deposito_id__deposito__id');
-
-  $$DepositoTableTableProcessedTableManager get depositoId {
-    final $_column = $_itemColumn<int>('deposito_id')!;
-
-    final manager = $$DepositoTableTableTableManager(
-      $_db,
-      $_db.depositoTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_depositoIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
   static MultiTypedResultKey<
-    $EscenarioPuntoTableTable,
-    List<EscenarioPuntoTableData>
+    $HistorialRutaTableTable,
+    List<HistorialRutaTableData>
   >
-  _escenarioPuntoTableRefsTable(_$AppDatabase db) =>
+  _historialRutaTableRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
-        db.escenarioPuntoTable,
-        aliasName: 'escenario_optimizacion__id__escenario_punto__escenario_id',
+        db.historialRutaTable,
+        aliasName: 'historial_calculo__id__historial_ruta__historial_id',
       );
 
-  $$EscenarioPuntoTableTableProcessedTableManager get escenarioPuntoTableRefs {
-    final manager = $$EscenarioPuntoTableTableTableManager(
+  $$HistorialRutaTableTableProcessedTableManager get historialRutaTableRefs {
+    final manager = $$HistorialRutaTableTableTableManager(
       $_db,
-      $_db.escenarioPuntoTable,
-    ).filter((f) => f.escenarioId.id.sqlEquals($_itemColumn<int>('id')!));
+      $_db.historialRutaTable,
+    ).filter((f) => f.historialId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _escenarioPuntoTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<
-    $EscenarioVehiculoTableTable,
-    List<EscenarioVehiculoTableData>
-  >
-  _escenarioVehiculoTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.escenarioVehiculoTable,
-        aliasName:
-            'escenario_optimizacion__id__escenario_vehiculo__escenario_id',
-      );
-
-  $$EscenarioVehiculoTableTableProcessedTableManager
-  get escenarioVehiculoTableRefs {
-    final manager = $$EscenarioVehiculoTableTableTableManager(
-      $_db,
-      $_db.escenarioVehiculoTable,
-    ).filter((f) => f.escenarioId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _escenarioVehiculoTableRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<
-    $RutaResultadoTableTable,
-    List<RutaResultadoTableData>
-  >
-  _rutaResultadoTableRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.rutaResultadoTable,
-        aliasName: 'escenario_optimizacion__id__ruta_resultado__escenario_id',
-      );
-
-  $$RutaResultadoTableTableProcessedTableManager get rutaResultadoTableRefs {
-    final manager = $$RutaResultadoTableTableTableManager(
-      $_db,
-      $_db.rutaResultadoTable,
-    ).filter((f) => f.escenarioId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _rutaResultadoTableRefsTable($_db),
+      _historialRutaTableRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -4025,9 +3582,9 @@ final class $$EscenarioOptimizacionTableTableReferences
   }
 }
 
-class $$EscenarioOptimizacionTableTableFilterComposer
-    extends Composer<_$AppDatabase, $EscenarioOptimizacionTableTable> {
-  $$EscenarioOptimizacionTableTableFilterComposer({
+class $$HistorialCalculoTableTableFilterComposer
+    extends Composer<_$AppDatabase, $HistorialCalculoTableTable> {
+  $$HistorialCalculoTableTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4039,106 +3596,62 @@ class $$EscenarioOptimizacionTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  ColumnFilters<String> get fechaCalculo => $composableBuilder(
+    column: $table.fechaCalculo,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get metodoUsado => $composableBuilder(
-    column: $table.metodoUsado,
+  ColumnFilters<String> get metodo => $composableBuilder(
+    column: $table.metodo,
     builder: (column) => ColumnFilters(column),
   );
 
-  $$DepositoTableTableFilterComposer get depositoId {
-    final $$DepositoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.depositoId,
-      referencedTable: $db.depositoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DepositoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.depositoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
+  ColumnFilters<String> get depositoNombre => $composableBuilder(
+    column: $table.depositoNombre,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  Expression<bool> escenarioPuntoTableRefs(
-    Expression<bool> Function($$EscenarioPuntoTableTableFilterComposer f) f,
-  ) {
-    final $$EscenarioPuntoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.escenarioPuntoTable,
-      getReferencedColumn: (t) => t.escenarioId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$EscenarioPuntoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.escenarioPuntoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
+  ColumnFilters<double> get depositoLatitud => $composableBuilder(
+    column: $table.depositoLatitud,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  Expression<bool> escenarioVehiculoTableRefs(
-    Expression<bool> Function($$EscenarioVehiculoTableTableFilterComposer f) f,
-  ) {
-    final $$EscenarioVehiculoTableTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioVehiculoTable,
-          getReferencedColumn: (t) => t.escenarioId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioVehiculoTableTableFilterComposer(
-                $db: $db,
-                $table: $db.escenarioVehiculoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
+  ColumnFilters<double> get depositoLongitud => $composableBuilder(
+    column: $table.depositoLongitud,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  Expression<bool> rutaResultadoTableRefs(
-    Expression<bool> Function($$RutaResultadoTableTableFilterComposer f) f,
+  ColumnFilters<int> get vehiculosFaltantes => $composableBuilder(
+    column: $table.vehiculosFaltantes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get distanciaTotalMetros => $composableBuilder(
+    column: $table.distanciaTotalMetros,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get cantidadRutas => $composableBuilder(
+    column: $table.cantidadRutas,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> historialRutaTableRefs(
+    Expression<bool> Function($$HistorialRutaTableTableFilterComposer f) f,
   ) {
-    final $$RutaResultadoTableTableFilterComposer composer = $composerBuilder(
+    final $$HistorialRutaTableTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.rutaResultadoTable,
-      getReferencedColumn: (t) => t.escenarioId,
+      referencedTable: $db.historialRutaTable,
+      getReferencedColumn: (t) => t.historialId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$RutaResultadoTableTableFilterComposer(
+          }) => $$HistorialRutaTableTableFilterComposer(
             $db: $db,
-            $table: $db.rutaResultadoTable,
+            $table: $db.historialRutaTable,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4149,9 +3662,9 @@ class $$EscenarioOptimizacionTableTableFilterComposer
   }
 }
 
-class $$EscenarioOptimizacionTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $EscenarioOptimizacionTableTable> {
-  $$EscenarioOptimizacionTableTableOrderingComposer({
+class $$HistorialCalculoTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $HistorialCalculoTableTable> {
+  $$HistorialCalculoTableTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4163,43 +3676,50 @@ class $$EscenarioOptimizacionTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  ColumnOrderings<String> get fechaCalculo => $composableBuilder(
+    column: $table.fechaCalculo,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get metodoUsado => $composableBuilder(
-    column: $table.metodoUsado,
+  ColumnOrderings<String> get metodo => $composableBuilder(
+    column: $table.metodo,
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$DepositoTableTableOrderingComposer get depositoId {
-    final $$DepositoTableTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.depositoId,
-      referencedTable: $db.depositoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DepositoTableTableOrderingComposer(
-            $db: $db,
-            $table: $db.depositoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
+  ColumnOrderings<String> get depositoNombre => $composableBuilder(
+    column: $table.depositoNombre,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get depositoLatitud => $composableBuilder(
+    column: $table.depositoLatitud,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get depositoLongitud => $composableBuilder(
+    column: $table.depositoLongitud,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vehiculosFaltantes => $composableBuilder(
+    column: $table.vehiculosFaltantes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get distanciaTotalMetros => $composableBuilder(
+    column: $table.distanciaTotalMetros,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get cantidadRutas => $composableBuilder(
+    column: $table.cantidadRutas,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$EscenarioOptimizacionTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $EscenarioOptimizacionTableTable> {
-  $$EscenarioOptimizacionTableTableAnnotationComposer({
+class $$HistorialCalculoTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HistorialCalculoTableTable> {
+  $$HistorialCalculoTableTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -4209,108 +3729,61 @@ class $$EscenarioOptimizacionTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get fechaCreacion => $composableBuilder(
-    column: $table.fechaCreacion,
+  GeneratedColumn<String> get fechaCalculo => $composableBuilder(
+    column: $table.fechaCalculo,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get metodoUsado => $composableBuilder(
-    column: $table.metodoUsado,
+  GeneratedColumn<String> get metodo =>
+      $composableBuilder(column: $table.metodo, builder: (column) => column);
+
+  GeneratedColumn<String> get depositoNombre => $composableBuilder(
+    column: $table.depositoNombre,
     builder: (column) => column,
   );
 
-  $$DepositoTableTableAnnotationComposer get depositoId {
-    final $$DepositoTableTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.depositoId,
-      referencedTable: $db.depositoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DepositoTableTableAnnotationComposer(
-            $db: $db,
-            $table: $db.depositoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
+  GeneratedColumn<double> get depositoLatitud => $composableBuilder(
+    column: $table.depositoLatitud,
+    builder: (column) => column,
+  );
 
-  Expression<T> escenarioPuntoTableRefs<T extends Object>(
-    Expression<T> Function($$EscenarioPuntoTableTableAnnotationComposer a) f,
+  GeneratedColumn<double> get depositoLongitud => $composableBuilder(
+    column: $table.depositoLongitud,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get vehiculosFaltantes => $composableBuilder(
+    column: $table.vehiculosFaltantes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get distanciaTotalMetros => $composableBuilder(
+    column: $table.distanciaTotalMetros,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get cantidadRutas => $composableBuilder(
+    column: $table.cantidadRutas,
+    builder: (column) => column,
+  );
+
+  Expression<T> historialRutaTableRefs<T extends Object>(
+    Expression<T> Function($$HistorialRutaTableTableAnnotationComposer a) f,
   ) {
-    final $$EscenarioPuntoTableTableAnnotationComposer composer =
+    final $$HistorialRutaTableTableAnnotationComposer composer =
         $composerBuilder(
           composer: this,
           getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioPuntoTable,
-          getReferencedColumn: (t) => t.escenarioId,
+          referencedTable: $db.historialRutaTable,
+          getReferencedColumn: (t) => t.historialId,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioPuntoTableTableAnnotationComposer(
+              }) => $$HistorialRutaTableTableAnnotationComposer(
                 $db: $db,
-                $table: $db.escenarioPuntoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<T> escenarioVehiculoTableRefs<T extends Object>(
-    Expression<T> Function($$EscenarioVehiculoTableTableAnnotationComposer a) f,
-  ) {
-    final $$EscenarioVehiculoTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.escenarioVehiculoTable,
-          getReferencedColumn: (t) => t.escenarioId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioVehiculoTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioVehiculoTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<T> rutaResultadoTableRefs<T extends Object>(
-    Expression<T> Function($$RutaResultadoTableTableAnnotationComposer a) f,
-  ) {
-    final $$RutaResultadoTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.rutaResultadoTable,
-          getReferencedColumn: (t) => t.escenarioId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$RutaResultadoTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.rutaResultadoTable,
+                $table: $db.historialRutaTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -4321,959 +3794,126 @@ class $$EscenarioOptimizacionTableTableAnnotationComposer
   }
 }
 
-class $$EscenarioOptimizacionTableTableTableManager
+class $$HistorialCalculoTableTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $EscenarioOptimizacionTableTable,
-          EscenarioOptimizacionTableData,
-          $$EscenarioOptimizacionTableTableFilterComposer,
-          $$EscenarioOptimizacionTableTableOrderingComposer,
-          $$EscenarioOptimizacionTableTableAnnotationComposer,
-          $$EscenarioOptimizacionTableTableCreateCompanionBuilder,
-          $$EscenarioOptimizacionTableTableUpdateCompanionBuilder,
-          (
-            EscenarioOptimizacionTableData,
-            $$EscenarioOptimizacionTableTableReferences,
-          ),
-          EscenarioOptimizacionTableData,
-          PrefetchHooks Function({
-            bool depositoId,
-            bool escenarioPuntoTableRefs,
-            bool escenarioVehiculoTableRefs,
-            bool rutaResultadoTableRefs,
-          })
+          $HistorialCalculoTableTable,
+          HistorialCalculoTableData,
+          $$HistorialCalculoTableTableFilterComposer,
+          $$HistorialCalculoTableTableOrderingComposer,
+          $$HistorialCalculoTableTableAnnotationComposer,
+          $$HistorialCalculoTableTableCreateCompanionBuilder,
+          $$HistorialCalculoTableTableUpdateCompanionBuilder,
+          (HistorialCalculoTableData, $$HistorialCalculoTableTableReferences),
+          HistorialCalculoTableData,
+          PrefetchHooks Function({bool historialRutaTableRefs})
         > {
-  $$EscenarioOptimizacionTableTableTableManager(
+  $$HistorialCalculoTableTableTableManager(
     _$AppDatabase db,
-    $EscenarioOptimizacionTableTable table,
+    $HistorialCalculoTableTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$EscenarioOptimizacionTableTableFilterComposer(
+              $$HistorialCalculoTableTableFilterComposer(
                 $db: db,
                 $table: table,
               ),
           createOrderingComposer: () =>
-              $$EscenarioOptimizacionTableTableOrderingComposer(
+              $$HistorialCalculoTableTableOrderingComposer(
                 $db: db,
                 $table: table,
               ),
           createComputedFieldComposer: () =>
-              $$EscenarioOptimizacionTableTableAnnotationComposer(
+              $$HistorialCalculoTableTableAnnotationComposer(
                 $db: db,
                 $table: table,
               ),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> depositoId = const Value.absent(),
-                Value<String> fechaCreacion = const Value.absent(),
-                Value<String> metodoUsado = const Value.absent(),
-              }) => EscenarioOptimizacionTableCompanion(
+                Value<String> fechaCalculo = const Value.absent(),
+                Value<String> metodo = const Value.absent(),
+                Value<String> depositoNombre = const Value.absent(),
+                Value<double> depositoLatitud = const Value.absent(),
+                Value<double> depositoLongitud = const Value.absent(),
+                Value<int> vehiculosFaltantes = const Value.absent(),
+                Value<double> distanciaTotalMetros = const Value.absent(),
+                Value<int> cantidadRutas = const Value.absent(),
+              }) => HistorialCalculoTableCompanion(
                 id: id,
-                depositoId: depositoId,
-                fechaCreacion: fechaCreacion,
-                metodoUsado: metodoUsado,
+                fechaCalculo: fechaCalculo,
+                metodo: metodo,
+                depositoNombre: depositoNombre,
+                depositoLatitud: depositoLatitud,
+                depositoLongitud: depositoLongitud,
+                vehiculosFaltantes: vehiculosFaltantes,
+                distanciaTotalMetros: distanciaTotalMetros,
+                cantidadRutas: cantidadRutas,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int depositoId,
-                required String fechaCreacion,
-                required String metodoUsado,
-              }) => EscenarioOptimizacionTableCompanion.insert(
+                required String fechaCalculo,
+                required String metodo,
+                required String depositoNombre,
+                required double depositoLatitud,
+                required double depositoLongitud,
+                Value<int> vehiculosFaltantes = const Value.absent(),
+                Value<double> distanciaTotalMetros = const Value.absent(),
+                Value<int> cantidadRutas = const Value.absent(),
+              }) => HistorialCalculoTableCompanion.insert(
                 id: id,
-                depositoId: depositoId,
-                fechaCreacion: fechaCreacion,
-                metodoUsado: metodoUsado,
+                fechaCalculo: fechaCalculo,
+                metodo: metodo,
+                depositoNombre: depositoNombre,
+                depositoLatitud: depositoLatitud,
+                depositoLongitud: depositoLongitud,
+                vehiculosFaltantes: vehiculosFaltantes,
+                distanciaTotalMetros: distanciaTotalMetros,
+                cantidadRutas: cantidadRutas,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$EscenarioOptimizacionTableTableReferences(db, table, e),
+                  $$HistorialCalculoTableTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({
-                depositoId = false,
-                escenarioPuntoTableRefs = false,
-                escenarioVehiculoTableRefs = false,
-                rutaResultadoTableRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (escenarioPuntoTableRefs) db.escenarioPuntoTable,
-                    if (escenarioVehiculoTableRefs) db.escenarioVehiculoTable,
-                    if (rutaResultadoTableRefs) db.rutaResultadoTable,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (depositoId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.depositoId,
-                                    referencedTable:
-                                        $$EscenarioOptimizacionTableTableReferences
-                                            ._depositoIdTable(db),
-                                    referencedColumn:
-                                        $$EscenarioOptimizacionTableTableReferences
-                                            ._depositoIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (escenarioPuntoTableRefs)
-                        await $_getPrefetchedData<
-                          EscenarioOptimizacionTableData,
-                          $EscenarioOptimizacionTableTable,
-                          EscenarioPuntoTableData
-                        >(
-                          currentTable: table,
-                          referencedTable:
-                              $$EscenarioOptimizacionTableTableReferences
-                                  ._escenarioPuntoTableRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$EscenarioOptimizacionTableTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).escenarioPuntoTableRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.escenarioId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (escenarioVehiculoTableRefs)
-                        await $_getPrefetchedData<
-                          EscenarioOptimizacionTableData,
-                          $EscenarioOptimizacionTableTable,
-                          EscenarioVehiculoTableData
-                        >(
-                          currentTable: table,
-                          referencedTable:
-                              $$EscenarioOptimizacionTableTableReferences
-                                  ._escenarioVehiculoTableRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$EscenarioOptimizacionTableTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).escenarioVehiculoTableRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.escenarioId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (rutaResultadoTableRefs)
-                        await $_getPrefetchedData<
-                          EscenarioOptimizacionTableData,
-                          $EscenarioOptimizacionTableTable,
-                          RutaResultadoTableData
-                        >(
-                          currentTable: table,
-                          referencedTable:
-                              $$EscenarioOptimizacionTableTableReferences
-                                  ._rutaResultadoTableRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$EscenarioOptimizacionTableTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).rutaResultadoTableRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.escenarioId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$EscenarioOptimizacionTableTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $EscenarioOptimizacionTableTable,
-      EscenarioOptimizacionTableData,
-      $$EscenarioOptimizacionTableTableFilterComposer,
-      $$EscenarioOptimizacionTableTableOrderingComposer,
-      $$EscenarioOptimizacionTableTableAnnotationComposer,
-      $$EscenarioOptimizacionTableTableCreateCompanionBuilder,
-      $$EscenarioOptimizacionTableTableUpdateCompanionBuilder,
-      (
-        EscenarioOptimizacionTableData,
-        $$EscenarioOptimizacionTableTableReferences,
-      ),
-      EscenarioOptimizacionTableData,
-      PrefetchHooks Function({
-        bool depositoId,
-        bool escenarioPuntoTableRefs,
-        bool escenarioVehiculoTableRefs,
-        bool rutaResultadoTableRefs,
-      })
-    >;
-typedef $$EscenarioPuntoTableTableCreateCompanionBuilder =
-    EscenarioPuntoTableCompanion Function({
-      required int escenarioId,
-      required int puntoEntregaId,
-      Value<int> rowid,
-    });
-typedef $$EscenarioPuntoTableTableUpdateCompanionBuilder =
-    EscenarioPuntoTableCompanion Function({
-      Value<int> escenarioId,
-      Value<int> puntoEntregaId,
-      Value<int> rowid,
-    });
-
-final class $$EscenarioPuntoTableTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $EscenarioPuntoTableTable,
-          EscenarioPuntoTableData
-        > {
-  $$EscenarioPuntoTableTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $EscenarioOptimizacionTableTable _escenarioIdTable(_$AppDatabase db) =>
-      db.escenarioOptimizacionTable.createAlias(
-        'escenario_punto__escenario_id__escenario_optimizacion__id',
-      );
-
-  $$EscenarioOptimizacionTableTableProcessedTableManager get escenarioId {
-    final $_column = $_itemColumn<int>('escenario_id')!;
-
-    final manager = $$EscenarioOptimizacionTableTableTableManager(
-      $_db,
-      $_db.escenarioOptimizacionTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_escenarioIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $PuntoEntregaTableTable _puntoEntregaIdTable(_$AppDatabase db) => db
-      .puntoEntregaTable
-      .createAlias('escenario_punto__punto_entrega_id__punto_entrega__id');
-
-  $$PuntoEntregaTableTableProcessedTableManager get puntoEntregaId {
-    final $_column = $_itemColumn<int>('punto_entrega_id')!;
-
-    final manager = $$PuntoEntregaTableTableTableManager(
-      $_db,
-      $_db.puntoEntregaTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_puntoEntregaIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$EscenarioPuntoTableTableFilterComposer
-    extends Composer<_$AppDatabase, $EscenarioPuntoTableTable> {
-  $$EscenarioPuntoTableTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableFilterComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableFilterComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$PuntoEntregaTableTableFilterComposer get puntoEntregaId {
-    final $$PuntoEntregaTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.puntoEntregaId,
-      referencedTable: $db.puntoEntregaTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PuntoEntregaTableTableFilterComposer(
-            $db: $db,
-            $table: $db.puntoEntregaTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$EscenarioPuntoTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $EscenarioPuntoTableTable> {
-  $$EscenarioPuntoTableTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableOrderingComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableOrderingComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableOrderingComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$PuntoEntregaTableTableOrderingComposer get puntoEntregaId {
-    final $$PuntoEntregaTableTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.puntoEntregaId,
-      referencedTable: $db.puntoEntregaTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PuntoEntregaTableTableOrderingComposer(
-            $db: $db,
-            $table: $db.puntoEntregaTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$EscenarioPuntoTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $EscenarioPuntoTableTable> {
-  $$EscenarioPuntoTableTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableAnnotationComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$PuntoEntregaTableTableAnnotationComposer get puntoEntregaId {
-    final $$PuntoEntregaTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.puntoEntregaId,
-          referencedTable: $db.puntoEntregaTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$PuntoEntregaTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.puntoEntregaTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-}
-
-class $$EscenarioPuntoTableTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $EscenarioPuntoTableTable,
-          EscenarioPuntoTableData,
-          $$EscenarioPuntoTableTableFilterComposer,
-          $$EscenarioPuntoTableTableOrderingComposer,
-          $$EscenarioPuntoTableTableAnnotationComposer,
-          $$EscenarioPuntoTableTableCreateCompanionBuilder,
-          $$EscenarioPuntoTableTableUpdateCompanionBuilder,
-          (EscenarioPuntoTableData, $$EscenarioPuntoTableTableReferences),
-          EscenarioPuntoTableData,
-          PrefetchHooks Function({bool escenarioId, bool puntoEntregaId})
-        > {
-  $$EscenarioPuntoTableTableTableManager(
-    _$AppDatabase db,
-    $EscenarioPuntoTableTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$EscenarioPuntoTableTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$EscenarioPuntoTableTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer: () =>
-              $$EscenarioPuntoTableTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> escenarioId = const Value.absent(),
-                Value<int> puntoEntregaId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => EscenarioPuntoTableCompanion(
-                escenarioId: escenarioId,
-                puntoEntregaId: puntoEntregaId,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required int escenarioId,
-                required int puntoEntregaId,
-                Value<int> rowid = const Value.absent(),
-              }) => EscenarioPuntoTableCompanion.insert(
-                escenarioId: escenarioId,
-                puntoEntregaId: puntoEntregaId,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$EscenarioPuntoTableTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({escenarioId = false, puntoEntregaId = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (escenarioId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.escenarioId,
-                                    referencedTable:
-                                        $$EscenarioPuntoTableTableReferences
-                                            ._escenarioIdTable(db),
-                                    referencedColumn:
-                                        $$EscenarioPuntoTableTableReferences
-                                            ._escenarioIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-                        if (puntoEntregaId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.puntoEntregaId,
-                                    referencedTable:
-                                        $$EscenarioPuntoTableTableReferences
-                                            ._puntoEntregaIdTable(db),
-                                    referencedColumn:
-                                        $$EscenarioPuntoTableTableReferences
-                                            ._puntoEntregaIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$EscenarioPuntoTableTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $EscenarioPuntoTableTable,
-      EscenarioPuntoTableData,
-      $$EscenarioPuntoTableTableFilterComposer,
-      $$EscenarioPuntoTableTableOrderingComposer,
-      $$EscenarioPuntoTableTableAnnotationComposer,
-      $$EscenarioPuntoTableTableCreateCompanionBuilder,
-      $$EscenarioPuntoTableTableUpdateCompanionBuilder,
-      (EscenarioPuntoTableData, $$EscenarioPuntoTableTableReferences),
-      EscenarioPuntoTableData,
-      PrefetchHooks Function({bool escenarioId, bool puntoEntregaId})
-    >;
-typedef $$EscenarioVehiculoTableTableCreateCompanionBuilder =
-    EscenarioVehiculoTableCompanion Function({
-      required int escenarioId,
-      required int vehiculoId,
-      Value<int> rowid,
-    });
-typedef $$EscenarioVehiculoTableTableUpdateCompanionBuilder =
-    EscenarioVehiculoTableCompanion Function({
-      Value<int> escenarioId,
-      Value<int> vehiculoId,
-      Value<int> rowid,
-    });
-
-final class $$EscenarioVehiculoTableTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $EscenarioVehiculoTableTable,
-          EscenarioVehiculoTableData
-        > {
-  $$EscenarioVehiculoTableTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $EscenarioOptimizacionTableTable _escenarioIdTable(_$AppDatabase db) =>
-      db.escenarioOptimizacionTable.createAlias(
-        'escenario_vehiculo__escenario_id__escenario_optimizacion__id',
-      );
-
-  $$EscenarioOptimizacionTableTableProcessedTableManager get escenarioId {
-    final $_column = $_itemColumn<int>('escenario_id')!;
-
-    final manager = $$EscenarioOptimizacionTableTableTableManager(
-      $_db,
-      $_db.escenarioOptimizacionTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_escenarioIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $VehiculoTableTable _vehiculoIdTable(_$AppDatabase db) => db
-      .vehiculoTable
-      .createAlias('escenario_vehiculo__vehiculo_id__vehiculo__id');
-
-  $$VehiculoTableTableProcessedTableManager get vehiculoId {
-    final $_column = $_itemColumn<int>('vehiculo_id')!;
-
-    final manager = $$VehiculoTableTableTableManager(
-      $_db,
-      $_db.vehiculoTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_vehiculoIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$EscenarioVehiculoTableTableFilterComposer
-    extends Composer<_$AppDatabase, $EscenarioVehiculoTableTable> {
-  $$EscenarioVehiculoTableTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableFilterComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableFilterComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$VehiculoTableTableFilterComposer get vehiculoId {
-    final $$VehiculoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$EscenarioVehiculoTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $EscenarioVehiculoTableTable> {
-  $$EscenarioVehiculoTableTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableOrderingComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableOrderingComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableOrderingComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$VehiculoTableTableOrderingComposer get vehiculoId {
-    final $$VehiculoTableTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableOrderingComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$EscenarioVehiculoTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $EscenarioVehiculoTableTable> {
-  $$EscenarioVehiculoTableTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$EscenarioOptimizacionTableTableAnnotationComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
-          getReferencedColumn: (t) => t.id,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableAnnotationComposer(
-                $db: $db,
-                $table: $db.escenarioOptimizacionTable,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return composer;
-  }
-
-  $$VehiculoTableTableAnnotationComposer get vehiculoId {
-    final $$VehiculoTableTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableAnnotationComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$EscenarioVehiculoTableTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $EscenarioVehiculoTableTable,
-          EscenarioVehiculoTableData,
-          $$EscenarioVehiculoTableTableFilterComposer,
-          $$EscenarioVehiculoTableTableOrderingComposer,
-          $$EscenarioVehiculoTableTableAnnotationComposer,
-          $$EscenarioVehiculoTableTableCreateCompanionBuilder,
-          $$EscenarioVehiculoTableTableUpdateCompanionBuilder,
-          (EscenarioVehiculoTableData, $$EscenarioVehiculoTableTableReferences),
-          EscenarioVehiculoTableData,
-          PrefetchHooks Function({bool escenarioId, bool vehiculoId})
-        > {
-  $$EscenarioVehiculoTableTableTableManager(
-    _$AppDatabase db,
-    $EscenarioVehiculoTableTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$EscenarioVehiculoTableTableFilterComposer(
-                $db: db,
-                $table: table,
-              ),
-          createOrderingComposer: () =>
-              $$EscenarioVehiculoTableTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer: () =>
-              $$EscenarioVehiculoTableTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> escenarioId = const Value.absent(),
-                Value<int> vehiculoId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => EscenarioVehiculoTableCompanion(
-                escenarioId: escenarioId,
-                vehiculoId: vehiculoId,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required int escenarioId,
-                required int vehiculoId,
-                Value<int> rowid = const Value.absent(),
-              }) => EscenarioVehiculoTableCompanion.insert(
-                escenarioId: escenarioId,
-                vehiculoId: vehiculoId,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$EscenarioVehiculoTableTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({escenarioId = false, vehiculoId = false}) {
+          prefetchHooksCallback: ({historialRutaTableRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (escenarioId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.escenarioId,
-                                referencedTable:
-                                    $$EscenarioVehiculoTableTableReferences
-                                        ._escenarioIdTable(db),
-                                referencedColumn:
-                                    $$EscenarioVehiculoTableTableReferences
-                                        ._escenarioIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-                    if (vehiculoId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.vehiculoId,
-                                referencedTable:
-                                    $$EscenarioVehiculoTableTableReferences
-                                        ._vehiculoIdTable(db),
-                                referencedColumn:
-                                    $$EscenarioVehiculoTableTableReferences
-                                        ._vehiculoIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
+              explicitlyWatchedTables: [
+                if (historialRutaTableRefs) db.historialRutaTable,
+              ],
+              addJoins: null,
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (historialRutaTableRefs)
+                    await $_getPrefetchedData<
+                      HistorialCalculoTableData,
+                      $HistorialCalculoTableTable,
+                      HistorialRutaTableData
+                    >(
+                      currentTable: table,
+                      referencedTable: $$HistorialCalculoTableTableReferences
+                          ._historialRutaTableRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$HistorialCalculoTableTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).historialRutaTableRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.historialId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
               },
             );
           },
@@ -5281,84 +3921,76 @@ class $$EscenarioVehiculoTableTableTableManager
       );
 }
 
-typedef $$EscenarioVehiculoTableTableProcessedTableManager =
+typedef $$HistorialCalculoTableTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $EscenarioVehiculoTableTable,
-      EscenarioVehiculoTableData,
-      $$EscenarioVehiculoTableTableFilterComposer,
-      $$EscenarioVehiculoTableTableOrderingComposer,
-      $$EscenarioVehiculoTableTableAnnotationComposer,
-      $$EscenarioVehiculoTableTableCreateCompanionBuilder,
-      $$EscenarioVehiculoTableTableUpdateCompanionBuilder,
-      (EscenarioVehiculoTableData, $$EscenarioVehiculoTableTableReferences),
-      EscenarioVehiculoTableData,
-      PrefetchHooks Function({bool escenarioId, bool vehiculoId})
+      $HistorialCalculoTableTable,
+      HistorialCalculoTableData,
+      $$HistorialCalculoTableTableFilterComposer,
+      $$HistorialCalculoTableTableOrderingComposer,
+      $$HistorialCalculoTableTableAnnotationComposer,
+      $$HistorialCalculoTableTableCreateCompanionBuilder,
+      $$HistorialCalculoTableTableUpdateCompanionBuilder,
+      (HistorialCalculoTableData, $$HistorialCalculoTableTableReferences),
+      HistorialCalculoTableData,
+      PrefetchHooks Function({bool historialRutaTableRefs})
     >;
-typedef $$RutaResultadoTableTableCreateCompanionBuilder =
-    RutaResultadoTableCompanion Function({
+typedef $$HistorialRutaTableTableCreateCompanionBuilder =
+    HistorialRutaTableCompanion Function({
       Value<int> id,
-      required int escenarioId,
-      required int vehiculoId,
-      required String secuenciaParadas,
-      Value<double?> distanciaTotalKm,
-      Value<double?> tiempoTotalSegundos,
+      required int historialId,
+      required int orden,
+      Value<String?> vehiculoNombre,
+      Value<double?> vehiculoCapacidadMaxima,
+      Value<double?> vehiculoCostoEstimadoPorKm,
+      Value<String?> vehiculoTipoFlota,
+      required String paradasJson,
+      Value<double?> distanciaMetros,
+      Value<double?> duracionSegundos,
+      required String distanciasPorTramoMetros,
       Value<String?> geometriaPolyline,
     });
-typedef $$RutaResultadoTableTableUpdateCompanionBuilder =
-    RutaResultadoTableCompanion Function({
+typedef $$HistorialRutaTableTableUpdateCompanionBuilder =
+    HistorialRutaTableCompanion Function({
       Value<int> id,
-      Value<int> escenarioId,
-      Value<int> vehiculoId,
-      Value<String> secuenciaParadas,
-      Value<double?> distanciaTotalKm,
-      Value<double?> tiempoTotalSegundos,
+      Value<int> historialId,
+      Value<int> orden,
+      Value<String?> vehiculoNombre,
+      Value<double?> vehiculoCapacidadMaxima,
+      Value<double?> vehiculoCostoEstimadoPorKm,
+      Value<String?> vehiculoTipoFlota,
+      Value<String> paradasJson,
+      Value<double?> distanciaMetros,
+      Value<double?> duracionSegundos,
+      Value<String> distanciasPorTramoMetros,
       Value<String?> geometriaPolyline,
     });
 
-final class $$RutaResultadoTableTableReferences
+final class $$HistorialRutaTableTableReferences
     extends
         BaseReferences<
           _$AppDatabase,
-          $RutaResultadoTableTable,
-          RutaResultadoTableData
+          $HistorialRutaTableTable,
+          HistorialRutaTableData
         > {
-  $$RutaResultadoTableTableReferences(
+  $$HistorialRutaTableTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $EscenarioOptimizacionTableTable _escenarioIdTable(_$AppDatabase db) =>
-      db.escenarioOptimizacionTable.createAlias(
-        'ruta_resultado__escenario_id__escenario_optimizacion__id',
-      );
+  static $HistorialCalculoTableTable _historialIdTable(_$AppDatabase db) => db
+      .historialCalculoTable
+      .createAlias('historial_ruta__historial_id__historial_calculo__id');
 
-  $$EscenarioOptimizacionTableTableProcessedTableManager get escenarioId {
-    final $_column = $_itemColumn<int>('escenario_id')!;
+  $$HistorialCalculoTableTableProcessedTableManager get historialId {
+    final $_column = $_itemColumn<int>('historial_id')!;
 
-    final manager = $$EscenarioOptimizacionTableTableTableManager(
+    final manager = $$HistorialCalculoTableTableTableManager(
       $_db,
-      $_db.escenarioOptimizacionTable,
+      $_db.historialCalculoTable,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_escenarioIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $VehiculoTableTable _vehiculoIdTable(_$AppDatabase db) =>
-      db.vehiculoTable.createAlias('ruta_resultado__vehiculo_id__vehiculo__id');
-
-  $$VehiculoTableTableProcessedTableManager get vehiculoId {
-    final $_column = $_itemColumn<int>('vehiculo_id')!;
-
-    final manager = $$VehiculoTableTableTableManager(
-      $_db,
-      $_db.vehiculoTable,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_vehiculoIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_historialIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -5366,9 +3998,9 @@ final class $$RutaResultadoTableTableReferences
   }
 }
 
-class $$RutaResultadoTableTableFilterComposer
-    extends Composer<_$AppDatabase, $RutaResultadoTableTable> {
-  $$RutaResultadoTableTableFilterComposer({
+class $$HistorialRutaTableTableFilterComposer
+    extends Composer<_$AppDatabase, $HistorialRutaTableTable> {
+  $$HistorialRutaTableTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -5380,18 +4012,48 @@ class $$RutaResultadoTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get secuenciaParadas => $composableBuilder(
-    column: $table.secuenciaParadas,
+  ColumnFilters<int> get orden => $composableBuilder(
+    column: $table.orden,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get distanciaTotalKm => $composableBuilder(
-    column: $table.distanciaTotalKm,
+  ColumnFilters<String> get vehiculoNombre => $composableBuilder(
+    column: $table.vehiculoNombre,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get tiempoTotalSegundos => $composableBuilder(
-    column: $table.tiempoTotalSegundos,
+  ColumnFilters<double> get vehiculoCapacidadMaxima => $composableBuilder(
+    column: $table.vehiculoCapacidadMaxima,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get vehiculoCostoEstimadoPorKm => $composableBuilder(
+    column: $table.vehiculoCostoEstimadoPorKm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehiculoTipoFlota => $composableBuilder(
+    column: $table.vehiculoTipoFlota,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get paradasJson => $composableBuilder(
+    column: $table.paradasJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get distanciaMetros => $composableBuilder(
+    column: $table.distanciaMetros,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get duracionSegundos => $composableBuilder(
+    column: $table.duracionSegundos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get distanciasPorTramoMetros => $composableBuilder(
+    column: $table.distanciasPorTramoMetros,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5400,21 +4062,21 @@ class $$RutaResultadoTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$EscenarioOptimizacionTableTableFilterComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableFilterComposer composer =
+  $$HistorialCalculoTableTableFilterComposer get historialId {
+    final $$HistorialCalculoTableTableFilterComposer composer =
         $composerBuilder(
           composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
+          getCurrentColumn: (t) => t.historialId,
+          referencedTable: $db.historialCalculoTable,
           getReferencedColumn: (t) => t.id,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableFilterComposer(
+              }) => $$HistorialCalculoTableTableFilterComposer(
                 $db: $db,
-                $table: $db.escenarioOptimizacionTable,
+                $table: $db.historialCalculoTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -5423,34 +4085,11 @@ class $$RutaResultadoTableTableFilterComposer
         );
     return composer;
   }
-
-  $$VehiculoTableTableFilterComposer get vehiculoId {
-    final $$VehiculoTableTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableFilterComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
-class $$RutaResultadoTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $RutaResultadoTableTable> {
-  $$RutaResultadoTableTableOrderingComposer({
+class $$HistorialRutaTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $HistorialRutaTableTable> {
+  $$HistorialRutaTableTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -5462,18 +4101,48 @@ class $$RutaResultadoTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get secuenciaParadas => $composableBuilder(
-    column: $table.secuenciaParadas,
+  ColumnOrderings<int> get orden => $composableBuilder(
+    column: $table.orden,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get distanciaTotalKm => $composableBuilder(
-    column: $table.distanciaTotalKm,
+  ColumnOrderings<String> get vehiculoNombre => $composableBuilder(
+    column: $table.vehiculoNombre,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get tiempoTotalSegundos => $composableBuilder(
-    column: $table.tiempoTotalSegundos,
+  ColumnOrderings<double> get vehiculoCapacidadMaxima => $composableBuilder(
+    column: $table.vehiculoCapacidadMaxima,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get vehiculoCostoEstimadoPorKm => $composableBuilder(
+    column: $table.vehiculoCostoEstimadoPorKm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehiculoTipoFlota => $composableBuilder(
+    column: $table.vehiculoTipoFlota,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get paradasJson => $composableBuilder(
+    column: $table.paradasJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get distanciaMetros => $composableBuilder(
+    column: $table.distanciaMetros,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get duracionSegundos => $composableBuilder(
+    column: $table.duracionSegundos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get distanciasPorTramoMetros => $composableBuilder(
+    column: $table.distanciasPorTramoMetros,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5482,21 +4151,21 @@ class $$RutaResultadoTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$EscenarioOptimizacionTableTableOrderingComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableOrderingComposer composer =
+  $$HistorialCalculoTableTableOrderingComposer get historialId {
+    final $$HistorialCalculoTableTableOrderingComposer composer =
         $composerBuilder(
           composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
+          getCurrentColumn: (t) => t.historialId,
+          referencedTable: $db.historialCalculoTable,
           getReferencedColumn: (t) => t.id,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableOrderingComposer(
+              }) => $$HistorialCalculoTableTableOrderingComposer(
                 $db: $db,
-                $table: $db.escenarioOptimizacionTable,
+                $table: $db.historialCalculoTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -5505,34 +4174,11 @@ class $$RutaResultadoTableTableOrderingComposer
         );
     return composer;
   }
-
-  $$VehiculoTableTableOrderingComposer get vehiculoId {
-    final $$VehiculoTableTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableOrderingComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
-class $$RutaResultadoTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $RutaResultadoTableTable> {
-  $$RutaResultadoTableTableAnnotationComposer({
+class $$HistorialRutaTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HistorialRutaTableTable> {
+  $$HistorialRutaTableTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -5542,18 +4188,46 @@ class $$RutaResultadoTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get secuenciaParadas => $composableBuilder(
-    column: $table.secuenciaParadas,
+  GeneratedColumn<int> get orden =>
+      $composableBuilder(column: $table.orden, builder: (column) => column);
+
+  GeneratedColumn<String> get vehiculoNombre => $composableBuilder(
+    column: $table.vehiculoNombre,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get distanciaTotalKm => $composableBuilder(
-    column: $table.distanciaTotalKm,
+  GeneratedColumn<double> get vehiculoCapacidadMaxima => $composableBuilder(
+    column: $table.vehiculoCapacidadMaxima,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get tiempoTotalSegundos => $composableBuilder(
-    column: $table.tiempoTotalSegundos,
+  GeneratedColumn<double> get vehiculoCostoEstimadoPorKm => $composableBuilder(
+    column: $table.vehiculoCostoEstimadoPorKm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get vehiculoTipoFlota => $composableBuilder(
+    column: $table.vehiculoTipoFlota,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get paradasJson => $composableBuilder(
+    column: $table.paradasJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get distanciaMetros => $composableBuilder(
+    column: $table.distanciaMetros,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get duracionSegundos => $composableBuilder(
+    column: $table.duracionSegundos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get distanciasPorTramoMetros => $composableBuilder(
+    column: $table.distanciasPorTramoMetros,
     builder: (column) => column,
   );
 
@@ -5562,21 +4236,21 @@ class $$RutaResultadoTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  $$EscenarioOptimizacionTableTableAnnotationComposer get escenarioId {
-    final $$EscenarioOptimizacionTableTableAnnotationComposer composer =
+  $$HistorialCalculoTableTableAnnotationComposer get historialId {
+    final $$HistorialCalculoTableTableAnnotationComposer composer =
         $composerBuilder(
           composer: this,
-          getCurrentColumn: (t) => t.escenarioId,
-          referencedTable: $db.escenarioOptimizacionTable,
+          getCurrentColumn: (t) => t.historialId,
+          referencedTable: $db.historialCalculoTable,
           getReferencedColumn: (t) => t.id,
           builder:
               (
                 joinBuilder, {
                 $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-              }) => $$EscenarioOptimizacionTableTableAnnotationComposer(
+              }) => $$HistorialCalculoTableTableAnnotationComposer(
                 $db: $db,
-                $table: $db.escenarioOptimizacionTable,
+                $table: $db.historialCalculoTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -5585,107 +4259,106 @@ class $$RutaResultadoTableTableAnnotationComposer
         );
     return composer;
   }
-
-  $$VehiculoTableTableAnnotationComposer get vehiculoId {
-    final $$VehiculoTableTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.vehiculoId,
-      referencedTable: $db.vehiculoTable,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$VehiculoTableTableAnnotationComposer(
-            $db: $db,
-            $table: $db.vehiculoTable,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
-class $$RutaResultadoTableTableTableManager
+class $$HistorialRutaTableTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $RutaResultadoTableTable,
-          RutaResultadoTableData,
-          $$RutaResultadoTableTableFilterComposer,
-          $$RutaResultadoTableTableOrderingComposer,
-          $$RutaResultadoTableTableAnnotationComposer,
-          $$RutaResultadoTableTableCreateCompanionBuilder,
-          $$RutaResultadoTableTableUpdateCompanionBuilder,
-          (RutaResultadoTableData, $$RutaResultadoTableTableReferences),
-          RutaResultadoTableData,
-          PrefetchHooks Function({bool escenarioId, bool vehiculoId})
+          $HistorialRutaTableTable,
+          HistorialRutaTableData,
+          $$HistorialRutaTableTableFilterComposer,
+          $$HistorialRutaTableTableOrderingComposer,
+          $$HistorialRutaTableTableAnnotationComposer,
+          $$HistorialRutaTableTableCreateCompanionBuilder,
+          $$HistorialRutaTableTableUpdateCompanionBuilder,
+          (HistorialRutaTableData, $$HistorialRutaTableTableReferences),
+          HistorialRutaTableData,
+          PrefetchHooks Function({bool historialId})
         > {
-  $$RutaResultadoTableTableTableManager(
+  $$HistorialRutaTableTableTableManager(
     _$AppDatabase db,
-    $RutaResultadoTableTable table,
+    $HistorialRutaTableTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$RutaResultadoTableTableFilterComposer($db: db, $table: table),
+              $$HistorialRutaTableTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$RutaResultadoTableTableOrderingComposer($db: db, $table: table),
+              $$HistorialRutaTableTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$RutaResultadoTableTableAnnotationComposer(
+              $$HistorialRutaTableTableAnnotationComposer(
                 $db: db,
                 $table: table,
               ),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> escenarioId = const Value.absent(),
-                Value<int> vehiculoId = const Value.absent(),
-                Value<String> secuenciaParadas = const Value.absent(),
-                Value<double?> distanciaTotalKm = const Value.absent(),
-                Value<double?> tiempoTotalSegundos = const Value.absent(),
+                Value<int> historialId = const Value.absent(),
+                Value<int> orden = const Value.absent(),
+                Value<String?> vehiculoNombre = const Value.absent(),
+                Value<double?> vehiculoCapacidadMaxima = const Value.absent(),
+                Value<double?> vehiculoCostoEstimadoPorKm =
+                    const Value.absent(),
+                Value<String?> vehiculoTipoFlota = const Value.absent(),
+                Value<String> paradasJson = const Value.absent(),
+                Value<double?> distanciaMetros = const Value.absent(),
+                Value<double?> duracionSegundos = const Value.absent(),
+                Value<String> distanciasPorTramoMetros = const Value.absent(),
                 Value<String?> geometriaPolyline = const Value.absent(),
-              }) => RutaResultadoTableCompanion(
+              }) => HistorialRutaTableCompanion(
                 id: id,
-                escenarioId: escenarioId,
-                vehiculoId: vehiculoId,
-                secuenciaParadas: secuenciaParadas,
-                distanciaTotalKm: distanciaTotalKm,
-                tiempoTotalSegundos: tiempoTotalSegundos,
+                historialId: historialId,
+                orden: orden,
+                vehiculoNombre: vehiculoNombre,
+                vehiculoCapacidadMaxima: vehiculoCapacidadMaxima,
+                vehiculoCostoEstimadoPorKm: vehiculoCostoEstimadoPorKm,
+                vehiculoTipoFlota: vehiculoTipoFlota,
+                paradasJson: paradasJson,
+                distanciaMetros: distanciaMetros,
+                duracionSegundos: duracionSegundos,
+                distanciasPorTramoMetros: distanciasPorTramoMetros,
                 geometriaPolyline: geometriaPolyline,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int escenarioId,
-                required int vehiculoId,
-                required String secuenciaParadas,
-                Value<double?> distanciaTotalKm = const Value.absent(),
-                Value<double?> tiempoTotalSegundos = const Value.absent(),
+                required int historialId,
+                required int orden,
+                Value<String?> vehiculoNombre = const Value.absent(),
+                Value<double?> vehiculoCapacidadMaxima = const Value.absent(),
+                Value<double?> vehiculoCostoEstimadoPorKm =
+                    const Value.absent(),
+                Value<String?> vehiculoTipoFlota = const Value.absent(),
+                required String paradasJson,
+                Value<double?> distanciaMetros = const Value.absent(),
+                Value<double?> duracionSegundos = const Value.absent(),
+                required String distanciasPorTramoMetros,
                 Value<String?> geometriaPolyline = const Value.absent(),
-              }) => RutaResultadoTableCompanion.insert(
+              }) => HistorialRutaTableCompanion.insert(
                 id: id,
-                escenarioId: escenarioId,
-                vehiculoId: vehiculoId,
-                secuenciaParadas: secuenciaParadas,
-                distanciaTotalKm: distanciaTotalKm,
-                tiempoTotalSegundos: tiempoTotalSegundos,
+                historialId: historialId,
+                orden: orden,
+                vehiculoNombre: vehiculoNombre,
+                vehiculoCapacidadMaxima: vehiculoCapacidadMaxima,
+                vehiculoCostoEstimadoPorKm: vehiculoCostoEstimadoPorKm,
+                vehiculoTipoFlota: vehiculoTipoFlota,
+                paradasJson: paradasJson,
+                distanciaMetros: distanciaMetros,
+                duracionSegundos: duracionSegundos,
+                distanciasPorTramoMetros: distanciasPorTramoMetros,
                 geometriaPolyline: geometriaPolyline,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$RutaResultadoTableTableReferences(db, table, e),
+                  $$HistorialRutaTableTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({escenarioId = false, vehiculoId = false}) {
+          prefetchHooksCallback: ({historialId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -5705,32 +4378,17 @@ class $$RutaResultadoTableTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (escenarioId) {
+                    if (historialId) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.escenarioId,
+                                currentColumn: table.historialId,
                                 referencedTable:
-                                    $$RutaResultadoTableTableReferences
-                                        ._escenarioIdTable(db),
+                                    $$HistorialRutaTableTableReferences
+                                        ._historialIdTable(db),
                                 referencedColumn:
-                                    $$RutaResultadoTableTableReferences
-                                        ._escenarioIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-                    if (vehiculoId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.vehiculoId,
-                                referencedTable:
-                                    $$RutaResultadoTableTableReferences
-                                        ._vehiculoIdTable(db),
-                                referencedColumn:
-                                    $$RutaResultadoTableTableReferences
-                                        ._vehiculoIdTable(db)
+                                    $$HistorialRutaTableTableReferences
+                                        ._historialIdTable(db)
                                         .id,
                               )
                               as T;
@@ -5747,19 +4405,19 @@ class $$RutaResultadoTableTableTableManager
       );
 }
 
-typedef $$RutaResultadoTableTableProcessedTableManager =
+typedef $$HistorialRutaTableTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $RutaResultadoTableTable,
-      RutaResultadoTableData,
-      $$RutaResultadoTableTableFilterComposer,
-      $$RutaResultadoTableTableOrderingComposer,
-      $$RutaResultadoTableTableAnnotationComposer,
-      $$RutaResultadoTableTableCreateCompanionBuilder,
-      $$RutaResultadoTableTableUpdateCompanionBuilder,
-      (RutaResultadoTableData, $$RutaResultadoTableTableReferences),
-      RutaResultadoTableData,
-      PrefetchHooks Function({bool escenarioId, bool vehiculoId})
+      $HistorialRutaTableTable,
+      HistorialRutaTableData,
+      $$HistorialRutaTableTableFilterComposer,
+      $$HistorialRutaTableTableOrderingComposer,
+      $$HistorialRutaTableTableAnnotationComposer,
+      $$HistorialRutaTableTableCreateCompanionBuilder,
+      $$HistorialRutaTableTableUpdateCompanionBuilder,
+      (HistorialRutaTableData, $$HistorialRutaTableTableReferences),
+      HistorialRutaTableData,
+      PrefetchHooks Function({bool historialId})
     >;
 typedef $$CacheOsrmTableTableCreateCompanionBuilder =
     CacheOsrmTableCompanion Function({
@@ -5964,21 +4622,10 @@ class $AppDatabaseManager {
       $$PuntoEntregaTableTableTableManager(_db, _db.puntoEntregaTable);
   $$VehiculoTableTableTableManager get vehiculoTable =>
       $$VehiculoTableTableTableManager(_db, _db.vehiculoTable);
-  $$EscenarioOptimizacionTableTableTableManager
-  get escenarioOptimizacionTable =>
-      $$EscenarioOptimizacionTableTableTableManager(
-        _db,
-        _db.escenarioOptimizacionTable,
-      );
-  $$EscenarioPuntoTableTableTableManager get escenarioPuntoTable =>
-      $$EscenarioPuntoTableTableTableManager(_db, _db.escenarioPuntoTable);
-  $$EscenarioVehiculoTableTableTableManager get escenarioVehiculoTable =>
-      $$EscenarioVehiculoTableTableTableManager(
-        _db,
-        _db.escenarioVehiculoTable,
-      );
-  $$RutaResultadoTableTableTableManager get rutaResultadoTable =>
-      $$RutaResultadoTableTableTableManager(_db, _db.rutaResultadoTable);
+  $$HistorialCalculoTableTableTableManager get historialCalculoTable =>
+      $$HistorialCalculoTableTableTableManager(_db, _db.historialCalculoTable);
+  $$HistorialRutaTableTableTableManager get historialRutaTable =>
+      $$HistorialRutaTableTableTableManager(_db, _db.historialRutaTable);
   $$CacheOsrmTableTableTableManager get cacheOsrmTable =>
       $$CacheOsrmTableTableTableManager(_db, _db.cacheOsrmTable);
 }

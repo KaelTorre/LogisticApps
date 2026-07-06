@@ -37,46 +37,48 @@ class VehiculoTable extends Table {
   TextColumn get tipoFlota => text().nullable()();
 }
 
-class EscenarioOptimizacionTable extends Table {
+// Reemplaza escenario_optimizacion/escenario_punto/escenario_vehiculo/
+// ruta_resultado (CLAUDE.md §5.1), que nunca se implementaron y usaban FKs
+// en vivo hacia punto_entrega/vehiculo/deposito — incompatible con que el
+// historial sea un snapshot inmutable (si el usuario edita o borra un punto
+// o vehículo desde su CRUD, una entrada del historial no debe romperse ni
+// cambiar). Por eso cada fila de historial_ruta guarda una copia
+// desnormalizada (JSON) de los datos relevantes en vez de referenciarlos.
+class HistorialCalculoTable extends Table {
   @override
-  String get tableName => 'escenario_optimizacion';
+  String get tableName => 'historial_calculo';
 
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get depositoId => integer().references(DepositoTable, #id)();
-  TextColumn get fechaCreacion => text()();
-  TextColumn get metodoUsado => text()();
+  TextColumn get fechaCalculo => text()(); // DateTime.toIso8601String()
+  TextColumn get metodo => text()(); // 'ahorros' | 'barrido'
+  TextColumn get depositoNombre => text()();
+  RealColumn get depositoLatitud => real()();
+  RealColumn get depositoLongitud => real()();
+  IntColumn get vehiculosFaltantes =>
+      integer().withDefault(const Constant(0))();
+  RealColumn get distanciaTotalMetros =>
+      real().withDefault(const Constant(0))();
+  IntColumn get cantidadRutas => integer().withDefault(const Constant(0))();
 }
 
-class EscenarioPuntoTable extends Table {
+class HistorialRutaTable extends Table {
   @override
-  String get tableName => 'escenario_punto';
-
-  IntColumn get escenarioId =>
-      integer().references(EscenarioOptimizacionTable, #id)();
-  IntColumn get puntoEntregaId =>
-      integer().references(PuntoEntregaTable, #id)();
-}
-
-class EscenarioVehiculoTable extends Table {
-  @override
-  String get tableName => 'escenario_vehiculo';
-
-  IntColumn get escenarioId =>
-      integer().references(EscenarioOptimizacionTable, #id)();
-  IntColumn get vehiculoId => integer().references(VehiculoTable, #id)();
-}
-
-class RutaResultadoTable extends Table {
-  @override
-  String get tableName => 'ruta_resultado';
+  String get tableName => 'historial_ruta';
 
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get escenarioId =>
-      integer().references(EscenarioOptimizacionTable, #id)();
-  IntColumn get vehiculoId => integer().references(VehiculoTable, #id)();
-  TextColumn get secuenciaParadas => text()();
-  RealColumn get distanciaTotalKm => real().nullable()();
-  RealColumn get tiempoTotalSegundos => real().nullable()();
+  IntColumn get historialId =>
+      integer().references(HistorialCalculoTable, #id)();
+  IntColumn get orden => integer()(); // posición original en la lista de rutas
+  TextColumn get vehiculoNombre => text().nullable()();
+  RealColumn get vehiculoCapacidadMaxima => real().nullable()();
+  RealColumn get vehiculoCostoEstimadoPorKm => real().nullable()();
+  TextColumn get vehiculoTipoFlota => text().nullable()();
+  TextColumn get paradasJson =>
+      text()(); // JSON: [{nombre,latitud,longitud,demanda}, ...]
+  RealColumn get distanciaMetros => real().nullable()();
+  RealColumn get duracionSegundos => real().nullable()();
+  TextColumn get distanciasPorTramoMetros =>
+      text()(); // JSON: [double, ...], largo == paradas.length + 1
   TextColumn get geometriaPolyline => text().nullable()();
 }
 
@@ -97,10 +99,8 @@ class CacheOsrmTable extends Table {
   DepositoTable,
   PuntoEntregaTable,
   VehiculoTable,
-  EscenarioOptimizacionTable,
-  EscenarioPuntoTable,
-  EscenarioVehiculoTable,
-  RutaResultadoTable,
+  HistorialCalculoTable,
+  HistorialRutaTable,
   CacheOsrmTable,
 ])
 class AppDatabase extends _$AppDatabase {
@@ -109,7 +109,24 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _abrirConexion());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // Tablas nunca usadas (ver comentario sobre HistorialCalculoTable
+        // más arriba) — se borran antes de crear su reemplazo.
+        await m.deleteTable('escenario_punto');
+        await m.deleteTable('escenario_vehiculo');
+        await m.deleteTable('ruta_resultado');
+        await m.deleteTable('escenario_optimizacion');
+        await m.createTable(historialCalculoTable);
+        await m.createTable(historialRutaTable);
+      }
+    },
+  );
 
   static QueryExecutor _abrirConexion() {
     return driftDatabase(name: 'sistema_optimizacion_rutas');

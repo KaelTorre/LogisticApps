@@ -11,6 +11,7 @@ import '../../../core/exportar_visor_web.dart';
 import '../../../core/paleta_rutas.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../../data/models/deposito.dart';
+import '../../../data/models/escenario_optimizacion.dart';
 import '../../providers/escenario_provider.dart';
 
 /// Pantalla de Resultado en mapa (sección 8 de CLAUDE.md): depósito, puntos
@@ -28,11 +29,13 @@ class MapaResultadoScreen extends StatefulWidget {
     required this.deposito,
     required this.rutas,
     required this.vehiculosFaltantes,
+    required this.metodo,
   });
 
   final Deposito deposito;
   final List<RutaConGeometria> rutas;
   final int vehiculosFaltantes;
+  final MetodoOptimizacion metodo;
 
   @override
   State<MapaResultadoScreen> createState() => _MapaResultadoScreenState();
@@ -104,7 +107,23 @@ class _MapaResultadoScreenState extends State<MapaResultadoScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Resultado en mapa')),
+      appBar: AppBar(
+        title: const Text('Resultado en mapa'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Chip(
+                label: Text(
+                  widget.metodo == MetodoOptimizacion.ahorros
+                      ? 'Ahorros'
+                      : 'Barrido',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final mapa = _Mapa(
@@ -556,6 +575,55 @@ class _TarjetaRuta extends StatelessWidget {
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(color: colorScheme.onSurfaceVariant),
                             ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            // El regreso al depósito es un tramo más (`distanciasPorTramoMetros`
+            // siempre tiene uno más que la cantidad de paradas — ver
+            // CLAUDE.md); se muestra explícito para dejar claro que sí se
+            // cuenta en el total de distancia/tiempo/costo de arriba, no solo
+            // implícito en la suma.
+            if (ruta.distanciasPorTramoMetros.length >
+                ruta.rutaAsignada.paradas.length)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: colorDeSegmento(
+                          ruta.rutaAsignada.paradas.length,
+                        ).resolver(brightness),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        LucideIcons.warehouse,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Regreso al depósito',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurface),
+                          ),
+                          Text(
+                            '${(ruta.distanciasPorTramoMetros.last / 1000).toStringAsFixed(1)} km desde la última parada',
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
                         ],
                       ),
                     ),
