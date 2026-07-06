@@ -29,7 +29,15 @@ const _rutaOk = '''
 {
   "code": "Ok",
   "routes": [
-    {"distance": 5230.4, "duration": 612.1, "geometry": "encoded_polyline"}
+    {
+      "distance": 5230.4,
+      "duration": 612.1,
+      "geometry": "encoded_polyline",
+      "legs": [
+        {"distance": 3000.0, "duration": 400.0},
+        {"distance": 2230.4, "duration": 212.1}
+      ]
+    }
   ]
 }
 ''';
@@ -77,6 +85,9 @@ void main() {
     expect(respuesta.distanciaMetros, 5230.4);
     expect(respuesta.duracionSegundos, 612.1);
     expect(respuesta.geometriaPolyline, 'encoded_polyline');
+    expect(respuesta.tramos, hasLength(2));
+    expect(respuesta.tramos[0].distanciaMetros, 3000.0);
+    expect(respuesta.tramos[1].distanciaMetros, 2230.4);
     client.dispose();
   });
 

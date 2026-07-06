@@ -48,6 +48,9 @@ class SistemaOptimizacionRutasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Optimización de Rutas VRP',
+      // El banner de "DEBUG" tapaba botones reales del AppBar (ej. el de
+      // color por ruta en Mapa resultado); no aporta nada en una demo.
+      debugShowCheckedModeBanner: false,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       themeMode: ThemeMode.system,

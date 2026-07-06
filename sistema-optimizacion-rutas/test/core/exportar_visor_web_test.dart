@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistema_optimizacion_rutas/core/exportar_visor_web.dart';
@@ -11,10 +12,13 @@ const _deposito = Deposito(
   longitud: -74.556342,
 );
 
+const _colorDePrueba = Color(0xFF1BAF7A);
+
 void main() {
   test('arma la URL sobre visorWebBaseUrl, con los datos en el fragmento', () {
     final uri = construirUrlVisorWeb(
       deposito: _deposito,
+      color: _colorDePrueba,
       paradas: const [
         PuntoEntrega(nombre: 'A', latitud: -8.39, longitud: -74.57),
       ],
@@ -25,9 +29,10 @@ void main() {
     expect(uri.fragment, startsWith('d='));
   });
 
-  test('el fragmento decodifica de vuelta a depósito + paradas + vehículo', () {
+  test('el fragmento decodifica de vuelta a depósito + paradas + vehículo + color', () {
     final uri = construirUrlVisorWeb(
       deposito: _deposito,
+      color: _colorDePrueba,
       vehiculoNombre: 'Camión Reparto 1',
       paradas: const [
         PuntoEntrega(nombre: 'Universidad Nacional', latitud: -8.39, longitud: -74.57),
@@ -41,6 +46,7 @@ void main() {
 
     expect(datos['dep'], ['Oficina', -8.375482, -74.556342]);
     expect(datos['veh'], 'Camión Reparto 1');
+    expect(datos['color'], '#1baf7a');
     expect(datos['paradas'], [
       ['Universidad Nacional', -8.39, -74.57],
       ['Puerto', -8.38, -74.52],
@@ -48,7 +54,11 @@ void main() {
   });
 
   test('sin nombre de vehículo, la clave "veh" no aparece', () {
-    final uri = construirUrlVisorWeb(deposito: _deposito, paradas: const []);
+    final uri = construirUrlVisorWeb(
+      deposito: _deposito,
+      color: _colorDePrueba,
+      paradas: const [],
+    );
     final codificado = uri.fragment.substring('d='.length);
     final datos = jsonDecode(utf8.decode(base64Url.decode(codificado))) as Map;
 
