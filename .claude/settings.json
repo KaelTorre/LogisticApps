@@ -74,7 +74,14 @@
       "Bash(kill 255461)",
       "Bash(pkill -f \"Xvfb :99\")",
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 1143 212 click 1)",
-      "Bash(kill -9 255461 255463)"
+      "Bash(kill -9 255461 255463)",
+      "Bash(curl -s https://api.github.com/repos/KaelTorre/LogisticApps/pages)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s https://api.github.com/repos/KaelTorre/LogisticApps/actions/workflows)",
+      "Bash(curl -s \"https://api.github.com/repos/KaelTorre/LogisticApps/actions/workflows/307716498/runs?per_page=10\")",
+      "Bash(curl -s \"https://api.github.com/repos/KaelTorre/LogisticApps\")",
+      "Bash(curl -s -o /dev/null -w \"Sitio actual \\(%{http_code}\\): \" https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/)",
+      "Bash(curl -sI https://kaeltorre.github.io/LogisticApps/sistema-optimizacion-rutas/visor-web/)"
     ]
   }
 }
