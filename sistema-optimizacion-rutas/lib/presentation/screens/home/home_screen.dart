@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../depositos/deposito_screen.dart';
 import '../optimizacion/optimizacion_screen.dart';
+import '../puntos_entrega/puntos_entrega_screen.dart';
+import '../vehiculos/vehiculos_screen.dart';
 
 class _ModuloInicio {
   const _ModuloInicio({
@@ -22,20 +25,23 @@ class _ModuloInicio {
 }
 
 final List<_ModuloInicio> _modulos = [
-  const _ModuloInicio(
+  _ModuloInicio(
     icono: LucideIcons.warehouse,
     titulo: 'Depósito',
     descripcion: 'Ubicación del punto de partida de las rutas.',
+    pantalla: (_) => const DepositoScreen(),
   ),
-  const _ModuloInicio(
+  _ModuloInicio(
     icono: LucideIcons.mapPin,
     titulo: 'Puntos de entrega',
     descripcion: 'Catálogo de clientes y destinos de reparto.',
+    pantalla: (_) => const PuntosEntregaScreen(),
   ),
-  const _ModuloInicio(
+  _ModuloInicio(
     icono: LucideIcons.truck,
     titulo: 'Vehículos',
     descripcion: 'Flota disponible, capacidad y costo por km.',
+    pantalla: (_) => const VehiculosScreen(),
   ),
   _ModuloInicio(
     icono: LucideIcons.route,
