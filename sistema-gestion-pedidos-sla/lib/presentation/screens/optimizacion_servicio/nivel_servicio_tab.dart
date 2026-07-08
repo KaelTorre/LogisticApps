@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../domain/optimizacion_nivel_servicio.dart';
 import '../../providers/optimizacion_servicio_provider.dart';
+import '../_shared/campo_con_ayuda.dart';
+import '../_shared/tarjeta_explicacion.dart';
 
 /// Calculadora de nivel de servicio óptimo (M4, CLAUDE.md §6.4).
 class NivelServicioTab extends StatefulWidget {
@@ -46,7 +48,6 @@ class _NivelServicioTabState extends State<NivelServicioTab> {
         }
 
         final colorScheme = Theme.of(context).colorScheme;
-        final textTheme = Theme.of(context).textTheme;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -56,33 +57,77 @@ class _NivelServicioTabState extends State<NivelServicioTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'P(SL) = a·√SL − b·SL² — nivel de servicio (SL) en porcentaje, 0 a 100.',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                  const TarjetaExplicacion(
+                    titulo: '¿Qué calcula esto?',
+                    cuerpo:
+                        'Mejorar el nivel de servicio (entregar más rápido, tener '
+                        'menos quiebres de stock, menos errores) aumenta tus '
+                        'ventas, pero también aumenta tus costos — y ese costo '
+                        'crece cada vez más rápido cuanto más cerca del 100% '
+                        'querés estar. Esta calculadora encuentra el punto exacto '
+                        '(SL*) donde ganar un poco más de servicio ya no '
+                        'compensa lo que cuesta lograrlo: el nivel de servicio '
+                        'que te deja la mayor utilidad posible, no el más alto '
+                        'posible.',
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
+                  const SizedBox(height: 20),
+                  CampoConAyuda(
                     controller: _aCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Coeficiente de ingreso (a)',
-                    ),
+                    etiqueta: 'Coeficiente de ingreso (a)',
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    tituloAyuda: '¿Qué es el coeficiente de ingreso (a)?',
+                    descripcionAyuda:
+                        'Mide qué tan rápido crecen tus ingresos cuando subís el '
+                        'nivel de servicio. En la fórmula acompaña a √SL: el '
+                        'ingreso crece rápido al principio y luego se '
+                        'desacelera (las primeras mejoras de servicio traen '
+                        'más ventas nuevas que las últimas). Se estima '
+                        'comparando ventas históricas contra el nivel de '
+                        'servicio que tenías en ese momento (distintos '
+                        'periodos, sucursales, o el dato que te dé el caso de '
+                        'estudio).',
+                    ejemplo:
+                        'a = 0.5 es el valor del caso del PDF del curso. Cuanto '
+                        'más alto sea "a", más te conviene invertir en mejorar '
+                        'el servicio porque el impacto en tus ventas es mayor.',
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  CampoConAyuda(
                     controller: _bCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Coeficiente de costo (b)',
-                    ),
+                    etiqueta: 'Coeficiente de costo (b)',
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    tituloAyuda: '¿Qué es el coeficiente de costo (b)?',
+                    descripcionAyuda:
+                        'Mide qué tan rápido crece el costo de sostener ese '
+                        'nivel de servicio. A diferencia del ingreso, en la '
+                        'fórmula acompaña a SL² (crece cada vez más rápido): '
+                        'cada punto adicional cerca del 100% es '
+                        'desproporcionadamente más caro que el anterior (más '
+                        'inventario de seguridad, envíos urgentes, personal '
+                        'extra). Se estima con tus costos logísticos '
+                        'históricos a distintos niveles de servicio.',
+                    ejemplo:
+                        'b = 0.00055 es el valor del caso del PDF del curso. Si '
+                        'tus costos son muy sensibles al nivel de servicio (por '
+                        'ejemplo, porque dependés de tercerizar envíos '
+                        'urgentes), tu "b" real sería más alto.',
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'P(SL) = a·√SL − b·SL² — el nivel de servicio (SL) se '
+                      'expresa en porcentaje, de 0 a 100.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: () => _calcular(provider),
                     icon: const Icon(LucideIcons.calculator),
@@ -129,10 +174,25 @@ class _TarjetaResultado extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            Text(
+              'Nivel de servicio óptimo — el que maximiza tu utilidad',
+              textAlign: TextAlign.center,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               'P(SL*) = ${resultado.pEnOptimo.toStringAsFixed(4)}',
-              style: textTheme.bodyMedium?.copyWith(
+              style: textTheme.titleMedium?.copyWith(
+                color: colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              'Utilidad estimada al operar en ese punto óptimo',
+              textAlign: TextAlign.center,
+              style: textTheme.bodySmall?.copyWith(
                 color: colorScheme.onPrimaryContainer,
               ),
             ),

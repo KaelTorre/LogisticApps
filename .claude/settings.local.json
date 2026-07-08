@@ -6,7 +6,25 @@
       "Bash(git status *)",
       "Bash(.claude/skills/run-desktop/driver.sh start *)",
       "Bash(.claude/skills/run-desktop/driver.sh click *)",
-      "Bash(.claude/skills/run-desktop/driver.sh screenshot *)"
+      "Bash(.claude/skills/run-desktop/driver.sh screenshot *)",
+      "Bash(sudo dnf install -y xclip)",
+      "Read(//home/kslap/Documentos/**)",
+      "Bash(cp ~/Documentos/sistema_optimizacion_rutas.sqlite /tmp/claude-1000/-home-kslap-Dev-LOGISTICA-LogisticApps/49999a57-f60a-49c2-8928-e4c126f6165b/scratchpad/sistema_optimizacion_rutas.sqlite.bak)",
+      "Bash(python3 -c ' *)",
+      "Bash(gsettings set *)",
+      "Bash(.claude/skills/run-desktop/driver.sh build *)",
+      "Bash(gsettings get *)",
+      "Bash(gsettings list-schemas *)",
+      "Bash(mkdir -p /tmp/gtk-light-config/gtk-3.0)",
+      "Bash(cat)",
+      "Read(//tmp/gtk-light-config/gtk-3.0/**)",
+      "Bash(.claude/skills/run-desktop/driver.sh stop *)",
+      "Bash(env)",
+      "Bash(.claude/skills/run-desktop/driver.sh type *)",
+      "Bash(/home/kslap/Escritorio/documentacion/word/.venv/bin/python docs/generar_manual_usuario.py)",
+      "Bash(/home/kslap/Escritorio/documentacion/word/.venv/bin/python docs/generar_memoria_descriptiva.py)",
+      "Bash(unzip -l docs/manual_usuario_vrp.docx)",
+      "Bash(unzip -l docs/memoria_descriptiva_vrp.docx)"
     ]
   }
 }
