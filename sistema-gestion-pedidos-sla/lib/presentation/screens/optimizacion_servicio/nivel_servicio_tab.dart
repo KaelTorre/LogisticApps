@@ -64,7 +64,7 @@ class _NivelServicioTabState extends State<NivelServicioTab> {
                         'menos quiebres de stock, menos errores) aumenta tus '
                         'ventas, pero también aumenta tus costos — y ese costo '
                         'crece cada vez más rápido cuanto más cerca del 100% '
-                        'querés estar. Esta calculadora encuentra el punto exacto '
+                        'quieres estar. Esta calculadora encuentra el punto exacto '
                         '(SL*) donde ganar un poco más de servicio ya no '
                         'compensa lo que cuesta lograrlo: el nivel de servicio '
                         'que te deja la mayor utilidad posible, no el más alto '
@@ -79,7 +79,7 @@ class _NivelServicioTabState extends State<NivelServicioTab> {
                     ),
                     tituloAyuda: '¿Qué es el coeficiente de ingreso (a)?',
                     descripcionAyuda:
-                        'Mide qué tan rápido crecen tus ingresos cuando subís el '
+                        'Mide qué tan rápido crecen tus ingresos cuando subes el '
                         'nivel de servicio. En la fórmula acompaña a √SL: el '
                         'ingreso crece rápido al principio y luego se '
                         'desacelera (las primeras mejoras de servicio traen '
@@ -113,7 +113,7 @@ class _NivelServicioTabState extends State<NivelServicioTab> {
                     ejemplo:
                         'b = 0.00055 es el valor del caso del PDF del curso. Si '
                         'tus costos son muy sensibles al nivel de servicio (por '
-                        'ejemplo, porque dependés de tercerizar envíos '
+                        'ejemplo, porque dependes de tercerizar envíos '
                         'urgentes), tu "b" real sería más alto.',
                   ),
                   const SizedBox(height: 8),

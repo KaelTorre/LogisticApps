@@ -25,6 +25,25 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release
 
+      # flutter build windows no empaqueta el runtime de Visual C++
+      # (VCRUNTIME140.dll, VCRUNTIME140_1.dll, MSVCP140.dll) -- el .exe
+      # depende de que el equipo destino ya lo tenga instalado, y si no,
+      # falla con "no se encontró VCRUNTIME140.dll" al abrirlo. Se copian
+      # acá las DLLs redistribuibles del propio runner (ilammy/msvc-dev-cmd
+      # expone VCToolsRedistDir) para que el .zip funcione en cualquier
+      # Windows sin instalar nada aparte.
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Bundle Visual C++ runtime DLLs
+        shell: pwsh
+        run: |
+          $dest = "build/windows/x64/runner/Release"
+          $crtDir = Get-ChildItem -Path "$env:VCToolsRedistDir\x64" -Directory -Filter "Microsoft.VC*.CRT" | Select-Object -First 1
+          foreach ($dll in "vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll") {
+            Copy-Item -Path (Join-Path $crtDir.FullName $dll) -Destination $dest -Force
+          }
+          Get-ChildItem $dest -Filter "*.dll" | Select-Object Name
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
