@@ -28,8 +28,11 @@ class AbcProvider extends ChangeNotifier {
   Map<int, Producto> productosPorId = {};
 
   Future<void> cargar() async {
+    // Se invoca desde `initState` de ClasificacionAbcScreen — no notificar
+    // esta transición (mismo motivo que PedidoProvider.cargarDetalle:
+    // notificar antes del primer `await` ocurre en pleno build). El estado
+    // `inactivo` ya muestra el mismo spinner que `cargando`.
     estado = EstadoAbc.cargando;
-    notifyListeners();
 
     try {
       final valores = await _pedidoRepository.valorTotalGeneradoPorProducto();

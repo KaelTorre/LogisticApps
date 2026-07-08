@@ -17,7 +17,12 @@ import 'pedido_form_screen.dart';
 /// Lista de pedidos con filtro por estado y por cliente (CLAUDE.md §6.1).
 /// Sin provider propio: es solo consulta y filtrado, sin lógica de negocio.
 class PedidoListScreen extends StatefulWidget {
-  const PedidoListScreen({super.key});
+  const PedidoListScreen({super.key, this.filtroInicial});
+
+  /// Filtro de estado con el que se abre la lista (ej. al llegar desde una
+  /// tarjeta del dashboard) — el usuario puede cambiarlo o quitarlo después
+  /// como cualquier otro filtro.
+  final EstadoPedido? filtroInicial;
 
   @override
   State<PedidoListScreen> createState() => _PedidoListScreenState();
@@ -28,7 +33,7 @@ class _PedidoListScreenState extends State<PedidoListScreen> {
   Map<int, Cliente> _clientesPorId = {};
   bool _cargando = true;
 
-  EstadoPedido? _filtroEstado;
+  late EstadoPedido? _filtroEstado = widget.filtroInicial;
   int? _filtroClienteId;
 
   @override
@@ -162,48 +167,54 @@ class _BarraFiltros extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownEstado = DropdownButtonFormField<EstadoPedido?>(
+      initialValue: filtroEstado,
+      decoration: const InputDecoration(labelText: 'Estado', isDense: true),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('Todos')),
+        for (final estado in EstadoPedido.values)
+          DropdownMenuItem(value: estado, child: Text(estado.etiqueta)),
+      ],
+      onChanged: onEstadoCambiado,
+    );
+    final dropdownCliente = DropdownButtonFormField<int?>(
+      initialValue: filtroClienteId,
+      decoration: const InputDecoration(labelText: 'Cliente', isDense: true),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('Todos')),
+        for (final cliente in clientes)
+          DropdownMenuItem(
+            value: cliente.id,
+            child: Text(cliente.nombre, overflow: TextOverflow.ellipsis),
+          ),
+      ],
+      onChanged: onClienteCambiado,
+    );
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<EstadoPedido?>(
-              initialValue: filtroEstado,
-              decoration: const InputDecoration(
-                labelText: 'Estado',
-                isDense: true,
-              ),
-              items: [
-                const DropdownMenuItem(value: null, child: Text('Todos')),
-                for (final estado in EstadoPedido.values)
-                  DropdownMenuItem(value: estado, child: Text(estado.etiqueta)),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Dos dropdowns con label + flecha no entran cómodos por debajo
+          // de ~480px de ancho (celular en vertical) — se apilan en vez de
+          // recortarse.
+          if (constraints.maxWidth < 480) {
+            return Column(
+              children: [
+                dropdownEstado,
+                const SizedBox(height: 12),
+                dropdownCliente,
               ],
-              onChanged: onEstadoCambiado,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: DropdownButtonFormField<int?>(
-              initialValue: filtroClienteId,
-              decoration: const InputDecoration(
-                labelText: 'Cliente',
-                isDense: true,
-              ),
-              items: [
-                const DropdownMenuItem(value: null, child: Text('Todos')),
-                for (final cliente in clientes)
-                  DropdownMenuItem(
-                    value: cliente.id,
-                    child: Text(
-                      cliente.nombre,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-              onChanged: onClienteCambiado,
-            ),
-          ),
-        ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: dropdownEstado),
+              const SizedBox(width: 12),
+              Expanded(child: dropdownCliente),
+            ],
+          );
+        },
       ),
     );
   }

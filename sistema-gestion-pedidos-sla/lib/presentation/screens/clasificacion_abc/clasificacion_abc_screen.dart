@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants.dart';
 import '../../providers/abc_provider.dart';
-import '../../widgets/color_categoria_abc.dart';
 import '../../widgets/estado_vacio.dart';
+import '../../widgets/paleta_categorica.dart';
 
 /// Clasificación ABC (M3): tabla + gráfico de barras tipo Pareto de los
 /// productos ordenados por valor total generado.

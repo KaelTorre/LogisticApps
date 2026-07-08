@@ -12,10 +12,10 @@ import '../../domain/optimizacion_nivel_servicio.dart';
 enum EstadoDashboard { inactivo, cargando, listo, error }
 
 /// Agrega los indicadores del dashboard (M6): TCP promedio de pedidos
-/// entregados, distribución ABC (conteo y valor por categoría) y el `SL*`
-/// recalculado on-the-fly desde los coeficientes guardados — no se
-/// persiste un "último resultado" aparte, siempre se deriva de
-/// `configuracion_sla`.
+/// entregados, valor total en pedidos, conteo por estado, distribución ABC
+/// (conteo y valor por categoría) y el `SL*` recalculado on-the-fly desde
+/// los coeficientes guardados — no se persiste un "último resultado"
+/// aparte, siempre se deriva de `configuracion_sla`.
 class DashboardProvider extends ChangeNotifier {
   DashboardProvider({
     required PedidoRepository pedidoRepository,
@@ -31,23 +31,45 @@ class DashboardProvider extends ChangeNotifier {
   Duration? tcpPromedio;
   int cantidadPedidosEntregados = 0;
   int cantidadPedidosTotal = 0;
+  double valorTotalPedidos = 0;
+  Map<EstadoPedido, int> conteoPorEstado = {};
   Map<CategoriaAbc, int> conteoAbc = {};
   Map<CategoriaAbc, double> valorAbc = {};
   ResultadoOptimizacionServicio? optimoActual;
 
+  int get pedidosCancelados => conteoPorEstado[EstadoPedido.cancelado] ?? 0;
+
+  int get pedidosActivos =>
+      cantidadPedidosTotal - cantidadPedidosEntregados - pedidosCancelados;
+
   Future<void> cargar() async {
+    // Se invoca desde `initState` de DashboardScreen — no notificar esta
+    // transición (mismo motivo que en PedidoProvider/AbcProvider:
+    // notificar antes del primer `await` ocurre en pleno build y Flutter
+    // lo rechaza). El estado `inactivo` ya muestra el mismo spinner que
+    // `cargando`.
     estado = EstadoDashboard.cargando;
-    notifyListeners();
 
     final pedidos = await _pedidoRepository.obtenerTodos();
     cantidadPedidosTotal = pedidos.length;
 
     final duraciones = <Duration>[];
+    final conteo = {for (final e in EstadoPedido.values) e: 0};
+    var valorTotal = 0.0;
+
     for (final pedido in pedidos) {
+      conteo[pedido.estadoActual] = (conteo[pedido.estadoActual] ?? 0) + 1;
+
       final historial = await _pedidoRepository.obtenerHistorial(pedido.id!);
       final tcp = calcularTcp(historial);
       if (tcp.tcpTotal != null) duraciones.add(tcp.tcpTotal!);
+
+      final items = await _pedidoRepository.obtenerItems(pedido.id!);
+      valorTotal += items.fold(0.0, (suma, item) => suma + item.subtotal);
     }
+
+    conteoPorEstado = conteo;
+    valorTotalPedidos = valorTotal;
     cantidadPedidosEntregados = duraciones.length;
     tcpPromedio = duraciones.isEmpty
         ? null

@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Ejecutables empaquetados (Linux local + artefactos de GitHub Actions
+# copiados a mano) — demasiado pesados para versionar en git.
+/dist/
+
 # Symbolication related
 app.*.symbols
 

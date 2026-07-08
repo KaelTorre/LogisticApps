@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants.dart';
+import 'paleta_categorica.dart';
 
-/// Chip de color según el estado del pedido. Usa siempre
-/// `Theme.of(context).colorScheme` — nunca colores fijos — para que se vea
-/// bien en modo claro y oscuro.
+/// Chip de color según el estado del pedido — ver [colorEstadoPedido] para
+/// la paleta (estados terminales en color sólido de tema, intermedios en
+/// tonos cualitativos distintos entre sí).
 class BadgeEstadoPedido extends StatelessWidget {
   const BadgeEstadoPedido({super.key, required this.estado});
 
@@ -12,32 +13,8 @@ class BadgeEstadoPedido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
-    final (fondo, texto) = switch (estado) {
-      EstadoPedido.recibido => (
-        colorScheme.surfaceContainerHighest,
-        colorScheme.onSurfaceVariant,
-      ),
-      EstadoPedido.procesando => (
-        colorScheme.secondaryContainer,
-        colorScheme.onSecondaryContainer,
-      ),
-      EstadoPedido.preparandoEnvio => (
-        colorScheme.tertiaryContainer,
-        colorScheme.onTertiaryContainer,
-      ),
-      EstadoPedido.enTransito => (
-        colorScheme.primaryContainer,
-        colorScheme.onPrimaryContainer,
-      ),
-      EstadoPedido.entregado => (colorScheme.primary, colorScheme.onPrimary),
-      EstadoPedido.cancelado => (
-        colorScheme.errorContainer,
-        colorScheme.onErrorContainer,
-      ),
-    };
+    final (fondo, texto) = colorEstadoPedido(context, estado);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

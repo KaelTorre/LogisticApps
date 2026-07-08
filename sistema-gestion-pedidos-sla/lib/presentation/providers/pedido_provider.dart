@@ -37,8 +37,13 @@ class PedidoProvider extends ChangeNotifier {
   DetallePedido? detalle;
 
   Future<void> cargarTodos() async {
+    // No se notifica esta transición a `cargando`: notificar antes del
+    // primer `await` de un método invocado desde `initState` ocurre en
+    // pleno build del widget y Flutter lo rechaza ("setState() called
+    // during build" — ver cargarDetalle más abajo). El estado `inactivo`
+    // ya muestra el mismo spinner que `cargando` en las pantallas que lo
+    // consumen, así que no hace falta notificar esta transición en sí.
     estado = EstadoPedidoProvider.cargando;
-    notifyListeners();
 
     pedidos = await _repository.obtenerTodos();
     estado = EstadoPedidoProvider.listo;
@@ -65,8 +70,10 @@ class PedidoProvider extends ChangeNotifier {
   }
 
   Future<void> cargarDetalle(int pedidoId) async {
+    // Se invoca desde `initState` de PedidoDetalleScreen — no notificar acá
+    // (ver comentario de cargarTodos). La pantalla ya muestra un spinner
+    // mientras `detalle` es null, sin depender de este estado intermedio.
     estado = EstadoPedidoProvider.cargando;
-    notifyListeners();
 
     final pedido = await _repository.obtenerPorId(pedidoId);
     if (pedido == null) {
