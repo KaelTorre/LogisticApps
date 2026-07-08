@@ -24,7 +24,8 @@
       "Bash(/home/kslap/Escritorio/documentacion/word/.venv/bin/python docs/generar_manual_usuario.py)",
       "Bash(/home/kslap/Escritorio/documentacion/word/.venv/bin/python docs/generar_memoria_descriptiva.py)",
       "Bash(unzip -l docs/manual_usuario_vrp.docx)",
-      "Bash(unzip -l docs/memoria_descriptiva_vrp.docx)"
+      "Bash(unzip -l docs/memoria_descriptiva_vrp.docx)",
+      "Bash(DISPLAY=:98 xwininfo -root -tree)"
     ]
   }
 }
