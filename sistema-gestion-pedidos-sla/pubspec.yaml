@@ -42,7 +42,13 @@ dependencies:
   lucide_icons_flutter: ^3.1.14+2
   flutter_animate: ^4.5.2
   fl_chart: ^1.2.0
-  file_picker: ^11.0.2
+  # Fijado (no ^) a propósito: 11.0.0-11.0.2 tienen una regresión conocida
+  # que rompe el build de Android — a su build.gradle le falta declarar el
+  # plugin de Kotlin, así que GeneratedPluginRegistrant.java no encuentra
+  # la clase FilePickerPlugin ("cannot find symbol"). 10.3.10 es la última
+  # versión confirmada sin ese bug.
+  # https://github.com/miguelpruivo/flutter_file_picker/issues/1973
+  file_picker: 10.3.10
   path_provider: ^2.1.6
 
 dev_dependencies:
