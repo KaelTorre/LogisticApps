@@ -27,7 +27,7 @@ class RespaldoProvider extends ChangeNotifier {
       final nombreArchivo =
           'respaldo_${DateTime.now().toIso8601String().split('T').first}.json';
 
-      final ruta = await FilePicker.saveFile(
+      final ruta = await FilePicker.platform.saveFile(
         dialogTitle: 'Guardar respaldo',
         fileName: nombreArchivo,
         type: FileType.custom,
@@ -59,7 +59,7 @@ class RespaldoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final resultado = await FilePicker.pickFiles(
+      final resultado = await FilePicker.platform.pickFiles(
         dialogTitle: 'Elegir respaldo',
         type: FileType.custom,
         allowedExtensions: ['json'],
