@@ -11,24 +11,38 @@ class ConfiguracionRepository {
 
   final AppDatabase _database;
 
+  /// Envuelto en una transacción a propósito: `OptimizacionServicioScreen`
+  /// dispara `OptimizacionServicioProvider.cargarConfiguracion()` y
+  /// `TaguchiProvider.cargarConfiguracion()` en paralelo desde
+  /// `initState`, y ambos llaman este método. Sin la transacción, las dos
+  /// llamadas pueden intercalarse: ambas ven la tabla vacía antes de que
+  /// cualquiera inserte, y las dos terminan insertando una fila default
+  /// ("check-then-act" clásico) — se vio en producción como un crash
+  /// ("Bad state: Too many elements") en `getSingleOrNull()` al haber más
+  /// de una fila. `transaction()` serializa esta llamada respecto a
+  /// cualquier otra transacción concurrente en la misma conexión.
+  /// `limit(1)` además hace la lectura tolerante a duplicados que ya
+  /// hayan quedado insertados por este bug antes del fix.
   Future<ConfiguracionSla> obtenerOCrearPorDefecto() async {
-    final existente = await _database
-        .select(_database.configuracionSlaTable)
-        .getSingleOrNull();
-    if (existente != null) return _aDominio(existente);
+    return _database.transaction(() async {
+      final existente = await (_database.select(
+        _database.configuracionSlaTable,
+      )..limit(1)).getSingleOrNull();
+      if (existente != null) return _aDominio(existente);
 
-    final id = await _database.into(_database.configuracionSlaTable).insert(
-          ConfiguracionSlaTableCompanion.insert(
-            coeficienteIngreso: const Value(DefaultsSla.coeficienteIngreso),
-            coeficienteCosto: const Value(DefaultsSla.coeficienteCosto),
-          ),
-        );
+      final id = await _database.into(_database.configuracionSlaTable).insert(
+            ConfiguracionSlaTableCompanion.insert(
+              coeficienteIngreso: const Value(DefaultsSla.coeficienteIngreso),
+              coeficienteCosto: const Value(DefaultsSla.coeficienteCosto),
+            ),
+          );
 
-    return ConfiguracionSla(
-      id: id,
-      coeficienteIngreso: DefaultsSla.coeficienteIngreso,
-      coeficienteCosto: DefaultsSla.coeficienteCosto,
-    );
+      return ConfiguracionSla(
+        id: id,
+        coeficienteIngreso: DefaultsSla.coeficienteIngreso,
+        coeficienteCosto: DefaultsSla.coeficienteCosto,
+      );
+    });
   }
 
   Future<void> actualizarCoeficientesSl(int id, double a, double b) async {

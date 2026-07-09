@@ -171,11 +171,17 @@ class OsrmClient {
       respuesta = await _httpClient.get(uri).timeout(
         const Duration(seconds: 15),
       );
-    } catch (_) {
-      throw const OsrmException(
+    } catch (e) {
+      // Nota de diagnóstico: se agrega el tipo/mensaje real de la excepción
+      // (SocketException, HandshakeException, TimeoutException, etc.) al
+      // final del mensaje. Antes se descartaba por completo con `catch (_)`,
+      // así que un fallo de certificado TLS o de proxy se mostraba
+      // exactamente igual que no tener internet, sin forma de distinguirlos.
+      throw OsrmException(
         'No se pudo conectar con OSRM. Se requiere conexión a internet '
         'para esta consulta; si ya la hiciste antes, revisa si hay una '
-        'respuesta guardada en la caché local.',
+        'respuesta guardada en la caché local.\n\n'
+        'Detalle técnico: ${e.runtimeType}: $e',
       );
     }
 
