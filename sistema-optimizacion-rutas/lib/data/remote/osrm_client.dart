@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../../core/constants.dart';
 import '../local/database.dart';
 import 'osrm_models.dart';
+import 'osrm_trusted_root.dart';
 
 /// Coordenada simple para armar consultas a OSRM (latitud/longitud), sin
 /// acoplar el cliente a los modelos de dominio (`Deposito`/`PuntoEntrega`).
@@ -50,7 +51,7 @@ class OsrmClient {
   OsrmClient({required AppDatabase database, http.Client? httpClient})
     // ignore: prefer_initializing_formals
     : _database = database,
-      _httpClient = httpClient ?? http.Client();
+      _httpClient = httpClient ?? crearClienteHttpConfiable();
 
   final AppDatabase _database;
   final http.Client _httpClient;
