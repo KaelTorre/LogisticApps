@@ -57,7 +57,14 @@ jobs:
           Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2301-x64.exe" -OutFile "7z-installer.exe"
           & "C:\Program Files\7-Zip\7z.exe" e "7z-installer.exe" "7z.sfx" -o"sfx" -y
 
-          & "C:\Program Files\7-Zip\7z.exe" a -mx=9 "release.7z" "build\windows\x64\runner\Release\*"
+          # Pararse DENTRO de Release/ antes de comprimir: si no, 7z guarda
+          # la ruta completa "build\windows\x64\runner\Release\..." en el
+          # archivo, y al autoextraerse aparece esa carpeta anidada entera
+          # en vez de soltar el .exe y las DLLs directo donde lo corriste.
+          $origDir = Get-Location
+          Push-Location "build\windows\x64\runner\Release"
+          & "C:\Program Files\7-Zip\7z.exe" a -mx=9 "$origDir\release.7z" *
+          Pop-Location
 
           $configLines = @(
             ';!@Install@!UTF-8!',
