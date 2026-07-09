@@ -127,7 +127,8 @@
       "Bash(DISPLAY=:99 xdotool mousemove --window 0x200003 640 100)",
       "Bash(DISPLAY=:99 xdotool click --window 0x200003 1)",
       "Bash(.claude/skills/run-desktop/driver.sh build *)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(openssl s_client -connect tile.openstreetmap.org:443 -servername tile.openstreetmap.org -showcerts)"
     ]
   }
 }
