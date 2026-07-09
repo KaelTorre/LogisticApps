@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/pucallpa_dataset.dart';
 import 'core/theme.dart';
+import 'core/trusted_certs_http_overrides.dart';
 import 'data/local/database.dart';
 import 'data/remote/osrm_client.dart';
 import 'data/repositories/deposito_repository.dart';
@@ -13,6 +16,13 @@ import 'presentation/screens/home/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Agrega raíces de CA explícitas (ver trusted_certs_http_overrides.dart)
+  // a TODO HttpClient que se cree en la app, incluidos los internos de
+  // flutter_map (tiles del mapa) que no aceptan un cliente HTTP propio —
+  // sin esto, un equipo con el almacén de certificados del sistema
+  // incompleto ve el mapa/rutas fallar aunque el navegador funcione bien.
+  HttpOverrides.global = TrustedRootsHttpOverrides();
 
   final database = AppDatabase();
   final depositoRepository = DepositoRepository(database);
