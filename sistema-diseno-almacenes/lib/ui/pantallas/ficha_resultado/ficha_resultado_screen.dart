@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/motor/fila_memoria.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
+import '../plano/plano_screen.dart';
 
-/// Ficha de salida de la Fase 1: resultado crudo de M2 + M3, con la memoria
-/// de cálculo completa. Sin plano, sin isométrico, sin exportación — eso es
-/// de fases posteriores. Es la pantalla que valida si el proyecto tiene
-/// sentido (CLAUDE.md, Fase 1).
+/// Ficha de salida: resultado de M2 + M3 + el generador de layout de la
+/// Fase 2, con la memoria de cálculo completa. Sin isométrico ni
+/// exportación todavía — eso es de fases posteriores.
 class FichaResultadoScreen extends StatelessWidget {
   const FichaResultadoScreen({
     super.key,
     required this.resultadoM2,
     required this.resultadoM3,
+    required this.resultadoLayout,
   });
 
   final ResultadoM2 resultadoM2;
   final ResultadoM3 resultadoM3;
+  final ResultadoLayout resultadoLayout;
 
   @override
   Widget build(BuildContext context) {
-    final memoriaCompleta = [...resultadoM2.memoria, ...resultadoM3.memoria];
-    final supAlmacenamientoM2 = resultadoM3.supAlmacenamientoMm2 / 1000000;
+    final memoriaCompleta = [
+      ...resultadoM2.memoria,
+      ...resultadoM3.memoria,
+      ...resultadoLayout.memoria,
+    ];
+    final supAlmacenamientoM2 = resultadoLayout.supRacksMm2 / 1000000;
+    final supConstruidaM2 = resultadoLayout.supConstruidaMm2 / 1000000;
+    final ratio = resultadoLayout.supRacksMm2 / resultadoLayout.supConstruidaMm2;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ficha técnica')),
@@ -38,18 +47,21 @@ class FichaResultadoScreen extends StatelessWidget {
           _filaResumen('Módulos por fila', '${resultadoM3.modulosPorFila}'),
           _filaResumen('Filas', '${resultadoM3.filas}'),
           _filaResumen('Posiciones instaladas', '${resultadoM3.posicionesInstaladas}'),
+          _filaResumen('Superficie de almacenamiento', '${supAlmacenamientoM2.toStringAsFixed(1)} m²'),
+          _filaResumen('Superficie construida', '${supConstruidaM2.toStringAsFixed(1)} m²'),
           _filaResumen(
-            'Superficie de almacenamiento',
-            '${supAlmacenamientoM2.toStringAsFixed(1)} m²',
+            'Relación almacenamiento/construida',
+            '${(ratio * 100).toStringAsFixed(1)} %',
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              'La superficie construida (con pasillos, zonas y circulación) '
-              'no está calculada todavía — depende del generador de layout '
-              'de la Fase 2.',
-              style: TextStyle(fontStyle: FontStyle.italic),
-            ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => PlanoScreen(layout: resultadoLayout)));
+            },
+            icon: const Icon(Icons.map_outlined),
+            label: const Text('Ver plano 2D'),
           ),
           const Divider(height: 32),
           Text('Memoria de cálculo', style: Theme.of(context).textTheme.titleLarge),

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/local/database.dart';
+import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
 import '../ficha_resultado/ficha_resultado_screen.dart';
@@ -28,6 +29,8 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
   List<CatalogoEquipo> _equipos = [];
   int? _holguraXMinimaMm;
   int? _holguraYMinimaMm;
+  int? _separacionEspaldaMm;
+  int? _holguraMuroMm;
   bool _cargando = true;
 
   CatalogoTarima? _tarimaSeleccionada;
@@ -63,6 +66,12 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     final holguraY = await (widget.db.select(
       widget.db.parametrosNorma,
     )..where((p) => p.clave.equals('holgura_y_mm') & p.norma.equals('EN'))).getSingleOrNull();
+    final separacionEspalda = await (widget.db.select(
+      widget.db.parametrosNorma,
+    )..where((p) => p.clave.equals('separacion_espalda_mm') & p.norma.equals('EN'))).getSingleOrNull();
+    final holguraMuro = await (widget.db.select(
+      widget.db.parametrosNorma,
+    )..where((p) => p.clave.equals('holgura_muro_mm') & p.norma.equals('EN'))).getSingleOrNull();
 
     setState(() {
       _tarimas = tarimas;
@@ -71,6 +80,8 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       _equipos = equipos;
       _holguraXMinimaMm = holguraX?.valor;
       _holguraYMinimaMm = holguraY?.valor;
+      _separacionEspaldaMm = separacionEspalda?.valor;
+      _holguraMuroMm = holguraMuro?.valor;
       _tarimaSeleccionada = tarimas.isNotEmpty ? tarimas.first : null;
       _bastidorSeleccionado = bastidores.isNotEmpty ? bastidores.first : null;
       _vigaSeleccionada = vigas.isNotEmpty ? vigas.first : null;
@@ -130,9 +141,24 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         ),
       );
 
+      final resultadoLayout = generarLayout(
+        filas: resultadoM3.filas,
+        modulosPorFila: resultadoM3.modulosPorFila,
+        largoVigaMm: viga.largoMm,
+        perfilAnchoBastidorMm: bastidor.perfilAnchoMm,
+        fondoBastidorMm: bastidor.fondoMm,
+        anchoPasilloMm: equipo.pasilloMinMm,
+        separacionEspaldaMm: _separacionEspaldaMm!,
+        holguraMuroMm: _holguraMuroMm!,
+      );
+
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => FichaResultadoScreen(resultadoM2: resultadoM2, resultadoM3: resultadoM3),
+          builder: (_) => FichaResultadoScreen(
+            resultadoM2: resultadoM2,
+            resultadoM3: resultadoM3,
+            resultadoLayout: resultadoLayout,
+          ),
         ),
       );
     } on HolguraInvalidaException catch (e) {
