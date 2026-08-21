@@ -7,6 +7,7 @@ import '../../../domain/motor/m3_superficie.dart';
 import '../../../domain/motor/m6_configuracion.dart';
 import '../../../domain/motor/m7_anden.dart';
 import '../comparador_configuraciones/comparador_configuraciones_screen.dart';
+import '../dimensionamiento/dimensionamiento_screen.dart';
 import '../plano/plano_screen.dart';
 
 /// Ficha de salida: resultado de M2 + M3 + el generador de layout de la
@@ -174,6 +175,16 @@ class FichaResultadoScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const DimensionamientoScreen()));
+            },
+            icon: const Icon(Icons.request_quote_outlined),
+            label: const Text('Dimensionar (propio vs. público)'),
           ),
           const SizedBox(height: 16),
           Card(
