@@ -5,6 +5,7 @@ import '../../../data/local/database.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
+import '../../../domain/motor/m6_configuracion.dart';
 import '../ficha_resultado/ficha_resultado_screen.dart';
 
 /// Pantalla de entrada de la Fase 1: una familia de producto, un escenario
@@ -152,12 +153,23 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         holguraMuroMm: _holguraMuroMm!,
       );
 
+      final resultadoM6 = evaluarConfiguraciones(
+        modulos: resultadoM3.modulos,
+        largoVigaMm: viga.largoMm,
+        perfilAnchoBastidorMm: bastidor.perfilAnchoMm,
+        fondoBastidorMm: bastidor.fondoMm,
+        anchoPasilloMm: equipo.pasilloMinMm,
+        separacionEspaldaMm: _separacionEspaldaMm!,
+        holguraMuroMm: _holguraMuroMm!,
+      );
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => FichaResultadoScreen(
             resultadoM2: resultadoM2,
             resultadoM3: resultadoM3,
             resultadoLayout: resultadoLayout,
+            resultadoM6: resultadoM6,
           ),
         ),
       );
@@ -167,6 +179,8 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       setState(() => _error = e.message);
     } on LayoutInvalidoException catch (e) {
       setState(() => _error = e.message);
+    } on ArgumentError catch (e) {
+      setState(() => _error = e.message?.toString() ?? 'Entrada inválida.');
     } on FormatException {
       setState(() => _error = 'Revisa que todos los campos numéricos tengan un valor válido.');
     }

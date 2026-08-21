@@ -4,6 +4,8 @@ import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/motor/fila_memoria.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
+import '../../../domain/motor/m6_configuracion.dart';
+import '../comparador_configuraciones/comparador_configuraciones_screen.dart';
 import '../plano/plano_screen.dart';
 
 /// Ficha de salida: resultado de M2 + M3 + el generador de layout de la
@@ -15,11 +17,13 @@ class FichaResultadoScreen extends StatelessWidget {
     required this.resultadoM2,
     required this.resultadoM3,
     required this.resultadoLayout,
+    required this.resultadoM6,
   });
 
   final ResultadoM2 resultadoM2;
   final ResultadoM3 resultadoM3;
   final ResultadoLayout resultadoLayout;
+  final ResultadoM6 resultadoM6;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +31,7 @@ class FichaResultadoScreen extends StatelessWidget {
       ...resultadoM2.memoria,
       ...resultadoM3.memoria,
       ...resultadoLayout.memoria,
+      ...resultadoM6.memoria,
     ];
     final supAlmacenamientoM2 = resultadoLayout.supRacksMm2 / 1000000;
     final supConstruidaM2 = resultadoLayout.supConstruidaMm2 / 1000000;
@@ -54,14 +59,34 @@ class FichaResultadoScreen extends StatelessWidget {
             '${(ratio * 100).toStringAsFixed(1)} %',
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => PlanoScreen(layout: resultadoLayout)));
-            },
-            icon: const Icon(Icons.map_outlined),
-            label: const Text('Ver plano 2D'),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (_) => PlanoScreen(layout: resultadoLayout)));
+                  },
+                  icon: const Icon(Icons.map_outlined),
+                  label: const Text('Ver plano 2D'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ComparadorConfiguracionesScreen(resultado: resultadoM6),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.table_chart_outlined),
+                  label: const Text('Comparar configuraciones'),
+                ),
+              ),
+            ],
           ),
           const Divider(height: 32),
           Text('Memoria de cálculo', style: Theme.of(context).textTheme.titleLarge),
