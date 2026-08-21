@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/geometria/generador_layout.dart';
+import '../../../domain/geometria/prisma_3d.dart';
 import '../../../domain/motor/fila_memoria.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
@@ -9,10 +10,10 @@ import '../../../domain/motor/m7_anden.dart';
 import '../comparador_configuraciones/comparador_configuraciones_screen.dart';
 import '../dimensionamiento/dimensionamiento_screen.dart';
 import '../plano/plano_screen.dart';
+import '../vista_isometrica/vista_isometrica_screen.dart';
 
 /// Ficha de salida: resultado de M2 + M3 + el generador de layout de la
-/// Fase 2, con la memoria de cálculo completa. Sin isométrico ni
-/// exportación todavía — eso es de fases posteriores.
+/// Fase 2, con la memoria de cálculo completa.
 class FichaResultadoScreen extends StatelessWidget {
   const FichaResultadoScreen({
     super.key,
@@ -21,6 +22,7 @@ class FichaResultadoScreen extends StatelessWidget {
     required this.resultadoLayout,
     required this.resultadoM6,
     required this.resultadoM7,
+    required this.prismas3D,
   });
 
   final ResultadoM2 resultadoM2;
@@ -28,6 +30,7 @@ class FichaResultadoScreen extends StatelessWidget {
   final ResultadoLayout resultadoLayout;
   final ResultadoM6 resultadoM6;
   final ResultadoM7 resultadoM7;
+  final List<Prisma3D> prismas3D;
 
   @override
   Widget build(BuildContext context) {
@@ -177,14 +180,38 @@ class FichaResultadoScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const DimensionamientoScreen()));
-            },
-            icon: const Icon(Icons.request_quote_outlined),
-            label: const Text('Dimensionar (propio vs. público)'),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => VistaIsometricaScreen(
+                          prismas: prismas3D,
+                          niveles: resultadoM3.niveles,
+                          pasoNivelMm: resultadoM3.pasoNivelMm,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.view_in_ar_outlined),
+                  label: const Text('Vista isométrica'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (_) => const DimensionamientoScreen()));
+                  },
+                  icon: const Icon(Icons.request_quote_outlined),
+                  label: const Text('Dimensionar'),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Card(

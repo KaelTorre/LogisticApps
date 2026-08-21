@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/local/database.dart';
 import '../../../domain/geometria/generador_layout.dart';
+import '../../../domain/geometria/generador_prismas_3d.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
 import '../../../domain/motor/m6_configuracion.dart';
@@ -174,6 +175,18 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         holguraMuroMm: _holguraMuroMm!,
       );
 
+      final prismas3D = generarPrismas3D(
+        layout: resultadoLayout,
+        modulosPorFila: resultadoM3.modulosPorFila,
+        niveles: resultadoM3.niveles,
+        pasoNivelMm: resultadoM3.pasoNivelMm,
+        largoVigaMm: viga.largoMm,
+        peralteVigaMm: viga.peralteMm,
+        perfilAnchoBastidorMm: bastidor.perfilAnchoMm,
+        perfilFondoBastidorMm: bastidor.perfilFondoMm,
+        fondoBastidorMm: bastidor.fondoMm,
+      );
+
       final resultadoM6 = evaluarConfiguraciones(
         modulos: resultadoM3.modulos,
         largoVigaMm: viga.largoMm,
@@ -204,6 +217,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
             resultadoLayout: resultadoLayout,
             resultadoM6: resultadoM6,
             resultadoM7: resultadoM7,
+            prismas3D: prismas3D,
           ),
         ),
       );
