@@ -6,6 +6,7 @@ import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
 import '../../../domain/motor/m6_configuracion.dart';
+import '../../../domain/motor/m7_anden.dart';
 import '../ficha_resultado/ficha_resultado_screen.dart';
 
 /// Pantalla de entrada de la Fase 1: una familia de producto, un escenario
@@ -29,6 +30,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
   List<CatalogoBastidore> _bastidores = [];
   List<CatalogoViga> _vigas = [];
   List<CatalogoEquipo> _equipos = [];
+  List<CatalogoCamione> _camiones = [];
   int? _holguraXMinimaMm;
   int? _holguraYMinimaMm;
   int? _separacionEspaldaMm;
@@ -39,6 +41,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
   CatalogoBastidore? _bastidorSeleccionado;
   CatalogoViga? _vigaSeleccionada;
   CatalogoEquipo? _equipoSeleccionado;
+  CatalogoCamione? _camionSeleccionado;
 
   final _demandaAnualCtrl = TextEditingController(text: '12000');
   final _rotacionAnualCtrl = TextEditingController(text: '12');
@@ -48,6 +51,12 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
   final _alturaLibreCtrl = TextEditingController(text: '8000');
   final _reservaTechoCtrl = TextEditingController(text: '450');
   final _largoDisponibleCtrl = TextEditingController(text: '30000');
+
+  final _camionesHoraPicoCtrl = TextEditingController(text: '4');
+  final _tiempoServicioMinCtrl = TextEditingController(text: '30');
+  final _esperaObjetivoMinCtrl = TextEditingController(text: '15');
+  final _espaciamientoPuertaCtrl = TextEditingController(text: '3600');
+  final _areaStagingCtrl = TextEditingController(text: '15');
 
   String? _error;
   bool _calculando = false;
@@ -63,6 +72,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     final bastidores = await widget.db.select(widget.db.catalogoBastidores).get();
     final vigas = await widget.db.select(widget.db.catalogoVigas).get();
     final equipos = await widget.db.select(widget.db.catalogoEquipos).get();
+    final camiones = await widget.db.select(widget.db.catalogoCamiones).get();
     final holguraX = await (widget.db.select(
       widget.db.parametrosNorma,
     )..where((p) => p.clave.equals('holgura_x_mm') & p.norma.equals('EN'))).getSingleOrNull();
@@ -81,6 +91,8 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       _bastidores = bastidores;
       _vigas = vigas;
       _equipos = equipos;
+      _camiones = camiones;
+      _camionSeleccionado = camiones.isNotEmpty ? camiones.first : null;
       _holguraXMinimaMm = holguraX?.valor;
       _holguraYMinimaMm = holguraY?.valor;
       _separacionEspaldaMm = separacionEspalda?.valor;
@@ -114,6 +126,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     final bastidor = _bastidorSeleccionado!;
     final viga = _vigaSeleccionada!;
     final equipo = _equipoSeleccionado!;
+    final camion = _camionSeleccionado!;
 
     try {
       final resultadoM2 = calcularPosicionesRequeridas(
@@ -171,6 +184,17 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         holguraMuroMm: _holguraMuroMm!,
       );
 
+      final resultadoM7 = calcularAnden(
+        EntradaM7(
+          camionesHoraPico: double.parse(_camionesHoraPicoCtrl.text),
+          tiempoMedioServicioHoras: double.parse(_tiempoServicioMinCtrl.text) / 60,
+          esperaObjetivoHoras: double.parse(_esperaObjetivoMinCtrl.text) / 60,
+          espaciamientoPuertaMm: int.parse(_espaciamientoPuertaCtrl.text),
+          patioMinMm: camion.patioMinMm,
+          areaStagingPorPuertaMm2: (double.parse(_areaStagingCtrl.text) * 1000000).round(),
+        ),
+      );
+
       if (!mounted) return;
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -179,6 +203,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
             resultadoM3: resultadoM3,
             resultadoLayout: resultadoLayout,
             resultadoM6: resultadoM6,
+            resultadoM7: resultadoM7,
           ),
         ),
       );
@@ -187,6 +212,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     } on NivelesInsuficientesException catch (e) {
       setState(() => _error = e.message);
     } on LayoutInvalidoException catch (e) {
+      setState(() => _error = e.message);
+    } on EspaciamientoPuertaInvalidoException catch (e) {
+      setState(() => _error = e.message);
+    } on PuertasInsuficientesException catch (e) {
       setState(() => _error = e.message);
     } on ArgumentError catch (e) {
       setState(() => _error = e.message?.toString() ?? 'Entrada inválida.');
@@ -207,6 +236,11 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     _alturaLibreCtrl.dispose();
     _reservaTechoCtrl.dispose();
     _largoDisponibleCtrl.dispose();
+    _camionesHoraPicoCtrl.dispose();
+    _tiempoServicioMinCtrl.dispose();
+    _esperaObjetivoMinCtrl.dispose();
+    _espaciamientoPuertaCtrl.dispose();
+    _areaStagingCtrl.dispose();
     super.dispose();
   }
 
@@ -215,7 +249,11 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     if (_cargando) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (_tarimas.isEmpty || _bastidores.isEmpty || _vigas.isEmpty || _equipos.isEmpty) {
+    if (_tarimas.isEmpty ||
+        _bastidores.isEmpty ||
+        _vigas.isEmpty ||
+        _equipos.isEmpty ||
+        _camiones.isEmpty) {
       return Scaffold(
         body: Center(
           child: Padding(
@@ -341,6 +379,52 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _largoDisponibleCtrl,
                   entero: true,
                   ayuda: 'Longitud del terreno para colocar las filas',
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _seccion(
+              context,
+              icono: Icons.local_shipping_outlined,
+              titulo: 'Andén',
+              children: [
+                _dropdown(
+                  'Camión de diseño',
+                  Icons.local_shipping_outlined,
+                  _camiones,
+                  _camionSeleccionado,
+                  (c) => '${c.codigo} · patio ${c.patioMinMm} mm',
+                  (v) => setState(() => _camionSeleccionado = v),
+                ),
+                _campoNumerico(
+                  'Camiones en hora pico',
+                  _camionesHoraPicoCtrl,
+                  ayuda: 'La hora con más llegadas, no el promedio diario',
+                  tooltip:
+                      'El andén se dimensiona con la hora pico, no con el '
+                      'promedio del día: un almacén con 40 camiones en 8 horas '
+                      'pero 15 entre las 7 y las 9 necesita puertas para las 7.',
+                ),
+                _campoNumerico(
+                  'Tiempo de servicio (minutos)',
+                  _tiempoServicioMinCtrl,
+                  ayuda: 'Cuánto tarda un camión en cargar o descargar',
+                ),
+                _campoNumerico(
+                  'Espera objetivo (minutos)',
+                  _esperaObjetivoMinCtrl,
+                  ayuda: 'Máximo tiempo aceptable en cola antes de entrar',
+                ),
+                _campoNumerico(
+                  'Espaciamiento entre puertas',
+                  _espaciamientoPuertaCtrl,
+                  entero: true,
+                  ayuda: 'Mínimo normativo 3000mm, típico 3600mm',
+                ),
+                _campoNumerico(
+                  'Área de preparación por puerta (m²)',
+                  _areaStagingCtrl,
+                  ayuda: 'Espacio de staging frente a cada puerta',
                 ),
               ],
             ),

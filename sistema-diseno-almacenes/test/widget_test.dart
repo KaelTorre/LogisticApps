@@ -33,6 +33,15 @@ void main() {
 
     expect(find.text('Ficha técnica'), findsOneWidget);
     expect(find.text('Resumen'), findsOneWidget);
+
+    for (
+      var intentos = 0;
+      intentos < 10 && find.text('Memoria de cálculo').evaluate().isEmpty;
+      intentos++
+    ) {
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pump();
+    }
     expect(find.text('Memoria de cálculo'), findsOneWidget);
 
     await db.close();

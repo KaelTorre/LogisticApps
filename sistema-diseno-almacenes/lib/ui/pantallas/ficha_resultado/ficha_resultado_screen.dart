@@ -5,6 +5,7 @@ import '../../../domain/motor/fila_memoria.dart';
 import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
 import '../../../domain/motor/m6_configuracion.dart';
+import '../../../domain/motor/m7_anden.dart';
 import '../comparador_configuraciones/comparador_configuraciones_screen.dart';
 import '../plano/plano_screen.dart';
 
@@ -18,12 +19,14 @@ class FichaResultadoScreen extends StatelessWidget {
     required this.resultadoM3,
     required this.resultadoLayout,
     required this.resultadoM6,
+    required this.resultadoM7,
   });
 
   final ResultadoM2 resultadoM2;
   final ResultadoM3 resultadoM3;
   final ResultadoLayout resultadoLayout;
   final ResultadoM6 resultadoM6;
+  final ResultadoM7 resultadoM7;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,7 @@ class FichaResultadoScreen extends StatelessWidget {
       ...resultadoM3.memoria,
       ...resultadoLayout.memoria,
       ...resultadoM6.memoria,
+      ...resultadoM7.memoria,
     ];
     final supAlmacenamientoM2 = resultadoLayout.supRacksMm2 / 1000000;
     final supConstruidaM2 = resultadoLayout.supConstruidaMm2 / 1000000;
@@ -92,6 +96,51 @@ class FichaResultadoScreen extends StatelessWidget {
                     '${supConstruidaM2.toStringAsFixed(1)} m²',
                   ),
                   _filaRatio(context, ratio),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_shipping_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text('Andén', style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _filaResumen(Icons.door_sliding_outlined, 'Puertas', '${resultadoM7.puertas}'),
+                  _filaResumen(
+                    Icons.straighten,
+                    'Frente de andén',
+                    '${resultadoM7.frenteAndenMm} mm',
+                  ),
+                  _filaResumen(
+                    Icons.height,
+                    'Profundidad de patio',
+                    '${resultadoM7.patioProfundidadMm} mm',
+                  ),
+                  _filaResumen(
+                    Icons.square_foot_outlined,
+                    'Superficie de preparación',
+                    '${(resultadoM7.supPreparacionMm2 / 1000000).toStringAsFixed(1)} m²',
+                  ),
+                  _filaResumen(
+                    Icons.hourglass_bottom_outlined,
+                    'Espera en cola',
+                    '${(resultadoM7.esperaHoras * 60).toStringAsFixed(1)} min',
+                  ),
                 ],
               ),
             ),
