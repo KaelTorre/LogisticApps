@@ -42,23 +42,61 @@ class FichaResultadoScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Resumen', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          _filaResumen('Posiciones requeridas', '${resultadoM2.posicionesRequeridas}'),
-          _filaResumen('Tarimas por nivel', '${resultadoM3.tarimasPorNivel}'),
-          _filaResumen('Paso de nivel', '${resultadoM3.pasoNivelMm} mm'),
-          _filaResumen('Niveles', '${resultadoM3.niveles}'),
-          _filaResumen('Módulos', '${resultadoM3.modulos}'),
-          _filaResumen('Módulos por fila', '${resultadoM3.modulosPorFila}'),
-          _filaResumen('Filas', '${resultadoM3.filas}'),
-          _filaResumen('Posiciones instaladas', '${resultadoM3.posicionesInstaladas}'),
-          _filaResumen('Superficie de almacenamiento', '${supAlmacenamientoM2.toStringAsFixed(1)} m²'),
-          _filaResumen('Superficie construida', '${supConstruidaM2.toStringAsFixed(1)} m²'),
-          _filaResumen(
-            'Relación almacenamiento/construida',
-            '${(ratio * 100).toStringAsFixed(1)} %',
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.summarize_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text('Resumen', style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _filaResumen(
+                    Icons.inventory_2_outlined,
+                    'Posiciones requeridas',
+                    '${resultadoM2.posicionesRequeridas}',
+                  ),
+                  _filaResumen(
+                    Icons.view_agenda_outlined,
+                    'Tarimas por nivel',
+                    '${resultadoM3.tarimasPorNivel}',
+                  ),
+                  _filaResumen(Icons.height, 'Paso de nivel', '${resultadoM3.pasoNivelMm} mm'),
+                  _filaResumen(Icons.layers_outlined, 'Niveles', '${resultadoM3.niveles}'),
+                  _filaResumen(Icons.grid_view_outlined, 'Módulos', '${resultadoM3.modulos}'),
+                  _filaResumen(
+                    Icons.view_column_outlined,
+                    'Módulos por fila',
+                    '${resultadoM3.modulosPorFila}',
+                  ),
+                  _filaResumen(Icons.view_week_outlined, 'Filas', '${resultadoM3.filas}'),
+                  _filaResumen(
+                    Icons.inventory_outlined,
+                    'Posiciones instaladas',
+                    '${resultadoM3.posicionesInstaladas}',
+                  ),
+                  _filaResumen(
+                    Icons.square_foot_outlined,
+                    'Superficie de almacenamiento',
+                    '${supAlmacenamientoM2.toStringAsFixed(1)} m²',
+                  ),
+                  _filaResumen(
+                    Icons.crop_free,
+                    'Superficie construida',
+                    '${supConstruidaM2.toStringAsFixed(1)} m²',
+                  ),
+                  _filaRatio(context, ratio),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -83,58 +121,111 @@ class FichaResultadoScreen extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.table_chart_outlined),
-                  label: const Text('Comparar configuraciones'),
+                  label: const Text('Comparar'),
                 ),
               ),
             ],
           ),
-          const Divider(height: 32),
-          Text('Memoria de cálculo', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          ...memoriaCompleta.map(_filaMemoria),
+          const SizedBox(height: 16),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: const Icon(Icons.receipt_long_outlined),
+                title: const Text('Memoria de cálculo'),
+                subtitle: Text('${memoriaCompleta.length} pasos, con fórmula y fuente'),
+                childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                children: memoriaCompleta.map(_filaMemoria).toList(),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _filaResumen(String etiqueta, String valor) {
+  Widget _filaResumen(IconData icono, String etiqueta, String valor) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(etiqueta),
+          Icon(icono, size: 18, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Expanded(child: Text(etiqueta)),
           Text(valor, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _filaMemoria(FilaMemoria fila) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${fila.modulo} · ${fila.concepto}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+  Widget _filaRatio(BuildContext context, double ratio) {
+    // CLAUDE.md sección 7: en selectivo + retráctil, la relación típica cae
+    // entre 0.45 y 0.60 — es la "prueba de humo" del sistema. Fuera de ese
+    // rango no es necesariamente un error (depende del tipo de sistema),
+    // así que solo se marca como referencia visual, no como validación dura.
+    final dentroDelRangoTipico = ratio >= 0.45 && ratio <= 0.60;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(Icons.percent, size: 18, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Relación almacenamiento/construida')),
+          Text('${(ratio * 100).toStringAsFixed(1)} %', style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 4),
+          Tooltip(
+            message: dentroDelRangoTipico
+                ? 'Dentro del rango típico de selectivo + retráctil (45–60%).'
+                : 'Fuera del rango típico de selectivo + retráctil (45–60%). '
+                      'No es necesariamente un error: depende del tipo de sistema '
+                      'y de cuántas filas se pudieron parear.',
+            child: Icon(
+              dentroDelRangoTipico ? Icons.check_circle_outline : Icons.info_outline,
+              size: 16,
+              color: dentroDelRangoTipico ? Colors.green : Colors.orange,
             ),
-            const SizedBox(height: 4),
-            Text(fila.formula, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
-            const SizedBox(height: 4),
-            Text('${fila.valor} ${fila.unidad}'),
-            if (fila.fuente != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                'Fuente: ${fila.fuente}',
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filaMemoria(FilaMemoria fila) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Chip(
+                label: Text(fila.modulo, style: const TextStyle(fontSize: 11)),
+                padding: EdgeInsets.zero,
+                labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(fila.concepto, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(fila.formula, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+          const SizedBox(height: 4),
+          Text('${fila.valor} ${fila.unidad}'),
+          if (fila.fuente != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              'Fuente: ${fila.fuente}',
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
           ],
-        ),
+          const Divider(height: 16),
+        ],
       ),
     );
   }

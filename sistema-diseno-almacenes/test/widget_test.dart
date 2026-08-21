@@ -15,7 +15,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: EntradaCalculoScreen(db: db)));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cálculo rápido — M2 + M3'), findsOneWidget);
+    expect(find.text('Nuevo cálculo'), findsOneWidget);
 
     // El formulario es más alto que el viewport: hay que hacer scroll para
     // que el botón exista en el árbol (el ListView es un sliver, solo

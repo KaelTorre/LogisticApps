@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 
 import '../../../data/local/database.dart';
@@ -11,7 +11,8 @@ import '../ficha_resultado/ficha_resultado_screen.dart';
 /// Pantalla de entrada de la Fase 1: una familia de producto, un escenario
 /// selectivo simple, tomando bastidor/viga/equipo del catálogo semilla ya
 /// cargado. CLAUDE.md pide "sin UI elaborada" para esta fase — no hay CRUD
-/// de proyectos ni de escenarios todavía, eso es de fases posteriores.
+/// de proyectos ni de escenarios todavía, eso es de fases posteriores. La
+/// simplicidad es de alcance funcional, no de terminado visual.
 class EntradaCalculoScreen extends StatefulWidget {
   const EntradaCalculoScreen({super.key, required this.db});
 
@@ -49,6 +50,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
   final _largoDisponibleCtrl = TextEditingController(text: '30000');
 
   String? _error;
+  bool _calculando = false;
 
   @override
   void initState() {
@@ -98,9 +100,15 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     });
   }
 
-  void _calcular() {
+  Future<void> _calcular() async {
     setState(() => _error = null);
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _calculando = true);
+    // Deja pintar el spinner del botón antes de bloquear el hilo de UI con
+    // el cálculo (instantáneo en la práctica, pero así queda listo el
+    // patrón para cuando la Fase 4+ agregue cálculos más pesados).
+    await Future.delayed(Duration.zero);
 
     final tarima = _tarimaSeleccionada!;
     final bastidor = _bastidorSeleccionado!;
@@ -163,6 +171,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         holguraMuroMm: _holguraMuroMm!,
       );
 
+      if (!mounted) return;
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => FichaResultadoScreen(
@@ -183,6 +192,8 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       setState(() => _error = e.message?.toString() ?? 'Entrada inválida.');
     } on FormatException {
       setState(() => _error = 'Revisa que todos los campos numéricos tengan un valor válido.');
+    } finally {
+      if (mounted) setState(() => _calculando = false);
     }
   }
 
@@ -205,85 +216,252 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_tarimas.isEmpty || _bastidores.isEmpty || _vigas.isEmpty || _equipos.isEmpty) {
-      return const Scaffold(
-        body: Center(child: Text('El catálogo semilla no cargó. Revisa CatalogoSeedLoader.')),
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.error_outline, size: 40, color: Theme.of(context).colorScheme.error),
+                const SizedBox(height: 12),
+                const Text('El catálogo semilla no cargó. Revisa CatalogoSeedLoader.'),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cálculo rápido — M2 + M3')),
+      appBar: AppBar(title: const Text('Nuevo cálculo')),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Demanda', style: Theme.of(context).textTheme.titleMedium),
-            _campoNumerico('Demanda anual (unidades/año)', _demandaAnualCtrl),
-            _campoNumerico('Rotación anual (veces/año)', _rotacionAnualCtrl),
-            _campoNumerico('Unidades por tarima', _unidadesPorTarimaCtrl, entero: true),
-            _campoNumerico('Factor honeycomb (0 a 1)', _factorHoneycombCtrl),
-            const Divider(height: 32),
-            Text('Catálogo', style: Theme.of(context).textTheme.titleMedium),
-            _dropdown('Tarima', _tarimas, _tarimaSeleccionada, (t) => t.codigo, (v) {
-              setState(() => _tarimaSeleccionada = v);
-            }),
-            _dropdown('Bastidor', _bastidores, _bastidorSeleccionado, (b) => b.codigo, (v) {
-              setState(() => _bastidorSeleccionado = v);
-            }),
-            _dropdown('Viga', _vigas, _vigaSeleccionada, (v) => v.codigo, (v) {
-              setState(() => _vigaSeleccionada = v);
-            }),
-            _dropdown('Equipo', _equipos, _equipoSeleccionado, (eq) => eq.codigo, (v) {
-              setState(() => _equipoSeleccionado = v);
-            }),
-            const Divider(height: 32),
-            Text('Instalación', style: Theme.of(context).textTheme.titleMedium),
-            _campoNumerico('Alto de carga (mm, sin la tarima)', _altoCargaCtrl, entero: true),
-            _campoNumerico('Altura libre (mm)', _alturaLibreCtrl, entero: true),
-            _campoNumerico('Reserva de techo (mm)', _reservaTechoCtrl, entero: true),
-            _campoNumerico('Largo disponible para filas (mm)', _largoDisponibleCtrl, entero: true),
-            const SizedBox(height: 24),
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(_error!, style: const TextStyle(color: Colors.red)),
-              ),
-            FilledButton(onPressed: _calcular, child: const Text('Calcular')),
+            _seccion(
+              context,
+              icono: Icons.trending_up,
+              titulo: 'Demanda',
+              children: [
+                _campoNumerico(
+                  'Demanda anual',
+                  _demandaAnualCtrl,
+                  ayuda: 'Unidades despachadas por año',
+                ),
+                _campoNumerico(
+                  'Rotación anual',
+                  _rotacionAnualCtrl,
+                  ayuda: 'Veces que se repone el inventario al año',
+                ),
+                _campoNumerico(
+                  'Unidades por tarima',
+                  _unidadesPorTarimaCtrl,
+                  entero: true,
+                  ayuda: 'Cuántas unidades caben en una tarima',
+                ),
+                _campoNumerico(
+                  'Factor honeycomb',
+                  _factorHoneycombCtrl,
+                  ayuda: 'Ej. 0.20 = 20% de capacidad perdida',
+                  tooltip:
+                      'Posiciones que existen pero no se pueden usar por reglas '
+                      'de acomodo (huecos parciales). Típico: 0.15–0.30.',
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _seccion(
+              context,
+              icono: Icons.inventory_2_outlined,
+              titulo: 'Catálogo',
+              children: [
+                _dropdown(
+                  'Tarima',
+                  Icons.inventory_2_outlined,
+                  _tarimas,
+                  _tarimaSeleccionada,
+                  (t) => '${t.codigo} · ${t.largoMm}×${t.anchoMm} mm',
+                  (v) => setState(() => _tarimaSeleccionada = v),
+                ),
+                _dropdown(
+                  'Bastidor',
+                  Icons.view_column_outlined,
+                  _bastidores,
+                  _bastidorSeleccionado,
+                  (b) => '${b.codigo} · fondo ${b.fondoMm} mm',
+                  (v) => setState(() => _bastidorSeleccionado = v),
+                ),
+                _dropdown(
+                  'Viga',
+                  Icons.straighten,
+                  _vigas,
+                  _vigaSeleccionada,
+                  (v) => '${v.codigo} · ${v.largoMm} mm',
+                  (v) => setState(() => _vigaSeleccionada = v),
+                ),
+                _dropdown(
+                  'Equipo',
+                  Icons.precision_manufacturing_outlined,
+                  _equipos,
+                  _equipoSeleccionado,
+                  (e) => '${e.codigo} · eleva ${e.elevacionMaxMm} mm',
+                  (v) => setState(() => _equipoSeleccionado = v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _seccion(
+              context,
+              icono: Icons.warehouse_outlined,
+              titulo: 'Instalación',
+              children: [
+                _campoNumerico(
+                  'Alto de carga',
+                  _altoCargaCtrl,
+                  entero: true,
+                  ayuda: 'Altura de la carga, sin contar la tarima',
+                ),
+                _campoNumerico(
+                  'Altura libre',
+                  _alturaLibreCtrl,
+                  entero: true,
+                  ayuda: 'Altura libre bajo techo del almacén',
+                ),
+                _campoNumerico(
+                  'Reserva de techo',
+                  _reservaTechoCtrl,
+                  entero: true,
+                  ayuda: 'Espacio para rociadores y luminarias',
+                  tooltip: 'Se resta de la altura libre antes de calcular niveles.',
+                ),
+                _campoNumerico(
+                  'Largo disponible',
+                  _largoDisponibleCtrl,
+                  entero: true,
+                  ayuda: 'Longitud del terreno para colocar las filas',
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (_error != null) _bannerError(context, _error!),
+            if (_error != null) const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _calculando ? null : _calcular,
+              icon: _calculando
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.calculate_outlined),
+              label: Text(_calculando ? 'Calculando…' : 'Calcular'),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _campoNumerico(String etiqueta, TextEditingController ctrl, {bool entero = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: TextFormField(
-        controller: ctrl,
-        decoration: InputDecoration(labelText: etiqueta),
-        keyboardType: TextInputType.numberWithOptions(decimal: !entero),
-        validator: (v) {
-          if (v == null || v.isEmpty) return 'Requerido';
-          final parsed = entero ? int.tryParse(v) : double.tryParse(v);
-          if (parsed == null) return 'Número inválido';
-          return null;
-        },
+  Widget _seccion(
+    BuildContext context, {
+    required IconData icono,
+    required String titulo,
+    required List<Widget> children,
+  }) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icono, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(titulo, style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...children,
+          ],
+        ),
       ),
     );
   }
 
+  Widget _bannerError(BuildContext context, String mensaje) {
+    final colores = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colores.errorContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.error_outline, color: colores.onErrorContainer, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(mensaje, style: TextStyle(color: colores.onErrorContainer)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _campoNumerico(
+    String etiqueta,
+    TextEditingController ctrl, {
+    bool entero = false,
+    String? ayuda,
+    String? tooltip,
+  }) {
+    final campo = TextFormField(
+      controller: ctrl,
+      decoration: InputDecoration(
+        labelText: etiqueta,
+        helperText: ayuda,
+        helperMaxLines: 2,
+        isDense: true,
+        suffixIcon: tooltip != null
+            ? Tooltip(
+                message: tooltip,
+                child: const Icon(Icons.info_outline, size: 18),
+              )
+            : null,
+      ),
+      keyboardType: TextInputType.numberWithOptions(decimal: !entero),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Requerido';
+        final parsed = entero ? int.tryParse(v) : double.tryParse(v);
+        if (parsed == null) return 'Número inválido';
+        return null;
+      },
+    );
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: campo);
+  }
+
   Widget _dropdown<T>(
     String etiqueta,
+    IconData icono,
     List<T> opciones,
     T? seleccionado,
     String Function(T) etiquetaDe,
     void Function(T?) onChanged,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: DropdownButtonFormField<T>(
         initialValue: seleccionado,
-        decoration: InputDecoration(labelText: etiqueta),
+        decoration: InputDecoration(
+          labelText: etiqueta,
+          isDense: true,
+          prefixIcon: Icon(icono, size: 20),
+        ),
         items: opciones
             .map((o) => DropdownMenuItem(value: o, child: Text(etiquetaDe(o))))
             .toList(),

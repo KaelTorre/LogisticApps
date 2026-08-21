@@ -10,6 +10,11 @@ class Plano2D extends StatelessWidget {
 
   final ResultadoLayout layout;
 
+  /// Colores públicos para que la leyenda de [PlanoScreen] use exactamente
+  /// los mismos tonos que el dibujo, sin duplicar valores.
+  static const colorRacks = Color(0xFF3949AB);
+  static const colorPasillo = Color(0xFFE0E0E0);
+
   @override
   Widget build(BuildContext context) {
     // Sin AspectRatio: un layout de 1 sola fila sin pasillo puede ser 20
@@ -35,8 +40,6 @@ class _Plano2DPainter extends CustomPainter {
   final ResultadoLayout layout;
 
   static const _margenCotaPx = 40.0;
-  static const _colorRacks = Color(0xFF3949AB);
-  static const _colorPasillo = Color(0xFFE0E0E0);
   static const _colorCota = Color(0xFF616161);
 
   @override
@@ -70,7 +73,7 @@ class _Plano2DPainter extends CustomPainter {
         punto(r.xMm, r.yMm),
         punto(r.xMm + r.anchoMm, r.yMm + r.largoMm),
       );
-      final paint = Paint()..color = r.tipo == 'reserva' ? _colorRacks : _colorPasillo;
+      final paint = Paint()..color = r.tipo == 'reserva' ? Plano2D.colorRacks : Plano2D.colorPasillo;
       canvas.drawRect(rect, paint);
       canvas.drawRect(rect, Paint()..color = Colors.black12..style = PaintingStyle.stroke);
     }
