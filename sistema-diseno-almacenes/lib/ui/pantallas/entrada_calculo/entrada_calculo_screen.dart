@@ -8,7 +8,9 @@ import '../../../domain/motor/m2_posiciones.dart';
 import '../../../domain/motor/m3_superficie.dart';
 import '../../../domain/motor/m6_configuracion.dart';
 import '../../../domain/motor/m7_anden.dart';
+import '../comparador_escenarios/comparador_escenarios_screen.dart';
 import '../ficha_resultado/ficha_resultado_screen.dart';
+import '../pronostico/pronostico_screen.dart';
 
 /// Pantalla de entrada de la Fase 1: una familia de producto, un escenario
 /// selectivo simple, tomando bastidor/viga/equipo del catálogo semilla ya
@@ -240,6 +242,15 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     }
   }
 
+  Future<void> _abrirPronostico() async {
+    final valor = await Navigator.of(
+      context,
+    ).push<double>(MaterialPageRoute(builder: (_) => const PronosticoScreen()));
+    if (valor != null) {
+      setState(() => _demandaAnualCtrl.text = valor.toStringAsFixed(1));
+    }
+  }
+
   @override
   void dispose() {
     _demandaAnualCtrl.dispose();
@@ -320,6 +331,12 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   tooltip:
                       'Posiciones que existen pero no se pueden usar por reglas '
                       'de acomodo (huecos parciales). Típico: 0.15–0.30.',
+                ),
+                const SizedBox(height: 4),
+                OutlinedButton.icon(
+                  onPressed: _abrirPronostico,
+                  icon: const Icon(Icons.timeline_outlined),
+                  label: const Text('Pronosticar demanda (M1)'),
                 ),
               ],
             ),
@@ -455,6 +472,16 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                     )
                   : const Icon(Icons.calculate_outlined),
               label: Text(_calculando ? 'Calculando…' : 'Calcular'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => ComparadorEscenariosScreen(db: widget.db)),
+                );
+              },
+              icon: const Icon(Icons.compare_arrows_outlined),
+              label: const Text('Comparar escenarios de racking (M8)'),
             ),
           ],
         ),
