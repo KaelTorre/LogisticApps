@@ -1,0 +1,123 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// Lista los `.json` de la carpeta de Documentos (donde `EntradaCalculoScreen`
+/// deja los proyectos exportados) para elegir cuál importar. No hay selector
+/// de archivos nativo (`file_picker`) todavía — CLAUDE.md pide "sin UI
+/// elaborada" para este tipo de pantalla, y copiar el archivo exportado de
+/// otra máquina a esta misma carpeta (USB, red local) es una operación de
+/// usuario normal. Un selector nativo puede sumarse después sin cambiar el
+/// formato del archivo.
+class ImportarProyectoScreen extends StatefulWidget {
+  const ImportarProyectoScreen({super.key});
+
+  @override
+  State<ImportarProyectoScreen> createState() => _ImportarProyectoScreenState();
+}
+
+class _ImportarProyectoScreenState extends State<ImportarProyectoScreen> {
+  bool _cargando = true;
+  List<File> _archivos = [];
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _listarArchivos();
+  }
+
+  Future<void> _listarArchivos() async {
+    try {
+      final directorio = await getApplicationDocumentsDirectory();
+      final archivos = directorio
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.toLowerCase().endsWith('.json'))
+          .toList()
+        ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      setState(() {
+        _archivos = archivos;
+        _cargando = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'No se pudo leer la carpeta de documentos: $e';
+        _cargando = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Importar proyecto')),
+      body: _cargando
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+          ? _bannerError(context, _error!)
+          : _archivos.isEmpty
+          ? _sinArchivos(context)
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _archivos.length,
+              itemBuilder: (context, i) {
+                final archivo = _archivos[i];
+                final nombre = archivo.path.split(Platform.pathSeparator).last;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.description_outlined),
+                    title: Text(nombre),
+                    subtitle: Text(archivo.statSync().modified.toString()),
+                    onTap: () => Navigator.of(context).pop(archivo),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _sinArchivos(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.folder_open_outlined, size: 40, color: Colors.grey.shade500),
+            const SizedBox(height: 12),
+            const Text(
+              'No hay archivos .json en la carpeta de Documentos de la app. '
+              'Exporta un proyecto primero, o copia uno de otra máquina a esa '
+              'misma carpeta.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bannerError(BuildContext context, String mensaje) {
+    final colores = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: colores.errorContainer, borderRadius: BorderRadius.circular(8)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, color: colores.onErrorContainer, size: 20),
+              const SizedBox(width: 8),
+              Flexible(child: Text(mensaje, style: TextStyle(color: colores.onErrorContainer))),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

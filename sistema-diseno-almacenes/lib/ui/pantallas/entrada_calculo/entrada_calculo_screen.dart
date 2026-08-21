@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../data/local/database.dart';
+import '../../../domain/export/proyecto_portable.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/geometria/generador_prismas_3d.dart';
 import '../../../domain/motor/m2_posiciones.dart';
@@ -10,6 +14,7 @@ import '../../../domain/motor/m6_configuracion.dart';
 import '../../../domain/motor/m7_anden.dart';
 import '../comparador_escenarios/comparador_escenarios_screen.dart';
 import '../ficha_resultado/ficha_resultado_screen.dart';
+import '../importar_proyecto/importar_proyecto_screen.dart';
 import '../pronostico/pronostico_screen.dart';
 
 /// Pantalla de entrada de la Fase 1: una familia de producto, un escenario
@@ -114,6 +119,107 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       _cargando = false;
     });
   }
+
+  Future<void> _exportarProyecto() async {
+    if (!_formKey.currentState!.validate()) return;
+    try {
+      final proyecto = ProyectoPortable(
+        version: ProyectoPortable.versionActual,
+        nombre: 'Proyecto',
+        demandaAnual: double.parse(_demandaAnualCtrl.text),
+        rotacionAnual: double.parse(_rotacionAnualCtrl.text),
+        unidadesPorTarima: int.parse(_unidadesPorTarimaCtrl.text),
+        factorHoneycomb: double.parse(_factorHoneycombCtrl.text),
+        altoCargaMm: int.parse(_altoCargaCtrl.text),
+        alturaLibreMm: int.parse(_alturaLibreCtrl.text),
+        reservaTechoMm: int.parse(_reservaTechoCtrl.text),
+        largoDisponibleMm: int.parse(_largoDisponibleCtrl.text),
+        camionesHoraPico: double.parse(_camionesHoraPicoCtrl.text),
+        tiempoServicioMinutos: double.parse(_tiempoServicioMinCtrl.text),
+        esperaObjetivoMinutos: double.parse(_esperaObjetivoMinCtrl.text),
+        espaciamientoPuertaMm: int.parse(_espaciamientoPuertaCtrl.text),
+        areaStagingM2: double.parse(_areaStagingCtrl.text),
+        tarima: _tarimaSeleccionada!,
+        bastidor: _bastidorSeleccionado!,
+        viga: _vigaSeleccionada!,
+        equipo: _equipoSeleccionado!,
+        camion: _camionSeleccionado!,
+      );
+
+      final directorio = await getApplicationDocumentsDirectory();
+      final marca = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
+      final archivo = File('${directorio.path}/proyecto_$marca.json');
+      await archivo.writeAsString(proyecto.toJsonString());
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Proyecto exportado en ${archivo.path}'),
+          duration: const Duration(seconds: 6),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('No se pudo exportar: $e')));
+    }
+  }
+
+  Future<void> _importarProyecto() async {
+    final archivo = await Navigator.of(
+      context,
+    ).push<File>(MaterialPageRoute(builder: (_) => const ImportarProyectoScreen()));
+    if (archivo == null) return;
+
+    try {
+      final proyecto = ProyectoPortable.fromJsonString(await archivo.readAsString());
+
+      final tarima = await _resolverTarima(widget.db, proyecto.tarima);
+      final bastidor = await _resolverBastidor(widget.db, proyecto.bastidor);
+      final viga = await _resolverViga(widget.db, proyecto.viga);
+      final equipo = await _resolverEquipo(widget.db, proyecto.equipo);
+      final camion = await _resolverCamion(widget.db, proyecto.camion);
+
+      await _cargarCatalogo();
+      if (!mounted) return;
+      setState(() {
+        _tarimaSeleccionada = tarima;
+        _bastidorSeleccionado = bastidor;
+        _vigaSeleccionada = viga;
+        _equipoSeleccionado = equipo;
+        _camionSeleccionado = camion;
+        _demandaAnualCtrl.text = _formatearNumero(proyecto.demandaAnual);
+        _rotacionAnualCtrl.text = _formatearNumero(proyecto.rotacionAnual);
+        _unidadesPorTarimaCtrl.text = '${proyecto.unidadesPorTarima}';
+        _altoCargaCtrl.text = '${proyecto.altoCargaMm}';
+        _factorHoneycombCtrl.text = _formatearNumero(proyecto.factorHoneycomb);
+        _alturaLibreCtrl.text = '${proyecto.alturaLibreMm}';
+        _reservaTechoCtrl.text = '${proyecto.reservaTechoMm}';
+        _largoDisponibleCtrl.text = '${proyecto.largoDisponibleMm}';
+        _camionesHoraPicoCtrl.text = _formatearNumero(proyecto.camionesHoraPico);
+        _tiempoServicioMinCtrl.text = _formatearNumero(proyecto.tiempoServicioMinutos);
+        _esperaObjetivoMinCtrl.text = _formatearNumero(proyecto.esperaObjetivoMinutos);
+        _espaciamientoPuertaCtrl.text = '${proyecto.espaciamientoPuertaMm}';
+        _areaStagingCtrl.text = _formatearNumero(proyecto.areaStagingM2);
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Proyecto importado.')));
+    } on FormatException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Archivo inválido: ${e.message}')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('No se pudo importar: $e')));
+    }
+  }
+
+  String _formatearNumero(double v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
 
   Future<void> _calcular() async {
     setState(() => _error = null);
@@ -483,6 +589,26 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
               icon: const Icon(Icons.compare_arrows_outlined),
               label: const Text('Comparar escenarios de racking (M8)'),
             ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _exportarProyecto,
+                    icon: const Icon(Icons.upload_file_outlined),
+                    label: const Text('Exportar proyecto'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _importarProyecto,
+                    icon: const Icon(Icons.download_outlined),
+                    label: const Text('Importar proyecto'),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -594,4 +720,132 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       ),
     );
   }
+}
+
+/// Busca una fila de catálogo por `codigo` (la clave de negocio, no el id
+/// local); si no existe la inserta como fila del usuario (`es_semilla =
+/// false`) con los valores importados. Es lo que hace que "abrir en otra
+/// máquina" (CLAUDE.md sección 9) funcione de verdad aunque el catálogo
+/// semilla de esa máquina no tenga ese código todavía.
+Future<CatalogoTarima> _resolverTarima(AppDatabase db, CatalogoTarima importada) async {
+  final existente = await (db.select(
+    db.catalogoTarimas,
+  )..where((t) => t.codigo.equals(importada.codigo))).getSingleOrNull();
+  if (existente != null) return existente;
+  final id = await db
+      .into(db.catalogoTarimas)
+      .insert(
+        CatalogoTarimasCompanion.insert(
+          codigo: importada.codigo,
+          largoMm: importada.largoMm,
+          anchoMm: importada.anchoMm,
+          altoMm: importada.altoMm,
+          taraG: importada.taraG,
+          cargaDinG: Value(importada.cargaDinG),
+          cargaEstG: Value(importada.cargaEstG),
+          region: Value(importada.region),
+          fuente: importada.fuente,
+          esSemilla: const Value(false),
+        ),
+      );
+  // Se relee de la BD en vez de copyWith(id: id) sobre `importada`: la fila
+  // insertada tiene esSemilla=false, y `importada` (del JSON) puede traer
+  // esSemilla=true — copyWith habría devuelto un valor que no es igual, por
+  // `==`, a ninguna fila de la lista recién recargada, y
+  // DropdownButtonFormField exige exactamente una coincidencia.
+  return (db.select(
+    db.catalogoTarimas,
+  )..where((t) => t.id.equals(id))).getSingle();
+}
+
+Future<CatalogoBastidore> _resolverBastidor(AppDatabase db, CatalogoBastidore importada) async {
+  final existente = await (db.select(
+    db.catalogoBastidores,
+  )..where((b) => b.codigo.equals(importada.codigo))).getSingleOrNull();
+  if (existente != null) return existente;
+  final id = await db
+      .into(db.catalogoBastidores)
+      .insert(
+        CatalogoBastidoresCompanion.insert(
+          codigo: importada.codigo,
+          fondoMm: importada.fondoMm,
+          alturaMm: importada.alturaMm,
+          perfilAnchoMm: importada.perfilAnchoMm,
+          perfilFondoMm: importada.perfilFondoMm,
+          fuente: importada.fuente,
+          esSemilla: const Value(false),
+        ),
+      );
+  return (db.select(
+    db.catalogoBastidores,
+  )..where((b) => b.id.equals(id))).getSingle();
+}
+
+Future<CatalogoViga> _resolverViga(AppDatabase db, CatalogoViga importada) async {
+  final existente = await (db.select(
+    db.catalogoVigas,
+  )..where((v) => v.codigo.equals(importada.codigo))).getSingleOrNull();
+  if (existente != null) return existente;
+  final id = await db
+      .into(db.catalogoVigas)
+      .insert(
+        CatalogoVigasCompanion.insert(
+          codigo: importada.codigo,
+          largoMm: importada.largoMm,
+          peralteMm: importada.peralteMm,
+          capacidadParG: Value(importada.capacidadParG),
+          fuente: importada.fuente,
+          esSemilla: const Value(false),
+        ),
+      );
+  return (db.select(db.catalogoVigas)..where((v) => v.id.equals(id))).getSingle();
+}
+
+Future<CatalogoEquipo> _resolverEquipo(AppDatabase db, CatalogoEquipo importada) async {
+  final existente = await (db.select(
+    db.catalogoEquipos,
+  )..where((e) => e.codigo.equals(importada.codigo))).getSingleOrNull();
+  if (existente != null) return existente;
+  final id = await db
+      .into(db.catalogoEquipos)
+      .insert(
+        CatalogoEquiposCompanion.insert(
+          codigo: importada.codigo,
+          tipo: importada.tipo,
+          claseEn: Value(importada.claseEn),
+          pasilloMinMm: importada.pasilloMinMm,
+          pasilloMaxMm: importada.pasilloMaxMm,
+          elevacionMaxMm: importada.elevacionMaxMm,
+          alturaMastilMm: Value(importada.alturaMastilMm),
+          requiereGuiado: Value(importada.requiereGuiado),
+          costoUnitarioCent: Value(importada.costoUnitarioCent),
+          fuente: importada.fuente,
+          esSemilla: const Value(false),
+        ),
+      );
+  return (db.select(
+    db.catalogoEquipos,
+  )..where((e) => e.id.equals(id))).getSingle();
+}
+
+Future<CatalogoCamione> _resolverCamion(AppDatabase db, CatalogoCamione importada) async {
+  final existente = await (db.select(
+    db.catalogoCamiones,
+  )..where((c) => c.codigo.equals(importada.codigo))).getSingleOrNull();
+  if (existente != null) return existente;
+  final id = await db
+      .into(db.catalogoCamiones)
+      .insert(
+        CatalogoCamionesCompanion.insert(
+          codigo: importada.codigo,
+          largoMm: importada.largoMm,
+          anchoMm: importada.anchoMm,
+          patioMinMm: importada.patioMinMm,
+          fuente: importada.fuente,
+          esSemilla: const Value(false),
+        ),
+      );
+  return (db.select(
+    db.catalogoCamiones,
+  )..where((c) => c.id.equals(id))).getSingle();
 }

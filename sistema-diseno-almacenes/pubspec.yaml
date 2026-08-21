@@ -40,6 +40,12 @@ dependencies:
   fl_chart: ^1.2.0
   pdf: ^3.13.0
   printing: ^5.15.0
+  # Ubicar la carpeta de Documentos por sistema operativo (Windows/Linux/
+  # Android difieren) para guardar DXF/PDF/JSON exportados. No es cálculo ni
+  # render -- justificado aparte de la regla "escríbelo en <200 líneas de
+  # Dart" de CLAUDE.md sección 3, que aplica al motor, no a resolución de
+  # rutas del SO. 100% local y offline, sin nube ni cuenta.
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +74,8 @@ flutter:
 
   assets:
     - assets/catalogo_semilla.json
+    - assets/fonts/DejaVuSans.ttf
+    - assets/fonts/DejaVuSans-Bold.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

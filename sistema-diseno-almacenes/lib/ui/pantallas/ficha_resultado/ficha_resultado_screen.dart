@@ -1,5 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import '../../../domain/export/pdf_builder.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/geometria/prisma_3d.dart';
 import '../../../domain/motor/fila_memoria.dart';
@@ -14,7 +20,7 @@ import '../vista_isometrica/vista_isometrica_screen.dart';
 
 /// Ficha de salida: resultado de M2 + M3 + el generador de layout de la
 /// Fase 2, con la memoria de cálculo completa.
-class FichaResultadoScreen extends StatelessWidget {
+class FichaResultadoScreen extends StatefulWidget {
   const FichaResultadoScreen({
     super.key,
     required this.resultadoM2,
@@ -33,7 +39,77 @@ class FichaResultadoScreen extends StatelessWidget {
   final List<Prisma3D> prismas3D;
 
   @override
+  State<FichaResultadoScreen> createState() => _FichaResultadoScreenState();
+}
+
+class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
+  bool _exportandoPdf = false;
+
+  Future<void> _exportarPdf({
+    required List<FilaMemoria> memoriaCompleta,
+    required double supAlmacenamientoM2,
+    required double supConstruidaM2,
+    required double ratio,
+  }) async {
+    setState(() => _exportandoPdf = true);
+    try {
+      final fuenteRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/DejaVuSans.ttf'));
+      final fuenteNegrita = pw.Font.ttf(await rootBundle.load('assets/fonts/DejaVuSans-Bold.ttf'));
+
+      final bytes = await generarFichaPdf(
+        titulo: 'Ficha técnica — Sistema de Diseño de Almacenes',
+        resumen: [
+          MapEntry('Posiciones requeridas', '${widget.resultadoM2.posicionesRequeridas}'),
+          MapEntry('Tarimas por nivel', '${widget.resultadoM3.tarimasPorNivel}'),
+          MapEntry('Paso de nivel', '${widget.resultadoM3.pasoNivelMm} mm'),
+          MapEntry('Niveles', '${widget.resultadoM3.niveles}'),
+          MapEntry('Módulos', '${widget.resultadoM3.modulos}'),
+          MapEntry('Módulos por fila', '${widget.resultadoM3.modulosPorFila}'),
+          MapEntry('Filas', '${widget.resultadoM3.filas}'),
+          MapEntry('Posiciones instaladas', '${widget.resultadoM3.posicionesInstaladas}'),
+          MapEntry('Superficie de almacenamiento', '${supAlmacenamientoM2.toStringAsFixed(1)} m²'),
+          MapEntry('Superficie construida', '${supConstruidaM2.toStringAsFixed(1)} m²'),
+          MapEntry('Relación almacenamiento/construida', '${(ratio * 100).toStringAsFixed(1)} %'),
+          MapEntry('Puertas de andén', '${widget.resultadoM7.puertas}'),
+          MapEntry('Frente de andén', '${widget.resultadoM7.frenteAndenMm} mm'),
+          MapEntry('Profundidad de patio', '${widget.resultadoM7.patioProfundidadMm} mm'),
+        ],
+        memoria: memoriaCompleta,
+        fuenteRegular: fuenteRegular,
+        fuenteNegrita: fuenteNegrita,
+      );
+
+      final directorio = await getApplicationDocumentsDirectory();
+      final marca = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
+      final archivo = File('${directorio.path}/ficha_tecnica_$marca.pdf');
+      await archivo.writeAsBytes(bytes);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF exportado en ${archivo.path}'),
+          duration: const Duration(seconds: 6),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('No se pudo exportar: $e')));
+    } finally {
+      if (mounted) setState(() => _exportandoPdf = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final resultadoM2 = widget.resultadoM2;
+    final resultadoM3 = widget.resultadoM3;
+    final resultadoLayout = widget.resultadoLayout;
+    final resultadoM6 = widget.resultadoM6;
+    final resultadoM7 = widget.resultadoM7;
+    final prismas3D = widget.prismas3D;
+
     final memoriaCompleta = [
       ...resultadoM2.memoria,
       ...resultadoM3.memoria,
@@ -46,7 +122,35 @@ class FichaResultadoScreen extends StatelessWidget {
     final ratio = resultadoLayout.supRacksMm2 / resultadoLayout.supConstruidaMm2;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ficha técnica')),
+      appBar: AppBar(
+        title: const Text('Ficha técnica'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _exportandoPdf
+                ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : Tooltip(
+                    message: 'Exporta la ficha técnica y la memoria de cálculo completa a PDF.',
+                    child: IconButton(
+                      onPressed: () => _exportarPdf(
+                        memoriaCompleta: memoriaCompleta,
+                        supAlmacenamientoM2: supAlmacenamientoM2,
+                        supConstruidaM2: supConstruidaM2,
+                        ratio: ratio,
+                      ),
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                    ),
+                  ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -155,9 +259,15 @@ class FichaResultadoScreen extends StatelessWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute(builder: (_) => PlanoScreen(layout: resultadoLayout)));
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PlanoScreen(
+                          layout: resultadoLayout,
+                          frenteAndenMm: resultadoM7.frenteAndenMm,
+                          patioProfundidadMm: resultadoM7.patioProfundidadMm,
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.map_outlined),
                   label: const Text('Ver plano 2D'),
