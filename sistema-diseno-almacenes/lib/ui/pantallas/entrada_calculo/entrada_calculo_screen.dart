@@ -549,6 +549,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Alto de carga',
                   _altoCargaCtrl,
                   entero: true,
+                  unidad: 'mm',
                   ayuda: 'Altura de la carga, sin contar la tarima',
                   tooltip:
                       'Mide tu producto ya paletizado, sin la tarima. Si varía '
@@ -558,6 +559,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Altura libre',
                   _alturaLibreCtrl,
                   entero: true,
+                  unidad: 'mm',
                   ayuda: 'Altura libre bajo techo del almacén',
                   tooltip:
                       'Del piso a lo más bajo de la estructura de techo (viga, '
@@ -569,6 +571,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Reserva de techo',
                   _reservaTechoCtrl,
                   entero: true,
+                  unidad: 'mm',
                   ayuda: 'Espacio para rociadores y luminarias',
                   tooltip: 'Se resta de la altura libre antes de calcular niveles.',
                 ),
@@ -576,6 +579,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Largo disponible',
                   _largoDisponibleCtrl,
                   entero: true,
+                  unidad: 'mm',
                   ayuda: 'Longitud del terreno para colocar las filas',
                   tooltip:
                       'El largo real del área para racks, ya descontando '
@@ -631,6 +635,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Espaciamiento entre puertas',
                   _espaciamientoPuertaCtrl,
                   entero: true,
+                  unidad: 'mm',
                   ayuda: 'Mínimo normativo 3000mm, típico 3600mm',
                   tooltip:
                       'Distancia entre el centro de una puerta y la siguiente. '
@@ -752,6 +757,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     bool entero = false,
     String? ayuda,
     String? tooltip,
+    String? unidad,
   }) {
     final campo = TextFormField(
       controller: ctrl,
@@ -760,6 +766,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         helperText: ayuda,
         helperMaxLines: 2,
         isDense: true,
+        suffixText: unidad,
         suffixIcon: tooltip != null
             ? Tooltip(
                 message: tooltip,

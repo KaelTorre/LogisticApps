@@ -120,9 +120,12 @@ class _PlanoScreenState extends State<PlanoScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Vista desde arriba, a escala, en milímetros. Cada rectángulo lleva '
-                    'su nombre y sus medidas. Acerca (rueda del mouse o pellizco) para leer '
-                    'el detalle de cada módulo.',
+                    'Vista desde arriba, en milímetros. El ancho está siempre a escala; '
+                    'el alto de cada franja (fila, pasillo, separación) tiene un mínimo '
+                    'para que su nombre y medidas se alcancen a leer, así que una franja '
+                    'muy delgada puede verse un poco más grande de lo real — la medida en '
+                    'DXF y en la ficha técnica siempre son las exactas. Acerca (rueda del '
+                    'mouse o pellizco) para leer el detalle de cada módulo.',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -140,6 +143,11 @@ class _PlanoScreenState extends State<PlanoScreen> {
               children: [
                 _leyenda(Plano2D.colorRacks, Plano2D.colorRacksBorde, 'Racks'),
                 _leyenda(Plano2D.colorPasillo, Plano2D.colorPasilloBorde, 'Pasillo'),
+                _leyenda(
+                  Plano2D.colorSeparacion,
+                  Plano2D.colorSeparacionBorde,
+                  'Separación de espalda (no transitable)',
+                ),
                 _leyenda(Plano2D.colorAnden, Plano2D.colorAndenBorde, 'Andén'),
               ],
             ),

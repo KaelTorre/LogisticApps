@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../domain/geometria/generador_layout.dart';
@@ -10,6 +12,16 @@ import '../../domain/geometria/generador_layout.dart';
 /// nombre y dimensiones; los racks llevan además líneas divisorias por
 /// módulo, para que el plano se lea como un plano real y no como un
 /// rectángulo de color sin información.
+///
+/// El ancho (X) siempre está a escala uniforme. El alto (Y) usa una escala
+/// "quebrada": cada franja (fila de racks, pasillo, separación de espalda,
+/// margen de muro) recibe como mínimo el alto de píxeles que necesita su
+/// propia etiqueta, aunque en milímetros sea mucho más delgada que las
+/// demás — si no, una separación de espalda de 200mm queda invisible junto
+/// a un pasillo de 2800mm y dos filas contiguas se leen como una sola. Esto
+/// no afecta la exportación a DXF: `dxf_writer.dart` lee las coordenadas en
+/// milímetros directo de [ResultadoLayout], nunca los píxeles de este
+/// painter.
 class Plano2D extends StatelessWidget {
   const Plano2D({
     super.key,
@@ -36,31 +48,164 @@ class Plano2D extends StatelessWidget {
   static const colorPasilloBorde = Color(0xFFEF6C00);
   static const colorAnden = Color(0xFFE8F5E9);
   static const colorAndenBorde = Color(0xFF2E7D32);
+  static const colorSeparacion = Color(0xFFECEFF1);
+  static const colorSeparacionBorde = Color(0xFF607D8B);
   static const colorMuro = Color(0xFF212121);
+
+  static const _margenCotaPx = 40.0;
+  static const _franjaAndenPx = 56.0;
+  static const _alturaObjetivoPx = 500.0;
 
   @override
   Widget build(BuildContext context) {
-    // Sin AspectRatio: un layout de 1 sola fila sin pasillo puede ser 20
-    // veces más ancho que profundo, y forzar el widget a esa proporción lo
-    // deja como una franja casi invisible. El painter mismo calcula una
-    // escala uniforme (misma en X e Y, para no deformar) y centra el
-    // dibujo dentro del espacio disponible.
-    return InteractiveViewer(
-      minScale: 0.2,
-      maxScale: 8,
-      child: SizedBox(
-        width: double.infinity,
-        height: 500,
-        child: CustomPaint(
-          painter: _Plano2DPainter(
-            layout: layout,
-            modulosPorFila: modulosPorFila,
-            frenteAndenMm: frenteAndenMm,
-            patioProfundidadMm: patioProfundidadMm,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final anchoDisponible = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 800.0;
+
+        final espacioAnchoDibujo = anchoDisponible - 2 * _margenCotaPx;
+        final espacioAltoObjetivoDibujo =
+            _alturaObjetivoPx - 2 * _margenCotaPx - _franjaAndenPx - _margenCotaPx;
+        final escala = [
+          espacioAnchoDibujo / layout.anchoTotalMm,
+          espacioAltoObjetivoDibujo / layout.largoTotalMm,
+        ].reduce((a, b) => a < b ? a : b);
+
+        final bandas = _construirBandas(layout);
+        final ejeY = _EjeY(bandas, escala);
+        final altoCanvas =
+            ejeY.alturaTotalPx + 2 * _margenCotaPx + _franjaAndenPx + _margenCotaPx;
+
+        // Sin AspectRatio: un layout de 1 sola fila sin pasillo puede ser 20
+        // veces más ancho que profundo, y forzar el widget a esa proporción
+        // lo deja como una franja casi invisible. El painter calcula una
+        // escala uniforme en X y centra el dibujo; en Y usa [ejeY], que ya
+        // garantiza espacio mínimo por franja — el `SizedBox` crece a lo
+        // que haga falta y `InteractiveViewer` deja acercar o alejar.
+        return InteractiveViewer(
+          minScale: 0.2,
+          maxScale: 8,
+          child: SizedBox(
+            width: anchoDisponible,
+            height: altoCanvas,
+            child: CustomPaint(
+              painter: _Plano2DPainter(
+                layout: layout,
+                modulosPorFila: modulosPorFila,
+                frenteAndenMm: frenteAndenMm,
+                patioProfundidadMm: patioProfundidadMm,
+                escala: escala,
+                bandas: bandas,
+                ejeY: ejeY,
+              ),
+            ),
           ),
-        ),
+        );
+      },
+    );
+  }
+}
+
+enum _TipoBanda { margen, reserva, circulacion, separacion }
+
+/// Una franja del eje Y: una fila de racks, un pasillo, una separación de
+/// espalda (el hueco entre dos filas de una fila doble) o un margen de
+/// muro. Es un concepto de presentación de este archivo — no toca
+/// [Rectangulo.tipo], cuyo vocabulario (`reserva`/`circulacion`) sigue
+/// siendo el que define CLAUDE.md sección 5.
+class _Banda {
+  const _Banda({required this.tipo, required this.alturaMm});
+  final _TipoBanda tipo;
+  final int alturaMm;
+
+  double get alturaMinPx => switch (tipo) {
+    _TipoBanda.reserva => 46.0,
+    _TipoBanda.circulacion => 36.0,
+    _TipoBanda.separacion => 20.0,
+    _TipoBanda.margen => 4.0,
+  };
+
+  double alturaPx(double escala) => math.max(alturaMm * escala, alturaMinPx);
+}
+
+/// Recorre `layout.rectangulos` (ya en orden ascendente de `yMm`, por cómo
+/// los construye `generarLayout`) y arma las franjas del eje Y: una por
+/// cada rectángulo, más una franja `separacion` en cada hueco entre dos
+/// `reserva` consecutivos (la separación de espalda de una fila doble, que
+/// no tiene su propio `Rectangulo`) y una franja `margen` en cada extremo.
+List<_Banda> _construirBandas(ResultadoLayout layout) {
+  final rects = layout.rectangulos;
+  final bandas = <_Banda>[];
+  if (rects.isEmpty) {
+    return [_Banda(tipo: _TipoBanda.margen, alturaMm: layout.largoTotalMm)];
+  }
+
+  var cursorMm = 0;
+  if (rects.first.yMm > cursorMm) {
+    bandas.add(_Banda(tipo: _TipoBanda.margen, alturaMm: rects.first.yMm - cursorMm));
+  }
+  for (var i = 0; i < rects.length; i++) {
+    final r = rects[i];
+    bandas.add(
+      _Banda(
+        tipo: r.tipo == 'reserva' ? _TipoBanda.reserva : _TipoBanda.circulacion,
+        alturaMm: r.largoMm,
       ),
     );
+    cursorMm = r.yMm + r.largoMm;
+    if (i + 1 < rects.length) {
+      final hueco = rects[i + 1].yMm - cursorMm;
+      if (hueco > 0) {
+        bandas.add(_Banda(tipo: _TipoBanda.separacion, alturaMm: hueco));
+        cursorMm += hueco;
+      }
+    }
+  }
+  if (layout.largoTotalMm > cursorMm) {
+    bandas.add(_Banda(tipo: _TipoBanda.margen, alturaMm: layout.largoTotalMm - cursorMm));
+  }
+  return bandas;
+}
+
+/// Mapeo milímetro → píxel del eje Y, respetando el alto mínimo de cada
+/// [_Banda]. Se construye una sola vez por pintado y lo usan tanto el
+/// tamaño del `CustomPaint` (su altura total) como el painter (la posición
+/// de cada rectángulo).
+class _EjeY {
+  _EjeY(List<_Banda> bandas, double escala) {
+    var mm = 0;
+    var px = 0.0;
+    _mmLimites.add(mm);
+    _pxLimites.add(px);
+    for (final b in bandas) {
+      mm += b.alturaMm;
+      px += b.alturaPx(escala);
+      _mmLimites.add(mm);
+      _pxLimites.add(px);
+    }
+  }
+
+  final List<int> _mmLimites = [];
+  final List<double> _pxLimites = [];
+
+  double get alturaTotalPx => _pxLimites.last;
+
+  /// Píxel Y correspondiente a `mm`. Los bordes de cada [Rectangulo]
+  /// siempre caen exactamente en un límite de banda, así que en la
+  /// práctica esto nunca interpola dentro de una franja — pero lo hace de
+  /// todas formas por si el valor cae en medio (p.ej. redondeos).
+  double px(int mm) {
+    for (var i = 0; i < _mmLimites.length - 1; i++) {
+      final mm0 = _mmLimites[i];
+      final mm1 = _mmLimites[i + 1];
+      if (mm <= mm1) {
+        if (mm1 == mm0) return _pxLimites[i];
+        final t = (mm - mm0) / (mm1 - mm0);
+        return _pxLimites[i] + t * (_pxLimites[i + 1] - _pxLimites[i]);
+      }
+    }
+    return _pxLimites.last;
   }
 }
 
@@ -70,14 +215,21 @@ class _Plano2DPainter extends CustomPainter {
     required this.modulosPorFila,
     required this.frenteAndenMm,
     required this.patioProfundidadMm,
+    required this.escala,
+    required this.bandas,
+    required this.ejeY,
   });
 
   final ResultadoLayout layout;
   final int modulosPorFila;
   final int frenteAndenMm;
   final int patioProfundidadMm;
+  final double escala;
+  final List<_Banda> bandas;
+  final _EjeY ejeY;
 
   static const _margenCotaPx = 40.0;
+  static const _franjaAndenPx = 56.0;
   static const _colorCota = Color(0xFF616161);
 
   @override
@@ -87,37 +239,13 @@ class _Plano2DPainter extends CustomPainter {
         : (layout.anchoTotalMm - frenteAndenMm) ~/ 2;
     final yAndenMm = layout.largoTotalMm;
 
-    // Franja fija para el indicador del andén, aparte de la escala del
-    // edificio — el patio de maniobras real (patioProfundidadMm, del orden
-    // de 15-20 m) puede ser mucho más profundo que todo el racking, y
-    // dibujarlo a la misma escala reduciría el edificio a un punto. El
-    // andén se representa a ancho real pero a profundidad esquemática; su
-    // profundidad real ya está acotada en la ficha técnica y en el DXF.
-    const franjaAndenPx = 56.0;
-
-    final espacioDisponible = Rect.fromLTWH(
-      _margenCotaPx,
-      _margenCotaPx,
-      size.width - 2 * _margenCotaPx,
-      size.height - 2 * _margenCotaPx - franjaAndenPx - _margenCotaPx,
-    );
-    // Escala uniforme (misma en X e Y, para no deformar el dibujo) que
-    // quepa en el espacio disponible, luego centrada — así un layout muy
-    // ancho y poco profundo (o al revés) no queda ni distorsionado ni
-    // reducido a una línea.
-    final escala = [
-      espacioDisponible.width / layout.anchoTotalMm,
-      espacioDisponible.height / layout.largoTotalMm,
-    ].reduce((a, b) => a < b ? a : b);
-
     final anchoDibujoPx = layout.anchoTotalMm * escala;
-    final altoDibujoPx = layout.largoTotalMm * escala;
-    final origen = Offset(
-      espacioDisponible.left + (espacioDisponible.width - anchoDibujoPx) / 2,
-      espacioDisponible.top + (espacioDisponible.height - altoDibujoPx) / 2,
-    );
+    final espacioAnchoDibujo = size.width - 2 * _margenCotaPx;
+    final origenX = _margenCotaPx + (espacioAnchoDibujo - anchoDibujoPx) / 2;
+    const origenY = _margenCotaPx;
 
-    Offset punto(num xMm, num yMm) => origen + Offset(xMm * escala, yMm * escala);
+    Offset punto(num xMm, num yMm) =>
+        Offset(origenX + xMm * escala, origenY + ejeY.px(yMm.round()));
 
     // Envolvente del edificio (el "muro"): ancla visual del plano, para que
     // no se lea como formas flotantes sin contexto.
@@ -158,15 +286,50 @@ class _Plano2DPainter extends CustomPainter {
       _dibujarEtiquetaEnRect(canvas, rect, etiqueta, colorBorde);
     }
 
+    // Separaciones de espalda (huecos entre dos `reserva` consecutivos de
+    // una fila doble): sin esto, con el hueco real de 200mm la franja es
+    // invisible a esta escala y dos filas distintas se leen como una sola.
+    // Al dibujarla con su propio color y su alto mínimo garantizado
+    // ([_TipoBanda.separacion]), se ve claramente que son 2 filas con un
+    // hueco estructural entre ellas — no un pasillo transitable.
+    for (var i = 0; i < layout.rectangulos.length - 1; i++) {
+      final a = layout.rectangulos[i];
+      final b = layout.rectangulos[i + 1];
+      if (a.tipo == 'reserva' && b.tipo == 'reserva') {
+        final separacionMm = b.yMm - (a.yMm + a.largoMm);
+        final rectSeparacion = Rect.fromPoints(
+          punto(a.xMm, a.yMm + a.largoMm),
+          punto(a.xMm + a.anchoMm, b.yMm),
+        );
+        canvas.drawRect(rectSeparacion, Paint()..color = Plano2D.colorSeparacion);
+        canvas.drawRect(
+          rectSeparacion,
+          Paint()
+            ..color = Plano2D.colorSeparacionBorde
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1,
+        );
+        _dibujarEtiquetaEnRect(
+          canvas,
+          rectSeparacion,
+          '$separacionMm mm',
+          Plano2D.colorSeparacionBorde,
+        );
+      }
+    }
+
     // Andén: mismo ancho real que frente_anden (a escala), pero profundidad
-    // esquemática de `franjaAndenPx` fijos — ver el comentario sobre
-    // `franjaAndenPx` más arriba. El patio real (patioProfundidadMm) está
-    // acotado en el texto de la etiqueta y en la ficha técnica.
+    // esquemática de `_franjaAndenPx` fijos — el patio real
+    // (patioProfundidadMm) puede ser mucho más profundo que todo el
+    // racking, y dibujarlo a la misma escala reduciría el edificio a un
+    // punto. El patio real está acotado en el texto de la etiqueta y en la
+    // ficha técnica.
+    final origenAnden = punto(xAndenMm, yAndenMm);
     final rectAnden = Rect.fromLTWH(
-      punto(xAndenMm, yAndenMm).dx,
-      punto(xAndenMm, yAndenMm).dy,
+      origenAnden.dx,
+      origenAnden.dy,
       frenteAndenMm * escala,
-      franjaAndenPx,
+      _franjaAndenPx,
     );
     canvas.drawRect(rectAnden, Paint()..color = Plano2D.colorAnden);
     _dibujarRayado(canvas, rectAnden, Plano2D.colorAndenBorde);
@@ -196,40 +359,6 @@ class _Plano2DPainter extends CustomPainter {
       punto(0, layout.largoTotalMm).translate(-_margenCotaPx / 2, 0),
       '${layout.largoTotalMm} mm',
     );
-
-    final primerPasillo = layout.rectangulos.where((r) => r.tipo == 'circulacion').firstOrNull;
-    if (primerPasillo != null) {
-      _dibujarCotaVertical(
-        canvas,
-        punto(primerPasillo.xMm + primerPasillo.anchoMm, primerPasillo.yMm),
-        punto(primerPasillo.xMm + primerPasillo.anchoMm, primerPasillo.yMm + primerPasillo.largoMm),
-        '${primerPasillo.largoMm} mm',
-        desplazamientoEtiqueta: const Offset(6, 0),
-      );
-    }
-
-    // Separación entre filas: entre el primer par de rectángulos `reserva`
-    // consecutivos (fila doble, espalda con espalda) — igual criterio que
-    // dxf_writer.dart, para que las dos exportaciones no se desincronicen.
-    for (var i = 0; i < layout.rectangulos.length - 1; i++) {
-      final a = layout.rectangulos[i];
-      final b = layout.rectangulos[i + 1];
-      if (a.tipo == 'reserva' && b.tipo == 'reserva') {
-        final separacion = b.yMm - (a.yMm + a.largoMm);
-        // Al lado derecho del edificio, no al izquierdo: la cota de
-        // profundidad total ya vive ahí (afuera, a la izquierda) y quedaban
-        // demasiado cerca para leerse por separado.
-        _dibujarCotaVertical(
-          canvas,
-          punto(a.xMm + a.anchoMm, a.yMm + a.largoMm),
-          punto(a.xMm + a.anchoMm, b.yMm),
-          '$separacion mm',
-          desplazamientoEtiqueta: const Offset(6, 0),
-        );
-        break;
-      }
-    }
-
   }
 
   /// Líneas verticales entre módulos dentro de un rectángulo de racks, para
@@ -289,30 +418,33 @@ class _Plano2DPainter extends CustomPainter {
     );
   }
 
+  /// Cota horizontal: línea + remates perpendiculares (marcas de inicio y
+  /// fin) + valor centrado arriba, en texto horizontal — es la orientación
+  /// natural para una medida horizontal, no necesita rotarse.
   void _dibujarCotaHorizontal(Canvas canvas, Offset a, Offset b, String etiqueta) {
     final paint = Paint()
       ..color = _colorCota
       ..strokeWidth = 1;
     canvas.drawLine(a, b, paint);
+    const remate = 4.0;
+    canvas.drawLine(a.translate(0, -remate), a.translate(0, remate), paint);
+    canvas.drawLine(b.translate(0, -remate), b.translate(0, remate), paint);
     _dibujarTexto(canvas, etiqueta, Offset((a.dx + b.dx) / 2, a.dy - 14));
   }
 
-  void _dibujarCotaVertical(
-    Canvas canvas,
-    Offset a,
-    Offset b,
-    String etiqueta, {
-    Offset desplazamientoEtiqueta = Offset.zero,
-  }) {
+  /// Cota vertical: línea + remates perpendiculares + valor en texto
+  /// vertical, girado 90° y desplazado al lado de la línea (nunca encima)
+  /// — de arriba hacia abajo se lee de izquierda a derecha si se inclina la
+  /// cabeza hacia la derecha, la misma convención que un plano CAD.
+  void _dibujarCotaVertical(Canvas canvas, Offset a, Offset b, String etiqueta) {
     final paint = Paint()
       ..color = _colorCota
       ..strokeWidth = 1;
     canvas.drawLine(a, b, paint);
-    _dibujarTexto(
-      canvas,
-      etiqueta,
-      Offset(a.dx + desplazamientoEtiqueta.dx, (a.dy + b.dy) / 2) + desplazamientoEtiqueta,
-    );
+    const remate = 4.0;
+    canvas.drawLine(a.translate(-remate, 0), a.translate(remate, 0), paint);
+    canvas.drawLine(b.translate(-remate, 0), b.translate(remate, 0), paint);
+    _dibujarTextoVertical(canvas, etiqueta, Offset(a.dx + 9, (a.dy + b.dy) / 2));
   }
 
   void _dibujarTexto(Canvas canvas, String texto, Offset posicion) {
@@ -321,6 +453,22 @@ class _Plano2DPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     )..layout();
     painter.paint(canvas, posicion - Offset(painter.width / 2, painter.height / 2));
+  }
+
+  /// Texto rotado -90° (de abajo hacia arriba en pantalla): la misma
+  /// convención que usan los ejes verticales de un plano CAD o de un
+  /// gráfico, para que nunca quede escrito horizontalmente encima de una
+  /// línea de cota vertical.
+  void _dibujarTextoVertical(Canvas canvas, String texto, Offset posicion) {
+    final painter = TextPainter(
+      text: TextSpan(text: texto, style: const TextStyle(color: _colorCota, fontSize: 10)),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    canvas.save();
+    canvas.translate(posicion.dx, posicion.dy);
+    canvas.rotate(-math.pi / 2);
+    painter.paint(canvas, Offset(-painter.width / 2, -painter.height / 2));
+    canvas.restore();
   }
 
   @override
