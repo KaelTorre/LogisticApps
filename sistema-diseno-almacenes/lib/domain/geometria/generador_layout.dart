@@ -75,32 +75,46 @@ ResultadoLayout generarLayout({
 
   final anchoRacksMm = modulosPorFila * (largoVigaMm + perfilAnchoBastidorMm);
 
-  // Agrupar filas en pares (fila doble). Si sobra una, queda sola contra
-  // el muro del otro extremo.
-  final numPares = filas ~/ 2;
-  final filaImparSuelta = filas.isOdd;
-  final profundidadesGrupo = <int>[
-    for (var i = 0; i < numPares; i++) 2 * fondoBastidorMm + separacionEspaldaMm,
-    if (filaImparSuelta) fondoBastidorMm,
+  // Bloques de la sección transversal, en orden de muro cercano a muro
+  // lejano: cada bloque es `1` (fila simple) o `2` (fila doble/espalda con
+  // espalda). Las filas contra un muro perimetral SIEMPRE van simples — una
+  // fila doble en el borde dejaría una de sus dos filas sin pasillo de
+  // acceso por ningún lado (inaccesible en la práctica, el muro no sirve de
+  // pasillo). Solo se emparejan las filas interiores, que ya quedan
+  // flanqueadas por pasillos por construcción; eso además maximiza el
+  // ratio de superficie sin sacrificar accesibilidad, porque cada fila
+  // interior que se logra emparejar ahorra un pasillo completo a cambio de
+  // solo `separacionEspaldaMm` de separación de espalda.
+  final bloques = <int>[
+    if (filas == 1)
+      1
+    else ...[
+      1,
+      for (var i = 0; i < (filas - 2) ~/ 2; i++) 2,
+      if ((filas - 2).isOdd) 1,
+      1,
+    ],
   ];
+  final numPares = bloques.where((b) => b == 2).length;
+  final numSimples = bloques.where((b) => b == 1).length;
 
   final rectangulos = <Rectangulo>[];
   var cursorY = holguraMuroMm;
   var supRacksMm2 = 0;
   var supPasillosMm2 = 0;
 
-  for (var i = 0; i < profundidadesGrupo.length; i++) {
-    final esPar = i < numPares;
+  for (var i = 0; i < bloques.length; i++) {
+    final esPar = bloques[i] == 2;
+    rectangulos.add(
+      Rectangulo(
+        xMm: holguraMuroMm,
+        yMm: cursorY,
+        anchoMm: anchoRacksMm,
+        largoMm: fondoBastidorMm,
+        tipo: 'reserva',
+      ),
+    );
     if (esPar) {
-      rectangulos.add(
-        Rectangulo(
-          xMm: holguraMuroMm,
-          yMm: cursorY,
-          anchoMm: anchoRacksMm,
-          largoMm: fondoBastidorMm,
-          tipo: 'reserva',
-        ),
-      );
       rectangulos.add(
         Rectangulo(
           xMm: holguraMuroMm,
@@ -111,21 +125,13 @@ ResultadoLayout generarLayout({
         ),
       );
       supRacksMm2 += 2 * anchoRacksMm * fondoBastidorMm;
+      cursorY += 2 * fondoBastidorMm + separacionEspaldaMm;
     } else {
-      rectangulos.add(
-        Rectangulo(
-          xMm: holguraMuroMm,
-          yMm: cursorY,
-          anchoMm: anchoRacksMm,
-          largoMm: fondoBastidorMm,
-          tipo: 'reserva',
-        ),
-      );
       supRacksMm2 += anchoRacksMm * fondoBastidorMm;
+      cursorY += fondoBastidorMm;
     }
-    cursorY += profundidadesGrupo[i];
 
-    final esUltimo = i == profundidadesGrupo.length - 1;
+    final esUltimo = i == bloques.length - 1;
     if (!esUltimo) {
       rectangulos.add(
         Rectangulo(
@@ -150,20 +156,21 @@ ResultadoLayout generarLayout({
       orden: 1,
       modulo: 'M3',
       concepto: 'Agrupación en fila doble',
-      formula: 'pares = filas ~/ 2; sobra 1 fila simple si filas es impar',
+      formula: 'las filas contra un muro van simples; solo se emparejan las '
+          'filas interiores (siempre flanqueadas por pasillo)',
       entradas: {'filas': filas},
-      valor: '$numPares pares${filaImparSuelta ? " + 1 fila simple" : ""}',
+      valor: '$numPares pares${numSimples > 0 ? " + $numSimples fila(s) simple(s)" : ""}',
       unidad: 'grupos',
     ),
     FilaMemoria(
       orden: 2,
       modulo: 'M3',
       concepto: 'Superficie de pasillos',
-      formula: 'sup_pasillos = Σ ancho_racks × ancho_pasillo (uno por cada par de grupos)',
+      formula: 'sup_pasillos = Σ ancho_racks × ancho_pasillo (uno entre cada par de bloques)',
       entradas: {
         'ancho_racks_mm': anchoRacksMm,
         'ancho_pasillo_mm': anchoPasilloMm,
-        'numero_de_pasillos': profundidadesGrupo.length - 1,
+        'numero_de_pasillos': bloques.length - 1,
       },
       valor: '$supPasillosMm2',
       unidad: 'mm²',

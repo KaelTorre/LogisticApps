@@ -64,10 +64,12 @@ String? _valorHeader(String dxf, String variable) {
 
 void main() {
   // Layout de prueba con coordenadas conocidas a mano (ver comentario en
-  // cada aserción para la cuenta): 3 filas (2 en fila doble + 1 suelta),
-  // separación entre filas 200mm, pasillo de 2800mm.
+  // cada aserción para la cuenta): 4 filas — la 1ª y la 4ª van simples
+  // contra su muro (necesitan su propio pasillo), y las 2 interiores se
+  // emparejan en fila doble (separación entre filas 200mm). Pasillo de
+  // 2800mm.
   final layout = generarLayout(
-    filas: 3,
+    filas: 4,
     modulosPorFila: 3,
     largoVigaMm: 1825,
     perfilAnchoBastidorMm: 100,
@@ -121,7 +123,7 @@ void main() {
       final pasillos = entidades.where((e) => e.tipo == 'LWPOLYLINE' && e.capa == 'PASILLOS').toList();
       final circulaciones = layout.rectangulos.where((r) => r.tipo == 'circulacion').toList();
       expect(pasillos, hasLength(circulaciones.length));
-      expect(pasillos.single.vertices.first, (200, 2600));
+      expect(pasillos.first.vertices.first, (200, 1300));
     });
 
     test('dibuja el andén centrado, del tamaño de frente × patio', () {
@@ -129,7 +131,7 @@ void main() {
       final entidades = _parseEntidades(dxf);
       final anden = entidades.singleWhere((e) => e.tipo == 'LWPOLYLINE' && e.capa == 'ANDEN');
       // x centrado: (6175 - 3600) / 2 = 1287 (división entera).
-      expect(anden.vertices.first, (1287, 6700));
+      expect(anden.vertices.first, (1287, 10600));
       expect(anden.vertices[1].$1 - anden.vertices.first.$1, 3600);
       expect(anden.vertices[2].$2 - anden.vertices.first.$2, 18000);
     });
@@ -159,7 +161,7 @@ void main() {
       final valores = textosCota.map(valorTexto).toSet();
       expect(valores, {
         '6175 mm', // ancho total
-        '6700 mm', // profundidad total
+        '10600 mm', // profundidad total
         '2800 mm', // ancho de pasillo (= anchoPasilloMm)
         '200 mm', // separación entre filas (= separacionEspaldaMm)
         '3600 mm', // frente de andén
