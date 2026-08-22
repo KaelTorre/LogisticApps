@@ -20,8 +20,13 @@ class GraficaRequerimientoMensual extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxY =
+    // Redondeado al alza a un múltiplo de 50: igual que en
+    // GraficaPronostico, evita que la etiqueta superior del eje (ej.
+    // "207") caiga pegada a la última línea de cuadrícula ("200") y se
+    // superpongan.
+    final maxYSinRedondear =
         [...requerimientosMensuales, capacidadPropia].reduce((a, b) => a > b ? a : b) * 1.15;
+    final maxY = (maxYSinRedondear / 50).ceil() * 50.0;
 
     return SizedBox(
       height: 260,

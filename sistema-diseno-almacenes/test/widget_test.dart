@@ -1,7 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistema_diseno_almacenes/core/tour/tour_controller.dart';
 import 'package:sistema_diseno_almacenes/data/local/database.dart';
@@ -15,20 +14,13 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     await CatalogoSeedLoader(db).cargar();
 
-    // `visto: true` de entrada -- si no, el banner de la inducción guiada
-    // se muestra encima del formulario y cambia cuánto hay que arrastrar
-    // para llegar al botón "Calcular", además de no ser lo que este test
-    // verifica.
+    // `visto: true` de entrada -- si no, la inducción guiada se abre sola
+    // (empuja InduccionScreen) y este test verifica el formulario, no el
+    // recorrido (ese tiene su propio test).
     SharedPreferences.setMockInitialValues({'induccion_guiada_vista': true});
-    final prefs = await SharedPreferences.getInstance();
-    final tour = TourController(prefs);
+    final tour = TourController(await SharedPreferences.getInstance());
 
-    await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: tour,
-        child: MaterialApp(home: EntradaCalculoScreen(db: db)),
-      ),
-    );
+    await tester.pumpWidget(MaterialApp(home: EntradaCalculoScreen(db: db, tour: tour)));
     await tester.pumpAndSettle();
 
     expect(find.text('Nuevo cálculo'), findsOneWidget);

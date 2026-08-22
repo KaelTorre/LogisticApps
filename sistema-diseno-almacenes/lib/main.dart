@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/tour/tour_controller.dart';
@@ -15,13 +14,6 @@ void main() {
 /// de mostrar cualquier pantalla. `CatalogoSeedLoader.cargar()` es
 /// idempotente (CLAUDE.md sección 6): se puede llamar en cada arranque sin
 /// duplicar filas ni pisar lo que agregó el usuario.
-///
-/// El `ChangeNotifierProvider` envuelve el propio `MaterialApp`, no solo
-/// `home`: un provider colocado adentro de `home` queda encerrado en el
-/// contenido de la primera ruta del `Navigator` (cada ruta empujada después
-/// vive en una entrada hermana del mismo `Overlay`, no descendiente de la
-/// primera), así que `FichaResultadoScreen` y `PlanoScreen` — alcanzadas
-/// con `Navigator.push` — no lo verían.
 class _RaizApp extends StatefulWidget {
   const _RaizApp();
 
@@ -69,13 +61,10 @@ class _RaizAppState extends State<_RaizApp> {
             ),
           );
         }
-        return ChangeNotifierProvider.value(
-          value: snapshot.data!,
-          child: MaterialApp(
-            title: 'Sistema de Diseño de Almacenes',
-            theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
-            home: EntradaCalculoScreen(db: _db),
-          ),
+        return MaterialApp(
+          title: 'Sistema de Diseño de Almacenes',
+          theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
+          home: EntradaCalculoScreen(db: _db, tour: snapshot.data!),
         );
       },
     );

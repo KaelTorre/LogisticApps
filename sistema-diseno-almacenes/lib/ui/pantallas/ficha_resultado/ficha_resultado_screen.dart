@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:provider/provider.dart';
 
-import '../../../core/tour/tour_banner.dart';
-import '../../../core/tour/tour_controller.dart';
 import '../../../domain/export/pdf_builder.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/geometria/prisma_3d.dart';
@@ -47,16 +44,6 @@ class FichaResultadoScreen extends StatefulWidget {
 
 class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
   bool _exportandoPdf = false;
-  bool _bannerTourCerrado = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<TourController>().irA(PasoTour.ficha);
-    });
-  }
 
   Future<void> _exportarPdf({
     required List<FilaMemoria> memoriaCompleta,
@@ -167,24 +154,6 @@ class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (context.watch<TourController>().activo &&
-              context.watch<TourController>().pasoActual == PasoTour.ficha &&
-              !_bannerTourCerrado)
-            TourBanner(
-              titulo: 'Ficha técnica',
-              mensaje:
-                  'Aquí está el resultado: cuántas posiciones instaló el sistema, '
-                  'cuánta superficie ocupa y el estado del andén. Abajo del todo está '
-                  'la memoria de cálculo completa — cada número tiene su fórmula, sus '
-                  'entradas y su fuente, para que puedas defenderlo. Presiona "Ver '
-                  'plano 2D" para seguir el recorrido.',
-              esUltimoPaso: false,
-              onContinuar: () => setState(() => _bannerTourCerrado = true),
-              onSaltar: () {
-                setState(() => _bannerTourCerrado = true);
-                context.read<TourController>().terminar();
-              },
-            ),
           Card(
             margin: EdgeInsets.zero,
             child: Padding(

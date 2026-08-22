@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
-import '../../../core/tour/tour_banner.dart';
+import '../../../core/tour/induccion_screen.dart';
 import '../../../core/tour/tour_controller.dart';
 import '../../../data/local/database.dart';
 import '../../../domain/export/proyecto_portable.dart';
@@ -26,9 +25,10 @@ import '../pronostico/pronostico_screen.dart';
 /// de proyectos ni de escenarios todavía, eso es de fases posteriores. La
 /// simplicidad es de alcance funcional, no de terminado visual.
 class EntradaCalculoScreen extends StatefulWidget {
-  const EntradaCalculoScreen({super.key, required this.db});
+  const EntradaCalculoScreen({super.key, required this.db, required this.tour});
 
   final AppDatabase db;
+  final TourController tour;
 
   @override
   State<EntradaCalculoScreen> createState() => _EntradaCalculoScreenState();
@@ -71,18 +71,21 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
 
   String? _error;
   bool _calculando = false;
-  bool _bannerTourCerrado = false;
 
   @override
   void initState() {
     super.initState();
     _cargarCatalogo();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final tour = context.read<TourController>();
-      tour.iniciarSiEsPrimeraVez();
-      tour.irA(PasoTour.entrada);
-    });
+    if (!widget.tour.yaVisto) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _abrirInduccion());
+    }
+  }
+
+  Future<void> _abrirInduccion() async {
+    if (!mounted) return;
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => InduccionScreen(tour: widget.tour)));
   }
 
   Future<void> _cargarCatalogo() async {
@@ -412,10 +415,6 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       );
     }
 
-    final tour = context.watch<TourController>();
-    final mostrarBannerTour =
-        tour.activo && tour.pasoActual == PasoTour.entrada && !_bannerTourCerrado;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nuevo cálculo'),
@@ -424,10 +423,7 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
             message: 'Ver la inducción guiada de nuevo',
             child: IconButton(
               icon: const Icon(Icons.help_outline),
-              onPressed: () {
-                setState(() => _bannerTourCerrado = false);
-                context.read<TourController>().iniciar();
-              },
+              onPressed: _abrirInduccion,
             ),
           ),
         ],
@@ -437,23 +433,6 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            if (mostrarBannerTour)
-              TourBanner(
-                titulo: '¡Bienvenido!',
-                mensaje:
-                    'Este recorrido te muestra el flujo básico: llenas estos datos '
-                    '(ya vienen con valores de ejemplo), presionas "Calcular" y el '
-                    'sistema te entrega la ficha técnica, el plano y la vista 3D del '
-                    'almacén. Más abajo también hay accesos a comparar escenarios, '
-                    'dimensionar propio vs. público y pronosticar demanda — explóralos '
-                    'cuando quieras, este recorrido solo cubre lo esencial.',
-                esUltimoPaso: false,
-                onContinuar: () => setState(() => _bannerTourCerrado = true),
-                onSaltar: () {
-                  setState(() => _bannerTourCerrado = true);
-                  context.read<TourController>().terminar();
-                },
-              ),
             _seccion(
               context,
               icono: Icons.trending_up,

@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
-import '../../../core/tour/tour_banner.dart';
-import '../../../core/tour/tour_controller.dart';
 import '../../../domain/export/dxf_writer.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../widgets/plano_2d.dart';
@@ -34,16 +31,6 @@ class PlanoScreen extends StatefulWidget {
 
 class _PlanoScreenState extends State<PlanoScreen> {
   bool _exportando = false;
-  bool _bannerTourCerrado = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<TourController>().irA(PasoTour.plano);
-    });
-  }
 
   Future<void> _exportarDxf() async {
     setState(() => _exportando = true);
@@ -114,30 +101,6 @@ class _PlanoScreenState extends State<PlanoScreen> {
       ),
       body: Column(
         children: [
-          if (context.watch<TourController>().activo &&
-              context.watch<TourController>().pasoActual == PasoTour.plano &&
-              !_bannerTourCerrado)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: TourBanner(
-                titulo: 'Plano 2D',
-                mensaje:
-                    'Esta es la vista desde arriba, a escala, con cada zona '
-                    'nombrada y acotada — es lo que se exporta a DXF para abrir en un '
-                    'CAD real. Con esto termina el recorrido básico: desde la ficha '
-                    'técnica también puedes explorar la vista isométrica en 3D, '
-                    'comparar escenarios de racking y dimensionar propio vs. público.',
-                esUltimoPaso: true,
-                onContinuar: () {
-                  setState(() => _bannerTourCerrado = true);
-                  context.read<TourController>().terminar();
-                },
-                onSaltar: () {
-                  setState(() => _bannerTourCerrado = true);
-                  context.read<TourController>().terminar();
-                },
-              ),
-            ),
           Container(
             width: double.infinity,
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
