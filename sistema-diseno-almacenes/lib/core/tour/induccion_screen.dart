@@ -170,13 +170,13 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.trending_up,
         titulo: 'Sección Demanda',
         descripcion:
-            'Convierte tu demanda en tarimas: demanda anual (súmala de tus '
-            'reportes de ventas o despachos del último año), rotación anual '
-            '(demanda ÷ inventario promedio — pregúntale a inventarios o al '
-            'ERP), unidades por tarima (cajas por capa × capas, según cómo '
-            'paletizas) y factor honeycomb (capacidad perdida por huecos de '
-            'acomodo, típico 15–30%). Con esto el motor M2 calcula cuántas '
-            'posiciones de tarima necesitas.',
+            'Convierte tu demanda en tarimas: demanda anual (el volumen que '
+            'vas a mover en el periodo), rotación anual (cuántas veces se '
+            'renueva tu inventario al año), unidades por tarima (cuántas '
+            'unidades caben en una tarima ya paletizada) y factor honeycomb '
+            '(capacidad perdida por huecos de acomodo, normalmente entre '
+            '15% y 30%). Con esto el sistema calcula cuántas posiciones de '
+            'tarima vas a necesitar.',
         snapshot: (context) => _tarjetaCampos(context, icono: Icons.trending_up, titulo: 'Demanda', campos: const [
           (Icons.calendar_today_outlined, 'Demanda anual', '12000'),
           (Icons.autorenew, 'Rotación anual', '12'),
@@ -189,13 +189,13 @@ class _InduccionScreenState extends State<InduccionScreen> {
         titulo: 'Pronóstico de demanda (M1) — opcional',
         descripcion:
             'Si no conoces tu demanda futura pero sí tienes historial, este '
-            'módulo la proyecta con 4 modelos estadísticos (suavización '
-            'exponencial simple, Holt, Winters, descomposición clásica), mide '
-            'el error de cada uno (MAD, MSE, MAPE) y elige automáticamente el '
-            'de menor error. El almacén se dimensiona sobre demanda FUTURA, no '
-            'la actual: si pronosticas 5 años, es el año 5 el que manda. '
-            '"Usar en el cálculo" manda ese número directo al campo Demanda '
-            'anual de la pantalla de entrada.',
+            'módulo la proyecta automáticamente y elige, entre varias '
+            'alternativas, la más precisa para tus datos — no necesitas '
+            'saber estadística para confiar en el resultado. El almacén se '
+            'dimensiona sobre demanda FUTURA, no la actual: si proyectas a '
+            '5 años, es el año 5 el que manda. "Usar en el cálculo" manda '
+            'ese número directo al campo Demanda anual de la pantalla de '
+            'entrada.',
         snapshot: (context) => SizedBox(
           height: 190,
           child: GraficaPronostico(
@@ -209,13 +209,13 @@ class _InduccionScreenState extends State<InduccionScreen> {
         titulo: 'Sección Catálogo',
         descripcion:
             'Eliges 4 piezas reales de catálogo: la tarima que usas, el '
-            'bastidor y la viga de tu proveedor de racks (pide la ficha '
-            'técnica; el largo de viga se mide entre caras internas de '
-            'puntales, no de extremo a extremo — es el error más común al '
-            'medir en campo), y el equipo de manutención que vas a operar (su '
-            'elevación limita los niveles, su pasillo entra en la superficie '
-            'construida). Si algo no está en la lista, se agrega en la '
-            'pantalla de Catálogo con sus medidas reales.',
+            'bastidor y la viga de tu sistema de racks (el largo de viga se '
+            'mide entre caras internas de puntales, no de extremo a '
+            'extremo — es el error más común al medir en campo), y el '
+            'equipo de manutención que vas a operar (su elevación limita '
+            'los niveles, su pasillo entra en la superficie construida). Si '
+            'algo no está en la lista, se agrega en la pantalla de Catálogo '
+            'con sus medidas reales.',
         snapshot: (context) => _tarjetaCampos(context, icono: Icons.inventory_2_outlined, titulo: 'Catálogo', campos: const [
           (Icons.inventory_2_outlined, 'Tarima', 'EPAL · 1200×800 mm'),
           (Icons.view_column_outlined, 'Bastidor', 'BAST-914 · fondo 914 mm'),
@@ -245,9 +245,9 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.local_shipping_outlined,
         titulo: 'Sección Andén',
         descripcion:
-            'Dimensiona las puertas de carga y descarga con una cola M/M/c '
-            '(Erlang C): el camión de diseño (el más grande que atiendes, no '
-            'el promedio), camiones en hora pico (la hora con más llegadas — '
+            'Dimensiona las puertas de carga y descarga a partir de: el '
+            'camión de diseño (el más grande que atiendes, no el '
+            'promedio), camiones en hora pico (la hora con más llegadas — '
             'un almacén con 40 camiones en 8 horas pero 15 entre las 7 y las '
             '9 necesita puertas para las 7, no el promedio del día), tiempo '
             'de servicio, espera objetivo (una decisión de servicio, no un '
@@ -263,14 +263,13 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.calculate_outlined,
         titulo: 'Botón "Calcular"',
         descripcion:
-            'Corre la cadena completa de motores puros: M2 (demanda → '
-            'posiciones), M3 (posiciones → superficie, niveles, módulos), el '
-            'generador de layout (coordenadas de filas y pasillos, agrupadas '
-            'en fila doble para maximizar la relación de superficie), M6 '
-            '(mejor configuración por distancia esperada) y M7 '
-            '(dimensionamiento del andén). Si alguna holgura está por debajo '
-            'del mínimo normativo, el sistema RECHAZA el cálculo en vez de '
-            'ajustarla en silencio. El resultado te lleva a la Ficha técnica.',
+            'Corre todo el cálculo de una vez: convierte tu demanda en '
+            'posiciones y superficie, arma el layout de filas y pasillos, '
+            'encuentra la mejor configuración según distancia de recorrido '
+            'y dimensiona el andén. Si alguna holgura está por debajo del '
+            'mínimo normativo, el sistema RECHAZA el cálculo en vez de '
+            'ajustarla en silencio — así el resultado es siempre uno del '
+            'que te puedes fiar. El resultado te lleva a la Ficha técnica.',
         snapshot: (context) => Column(
           children: [
             _botonMockup(context, icono: Icons.calculate_outlined, texto: 'Calcular'),
@@ -359,8 +358,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
         descripcion:
             'Puertas necesarias, frente de andén (puertas × espaciamiento), '
             'profundidad del patio de maniobras (del catálogo del camión de '
-            'diseño) y el tiempo de espera real en cola, calculado con '
-            'Erlang C.',
+            'diseño) y el tiempo de espera real en cola.',
         snapshot: (context) => _tarjetaCampos(context, icono: Icons.local_shipping_outlined, titulo: 'Andén', campos: const [
           (Icons.door_sliding_outlined, 'Puertas', '3'),
           (Icons.straighten, 'Frente de andén', '10800 mm'),
@@ -491,13 +489,13 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.compare_arrows_outlined,
         titulo: 'Comparador de escenarios (M8)',
         descripcion:
-            'Ejecuta la cadena completa (M2 a M7) sobre 3 presets de sistema '
-            'de racking — selectivo, doble fondo, drive-in — con el mismo '
-            'catálogo, terreno y andén. Tabula posiciones, superficie '
-            'construida, relación de superficie, distancia esperada, '
-            'inversión, costo por posición y accesibilidad. La columna de '
-            'accesibilidad va SIEMPRE pegada al costo: más densidad no es '
-            'gratis, y el sistema nunca separa el ahorro del costo oculto.',
+            'Aplica el cálculo completo a 3 configuraciones de racking — '
+            'selectivo, doble fondo, drive-in — con el mismo catálogo, '
+            'terreno y andén. Tabula posiciones, superficie construida, '
+            'relación de superficie, distancia esperada, inversión, costo '
+            'por posición y accesibilidad. La columna de accesibilidad va '
+            'SIEMPRE pegada al costo: más densidad no es gratis, y el '
+            'sistema nunca separa el ahorro del costo oculto.',
         snapshot: (context) => _tablaMockup(
           context,
           columnas: const ['Escenario', 'Costo/posición', 'Accesibilidad'],
