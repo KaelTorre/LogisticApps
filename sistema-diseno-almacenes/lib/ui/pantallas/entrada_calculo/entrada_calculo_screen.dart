@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
+import '../../../core/tour/tour_banner.dart';
+import '../../../core/tour/tour_controller.dart';
 import '../../../data/local/database.dart';
 import '../../../domain/export/proyecto_portable.dart';
 import '../../../domain/geometria/generador_layout.dart';
@@ -68,11 +71,18 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
 
   String? _error;
   bool _calculando = false;
+  bool _bannerTourCerrado = false;
 
   @override
   void initState() {
     super.initState();
     _cargarCatalogo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final tour = context.read<TourController>();
+      tour.iniciarSiEsPrimeraVez();
+      tour.irA(PasoTour.entrada);
+    });
   }
 
   Future<void> _cargarCatalogo() async {
@@ -402,13 +412,48 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
       );
     }
 
+    final tour = context.watch<TourController>();
+    final mostrarBannerTour =
+        tour.activo && tour.pasoActual == PasoTour.entrada && !_bannerTourCerrado;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Nuevo cálculo')),
+      appBar: AppBar(
+        title: const Text('Nuevo cálculo'),
+        actions: [
+          Tooltip(
+            message: 'Ver la inducción guiada de nuevo',
+            child: IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: () {
+                setState(() => _bannerTourCerrado = false);
+                context.read<TourController>().iniciar();
+              },
+            ),
+          ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (mostrarBannerTour)
+              TourBanner(
+                titulo: '¡Bienvenido!',
+                mensaje:
+                    'Este recorrido te muestra el flujo básico: llenas estos datos '
+                    '(ya vienen con valores de ejemplo), presionas "Calcular" y el '
+                    'sistema te entrega la ficha técnica, el plano y la vista 3D del '
+                    'almacén. Más abajo también hay accesos a comparar escenarios, '
+                    'dimensionar propio vs. público y pronosticar demanda — explóralos '
+                    'cuando quieras, este recorrido solo cubre lo esencial.',
+                esUltimoPaso: false,
+                onContinuar: () => setState(() => _bannerTourCerrado = true),
+                onSaltar: () {
+                  setState(() => _bannerTourCerrado = true);
+                  context.read<TourController>().terminar();
+                },
+              ),
             _seccion(
               context,
               icono: Icons.trending_up,
@@ -418,17 +463,30 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Demanda anual',
                   _demandaAnualCtrl,
                   ayuda: 'Unidades despachadas por año',
+                  tooltip:
+                      'Súmala de tus reportes de ventas o despachos del último '
+                      'año. Si no tienes ese historial a mano, usa "Pronosticar '
+                      'demanda" abajo con los datos que sí tengas.',
                 ),
                 _campoNumerico(
                   'Rotación anual',
                   _rotacionAnualCtrl,
                   ayuda: 'Veces que se repone el inventario al año',
+                  tooltip:
+                      'rotación = demanda anual ÷ inventario promedio. Si no la '
+                      'tienes calculada, pregúntale a inventarios o al ERP; una '
+                      'rotación de 12 significa que el inventario completo se '
+                      'renueva una vez al mes en promedio.',
                 ),
                 _campoNumerico(
                   'Unidades por tarima',
                   _unidadesPorTarimaCtrl,
                   entero: true,
                   ayuda: 'Cuántas unidades caben en una tarima',
+                  tooltip:
+                      'Cajas por capa × capas por tarima, para tu forma real de '
+                      'paletizar. Quien arma las tarimas en el almacén lo sabe de '
+                      'memoria.',
                 ),
                 _campoNumerico(
                   'Factor honeycomb',
@@ -459,6 +517,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _tarimaSeleccionada,
                   (t) => '${t.codigo} · ${t.largoMm}×${t.anchoMm} mm',
                   (v) => setState(() => _tarimaSeleccionada = v),
+                  tooltip:
+                      'La tarima que realmente usas. Si no está en la lista, '
+                      'agrégala en Catálogo con las medidas reales de tu '
+                      'proveedor — no te acerques con la más parecida.',
                 ),
                 _dropdown(
                   'Bastidor',
@@ -467,6 +529,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _bastidorSeleccionado,
                   (b) => '${b.codigo} · fondo ${b.fondoMm} mm',
                   (v) => setState(() => _bastidorSeleccionado = v),
+                  tooltip:
+                      'El bastidor de tu proveedor de racks. Pídele la ficha '
+                      'técnica con el fondo y los perfiles — son los que entran '
+                      'directo al cálculo de niveles y superficie.',
                 ),
                 _dropdown(
                   'Viga',
@@ -475,6 +541,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _vigaSeleccionada,
                   (v) => '${v.codigo} · ${v.largoMm} mm',
                   (v) => setState(() => _vigaSeleccionada = v),
+                  tooltip:
+                      'El largo se mide entre caras internas de puntales, no de '
+                      'extremo a extremo — es el error más común al medir una '
+                      'viga en campo.',
                 ),
                 _dropdown(
                   'Equipo',
@@ -483,6 +553,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _equipoSeleccionado,
                   (e) => '${e.codigo} · eleva ${e.elevacionMaxMm} mm',
                   (v) => setState(() => _equipoSeleccionado = v),
+                  tooltip:
+                      'El montacargas o equipo de manejo que de verdad vas a '
+                      'operar: su elevación limita los niveles y su pasillo '
+                      'mínimo entra en la superficie construida.',
                 ),
               ],
             ),
@@ -497,12 +571,20 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _altoCargaCtrl,
                   entero: true,
                   ayuda: 'Altura de la carga, sin contar la tarima',
+                  tooltip:
+                      'Mide tu producto ya paletizado, sin la tarima. Si varía '
+                      'entre productos, usa el más alto que vaya a ese rack.',
                 ),
                 _campoNumerico(
                   'Altura libre',
                   _alturaLibreCtrl,
                   entero: true,
                   ayuda: 'Altura libre bajo techo del almacén',
+                  tooltip:
+                      'Del piso a lo más bajo de la estructura de techo (viga, '
+                      'ducto o luminaria), no hasta el domo si hay tragaluces. '
+                      'Para un edificio existente, mídelo; para uno nuevo, es una '
+                      'decisión del proyecto.',
                 ),
                 _campoNumerico(
                   'Reserva de techo',
@@ -516,6 +598,9 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _largoDisponibleCtrl,
                   entero: true,
                   ayuda: 'Longitud del terreno para colocar las filas',
+                  tooltip:
+                      'El largo real del área para racks, ya descontando '
+                      'oficinas u otras zonas fijas del terreno o nave.',
                 ),
               ],
             ),
@@ -532,6 +617,10 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   _camionSeleccionado,
                   (c) => '${c.codigo} · patio ${c.patioMinMm} mm',
                   (v) => setState(() => _camionSeleccionado = v),
+                  tooltip:
+                      'El camión más grande que normalmente recibes o '
+                      'despachas — no el promedio, el más exigente en patio de '
+                      'maniobras.',
                 ),
                 _campoNumerico(
                   'Camiones en hora pico',
@@ -546,22 +635,36 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
                   'Tiempo de servicio (minutos)',
                   _tiempoServicioMinCtrl,
                   ayuda: 'Cuánto tarda un camión en cargar o descargar',
+                  tooltip:
+                      'Cronometra unos cuantos camiones típicos, desde que se '
+                      'estacionan hasta que salen, o pregúntale al jefe de andén.',
                 ),
                 _campoNumerico(
                   'Espera objetivo (minutos)',
                   _esperaObjetivoMinCtrl,
                   ayuda: 'Máximo tiempo aceptable en cola antes de entrar',
+                  tooltip:
+                      'No es un dato medido, es una decisión de servicio: '
+                      '¿cuánto tiempo de espera le vas a tolerar a un '
+                      'transportista antes de que se queje o te cobre demora?',
                 ),
                 _campoNumerico(
                   'Espaciamiento entre puertas',
                   _espaciamientoPuertaCtrl,
                   entero: true,
                   ayuda: 'Mínimo normativo 3000mm, típico 3600mm',
+                  tooltip:
+                      'Distancia entre el centro de una puerta y la siguiente. '
+                      'El sistema rechaza valores por debajo de 3000mm.',
                 ),
                 _campoNumerico(
                   'Área de preparación por puerta (m²)',
                   _areaStagingCtrl,
                   ayuda: 'Espacio de staging frente a cada puerta',
+                  tooltip:
+                      'El espacio frente a cada puerta para acomodar tarimas '
+                      'mientras se carga o descarga. Si no lo has medido, '
+                      '15–20 m² por puerta es un punto de partida razonable.',
                 ),
               ],
             ),
@@ -702,21 +805,36 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
     List<T> opciones,
     T? seleccionado,
     String Function(T) etiquetaDe,
-    void Function(T?) onChanged,
-  ) {
+    void Function(T?) onChanged, {
+    String? tooltip,
+  }) {
+    // El tooltip va afuera del campo, no como `suffixIcon`: el propio
+    // DropdownButtonFormField ya usa ese espacio para su flecha — ponerle un
+    // suffixIcon la tapa y el campo deja de verse como desplegable.
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: DropdownButtonFormField<T>(
-        initialValue: seleccionado,
-        decoration: InputDecoration(
-          labelText: etiqueta,
-          isDense: true,
-          prefixIcon: Icon(icono, size: 20),
-        ),
-        items: opciones
-            .map((o) => DropdownMenuItem(value: o, child: Text(etiquetaDe(o))))
-            .toList(),
-        onChanged: onChanged,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<T>(
+              initialValue: seleccionado,
+              decoration: InputDecoration(
+                labelText: etiqueta,
+                isDense: true,
+                prefixIcon: Icon(icono, size: 20),
+              ),
+              items: opciones
+                  .map((o) => DropdownMenuItem(value: o, child: Text(etiquetaDe(o))))
+                  .toList(),
+              onChanged: onChanged,
+            ),
+          ),
+          if (tooltip != null) ...[
+            const SizedBox(width: 4),
+            Tooltip(message: tooltip, child: const Icon(Icons.info_outline, size: 18)),
+          ],
+        ],
       ),
     );
   }

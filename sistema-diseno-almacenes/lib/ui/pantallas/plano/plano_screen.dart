@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
+import '../../../core/tour/tour_banner.dart';
+import '../../../core/tour/tour_controller.dart';
 import '../../../domain/export/dxf_writer.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../widgets/plano_2d.dart';
@@ -15,11 +18,13 @@ class PlanoScreen extends StatefulWidget {
   const PlanoScreen({
     super.key,
     required this.layout,
+    required this.modulosPorFila,
     required this.frenteAndenMm,
     required this.patioProfundidadMm,
   });
 
   final ResultadoLayout layout;
+  final int modulosPorFila;
   final int frenteAndenMm;
   final int patioProfundidadMm;
 
@@ -29,6 +34,16 @@ class PlanoScreen extends StatefulWidget {
 
 class _PlanoScreenState extends State<PlanoScreen> {
   bool _exportando = false;
+  bool _bannerTourCerrado = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<TourController>().irA(PasoTour.plano);
+    });
+  }
 
   Future<void> _exportarDxf() async {
     setState(() => _exportando = true);
@@ -99,20 +114,82 @@ class _PlanoScreenState extends State<PlanoScreen> {
       ),
       body: Column(
         children: [
+          if (context.watch<TourController>().activo &&
+              context.watch<TourController>().pasoActual == PasoTour.plano &&
+              !_bannerTourCerrado)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: TourBanner(
+                titulo: 'Plano 2D',
+                mensaje:
+                    'Esta es la vista desde arriba, a escala, con cada zona '
+                    'nombrada y acotada — es lo que se exporta a DXF para abrir en un '
+                    'CAD real. Con esto termina el recorrido básico: desde la ficha '
+                    'técnica también puedes explorar la vista isométrica en 3D, '
+                    'comparar escenarios de racking y dimensionar propio vs. público.',
+                esUltimoPaso: true,
+                onContinuar: () {
+                  setState(() => _bannerTourCerrado = true);
+                  context.read<TourController>().terminar();
+                },
+                onSaltar: () {
+                  setState(() => _bannerTourCerrado = true);
+                  context.read<TourController>().terminar();
+                },
+              ),
+            ),
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Vista desde arriba, a escala, en milímetros. Cada rectángulo lleva '
+                    'su nombre y sus medidas. Acerca (rueda del mouse o pellizco) para leer '
+                    'el detalle de cada módulo.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 4,
               children: [
-                _leyenda(Plano2D.colorRacks, 'Racks'),
-                const SizedBox(width: 16),
-                _leyenda(Plano2D.colorPasillo, 'Pasillo', bordeado: true),
+                _leyenda(Plano2D.colorRacks, Plano2D.colorRacksBorde, 'Racks'),
+                _leyenda(Plano2D.colorPasillo, Plano2D.colorPasilloBorde, 'Pasillo'),
+                _leyenda(Plano2D.colorAnden, Plano2D.colorAndenBorde, 'Andén'),
               ],
             ),
           ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Plano2D(layout: layout),
+              child: Plano2D(
+                layout: layout,
+                modulosPorFila: widget.modulosPorFila,
+                frenteAndenMm: widget.frenteAndenMm,
+                patioProfundidadMm: widget.patioProfundidadMm,
+              ),
             ),
           ),
         ],
@@ -120,7 +197,7 @@ class _PlanoScreenState extends State<PlanoScreen> {
     );
   }
 
-  Widget _leyenda(Color color, String etiqueta, {bool bordeado = false}) {
+  Widget _leyenda(Color relleno, Color borde, String etiqueta) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -128,8 +205,8 @@ class _PlanoScreenState extends State<PlanoScreen> {
           width: 14,
           height: 14,
           decoration: BoxDecoration(
-            color: color,
-            border: bordeado ? Border.all(color: Colors.black26) : null,
+            color: relleno,
+            border: Border.all(color: borde),
             borderRadius: BorderRadius.circular(3),
           ),
         ),

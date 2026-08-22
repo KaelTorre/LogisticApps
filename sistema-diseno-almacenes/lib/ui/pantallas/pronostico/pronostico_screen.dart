@@ -83,6 +83,34 @@ class _PronosticoScreenState extends State<PronosticoScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colores.secondaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.lightbulb_outline, size: 18, color: colores.onSecondaryContainer),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Este paso es opcional. Sirve para estimar cuánta demanda vas a '
+                      'tener en el futuro (no cuánta tienes hoy) a partir de tu historial '
+                      'de ventas o despachos. Pruébalo con varios modelos estadísticos y '
+                      'te dice cuál se ajusta mejor a tus datos. Al terminar, el botón '
+                      '"Usar en el cálculo" manda ese número a la pantalla anterior — si '
+                      'ya sabes tu demanda futura, puedes saltarte esta pantalla '
+                      'directamente.',
+                      style: TextStyle(color: colores.onSecondaryContainer, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             _tarjeta(
               context,
               icono: Icons.timeline_outlined,

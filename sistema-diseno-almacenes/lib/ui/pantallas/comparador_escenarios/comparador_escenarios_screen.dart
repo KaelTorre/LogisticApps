@@ -285,6 +285,39 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Compara 3 formas de guardar la misma demanda: selectivo '
+                      '(cada tarima accesible), doble fondo y drive-in (más '
+                      'densos, pero con menos acceso directo). Los datos de abajo '
+                      'son compartidos; solo el factor de fondo, el honeycomb y '
+                      'los costos cambian por escenario.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             _tarjeta(
               context,
               icono: Icons.inventory_2_outlined,
@@ -297,6 +330,7 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   _tarima,
                   (t) => '${t.codigo} · ${t.largoMm}×${t.anchoMm} mm',
                   (v) => setState(() => _tarima = v),
+                  tooltip: 'La tarima que realmente usas en este proyecto.',
                 ),
                 _dropdown(
                   'Bastidor',
@@ -304,6 +338,7 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   _bastidor,
                   (b) => '${b.codigo} · fondo ${b.fondoMm} mm',
                   (v) => setState(() => _bastidor = v),
+                  tooltip: 'De la ficha técnica de tu proveedor de racks.',
                 ),
                 _dropdown(
                   'Viga',
@@ -311,6 +346,7 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   _viga,
                   (v) => '${v.codigo} · ${v.largoMm} mm',
                   (v) => setState(() => _viga = v),
+                  tooltip: 'Largo medido entre caras internas de puntales.',
                 ),
                 _dropdown(
                   'Equipo',
@@ -318,11 +354,35 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   _equipo,
                   (e) => '${e.codigo} · eleva ${e.elevacionMaxMm} mm',
                   (v) => setState(() => _equipo = v),
+                  tooltip:
+                      'Se usa igual en los 3 escenarios (simplificación '
+                      'declarada): comparar equipos distintos por escenario '
+                      'exigiría un análisis de throughput que el sistema no hace.',
                 ),
-                _campo('Alto de carga', _altoCargaCtrl, entero: true),
-                _campo('Altura libre', _alturaLibreCtrl, entero: true),
-                _campo('Reserva de techo', _reservaTechoCtrl, entero: true),
-                _campo('Largo disponible', _largoDisponibleCtrl, entero: true),
+                _campo(
+                  'Alto de carga',
+                  _altoCargaCtrl,
+                  entero: true,
+                  tooltip: 'Altura de la carga ya paletizada, sin la tarima.',
+                ),
+                _campo(
+                  'Altura libre',
+                  _alturaLibreCtrl,
+                  entero: true,
+                  tooltip: 'Del piso a lo más bajo de la estructura de techo.',
+                ),
+                _campo(
+                  'Reserva de techo',
+                  _reservaTechoCtrl,
+                  entero: true,
+                  tooltip: 'Espacio para rociadores y luminarias; se resta antes de calcular niveles.',
+                ),
+                _campo(
+                  'Largo disponible',
+                  _largoDisponibleCtrl,
+                  entero: true,
+                  tooltip: 'Longitud real del terreno para colocar las filas.',
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -332,8 +392,16 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
               titulo: 'Demanda y andén',
               subtitulo: 'Compartidos por los 3 escenarios',
               children: [
-                _campo('Demanda anual', _demandaAnualCtrl),
-                _campo('Rotación anual', _rotacionAnualCtrl),
+                _campo(
+                  'Demanda anual',
+                  _demandaAnualCtrl,
+                  tooltip: 'De tus reportes de ventas o despachos del último año.',
+                ),
+                _campo(
+                  'Rotación anual',
+                  _rotacionAnualCtrl,
+                  tooltip: 'demanda anual ÷ inventario promedio.',
+                ),
                 _campo('Unidades por tarima', _unidadesPorTarimaCtrl, entero: true),
                 _dropdown(
                   'Camión de diseño',
@@ -341,8 +409,13 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   _camion,
                   (c) => '${c.codigo} · patio ${c.patioMinMm} mm',
                   (v) => setState(() => _camion = v),
+                  tooltip: 'El camión más grande que normalmente atiendes, no el promedio.',
                 ),
-                _campo('Camiones en hora pico', _camionesHoraPicoCtrl),
+                _campo(
+                  'Camiones en hora pico',
+                  _camionesHoraPicoCtrl,
+                  tooltip: 'La hora con más llegadas, no el promedio diario.',
+                ),
                 _campo('Tiempo de servicio (min)', _tiempoServicioMinCtrl),
                 _campo('Espera objetivo (min)', _esperaObjetivoMinCtrl),
                 _campo('Espaciamiento entre puertas', _espaciamientoPuertaCtrl, entero: true),
@@ -562,15 +635,32 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
     List<T> opciones,
     T? seleccionado,
     String Function(T) etiquetaDe,
-    void Function(T?) onChanged,
-  ) {
+    void Function(T?) onChanged, {
+    String? tooltip,
+  }) {
+    // El tooltip va afuera del campo, no como `suffixIcon`: ese espacio ya
+    // lo usa la flecha propia del DropdownButtonFormField, y un suffixIcon
+    // la tapa.
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: DropdownButtonFormField<T>(
-        initialValue: seleccionado,
-        decoration: InputDecoration(labelText: etiqueta, isDense: true),
-        items: opciones.map((o) => DropdownMenuItem(value: o, child: Text(etiquetaDe(o)))).toList(),
-        onChanged: onChanged,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<T>(
+              initialValue: seleccionado,
+              decoration: InputDecoration(labelText: etiqueta, isDense: true),
+              items: opciones
+                  .map((o) => DropdownMenuItem(value: o, child: Text(etiquetaDe(o))))
+                  .toList(),
+              onChanged: onChanged,
+            ),
+          ),
+          if (tooltip != null) ...[
+            const SizedBox(width: 4),
+            Tooltip(message: tooltip, child: const Icon(Icons.info_outline, size: 18)),
+          ],
+        ],
       ),
     );
   }

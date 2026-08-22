@@ -46,6 +46,9 @@ dependencies:
   # Dart" de CLAUDE.md sección 3, que aplica al motor, no a resolución de
   # rutas del SO. 100% local y offline, sin nube ni cuenta.
   path_provider: ^2.1.5
+  # Único uso: recordar si ya se mostró la inducción guiada (una bandera
+  # booleana). Paquete oficial de Flutter, local, sin nube.
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

@@ -130,38 +130,106 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.lightbulb_outline,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Decide cuánto espacio te conviene poseer y cuánto cubrir con '
+                    'almacén público. "Sin tendencia" (M4) es para demanda estable '
+                    'pero estacional, mes a mes; "Con tendencia" (M5) es para '
+                    'demanda que crece año a año. Pídele la tarifa a 2-3 operadores '
+                    'de almacén público de tu zona para la sección de abajo.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           _tarjeta(
             context,
             icono: Icons.calendar_view_month_outlined,
             titulo: 'Tarifa de almacén público',
             children: [
-              DropdownButtonFormField<_TipoTarifa>(
-                initialValue: _tipoTarifa,
-                decoration: const InputDecoration(labelText: 'Forma de cotización', isDense: true),
-                items: const [
-                  DropdownMenuItem(
-                    value: _TipoTarifa.porManejo,
-                    child: Text('Por manejo (entrada + salida)'),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<_TipoTarifa>(
+                      initialValue: _tipoTarifa,
+                      decoration: const InputDecoration(
+                        labelText: 'Forma de cotización',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: _TipoTarifa.porManejo,
+                          child: Text('Por manejo (entrada + salida)'),
+                        ),
+                        DropdownMenuItem(
+                          value: _TipoTarifa.porEspacio,
+                          child: Text('Por espacio ocupado'),
+                        ),
+                        DropdownMenuItem(
+                          value: _TipoTarifa.arrendamiento,
+                          child: Text('Arrendamiento + personal'),
+                        ),
+                      ],
+                      onChanged: (v) => setState(() => _tipoTarifa = v!),
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: _TipoTarifa.porEspacio,
-                    child: Text('Por espacio ocupado'),
-                  ),
-                  DropdownMenuItem(
-                    value: _TipoTarifa.arrendamiento,
-                    child: Text('Arrendamiento + personal'),
+                  const SizedBox(width: 4),
+                  const Tooltip(
+                    message:
+                        'Las 3 formas de cotización del capítulo 11: por manejo '
+                        '(cobran por unidad que entra y sale), por espacio '
+                        '(cobran por posición-mes ocupada) o arrendamiento fijo '
+                        '(cobran lo mismo aunque uses poco).',
+                    child: Icon(Icons.info_outline, size: 18),
                   ),
                 ],
-                onChanged: (v) => setState(() => _tipoTarifa = v!),
               ),
               const SizedBox(height: 6),
               if (_tipoTarifa == _TipoTarifa.porManejo) ...[
-                _campo('Cargo por entrada (por posición)', _cargoEntradaCtrl),
-                _campo('Cargo por salida (por posición)', _cargoSalidaCtrl),
+                _campo(
+                  'Cargo por entrada (por posición)',
+                  _cargoEntradaCtrl,
+                  tooltip: 'Lo que cobra el operador público por cada posición que entra.',
+                ),
+                _campo(
+                  'Cargo por salida (por posición)',
+                  _cargoSalidaCtrl,
+                  tooltip: 'Lo que cobra el operador público por cada posición que sale.',
+                ),
               ] else if (_tipoTarifa == _TipoTarifa.porEspacio)
-                _campo('Tarifa por posición-mes', _tarifaEspacioCtrl)
+                _campo(
+                  'Tarifa por posición-mes',
+                  _tarifaEspacioCtrl,
+                  tooltip: 'Costo por cada posición ocupada, por mes, cotizado por el operador.',
+                )
               else
-                _campo('Costo fijo mensual del arriendo', _costoFijoArrendamientoCtrl),
+                _campo(
+                  'Costo fijo mensual del arriendo',
+                  _costoFijoArrendamientoCtrl,
+                  tooltip: 'Se cobra completo en cualquier mes con desborde, sin importar cuánto.',
+                ),
             ],
           ),
           const SizedBox(height: 16),
@@ -173,7 +241,19 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
               titulo: 'Sin tendencia (M4)',
               subtitulo: 'Cuánto poseer vs. cuánto cubrir con público, mes a mes',
               children: [
-                Text('Requerimiento mensual', style: Theme.of(context).textTheme.labelMedium),
+                Row(
+                  children: [
+                    Text('Requerimiento mensual', style: Theme.of(context).textTheme.labelMedium),
+                    const SizedBox(width: 6),
+                    Tooltip(
+                      message:
+                          'Posiciones que necesitas cada mes. Sácalo de tu '
+                          'historial de inventario máximo mensual, o del '
+                          'pronóstico si tu demanda es estacional.',
+                      child: Icon(Icons.info_outline, size: 14, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -236,18 +316,43 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
               titulo: 'Con tendencia (M5)',
               subtitulo: 'Todo ahora vs. por etapas vs. base + público',
               children: [
-                _campo('Demanda inicial (posiciones, año 1)', _demandaInicialCtrl, entero: true),
+                _campo(
+                  'Demanda inicial (posiciones, año 1)',
+                  _demandaInicialCtrl,
+                  entero: true,
+                  tooltip: 'Las posiciones que necesitas hoy, el año 1 del horizonte.',
+                ),
                 _campo(
                   'Tasa de crecimiento anual',
                   _tasaCrecimientoCtrl,
                   ayuda: 'Ej. 0.10 = 10% anual',
+                  tooltip:
+                      'De cuánto creció tu demanda en los últimos años, o la '
+                      'meta de crecimiento del negocio si es un proyecto nuevo.',
                 ),
-                _campo('Horizonte (años)', _horizonteCtrl, entero: true),
-                _campo('Costo de construcción por posición', _costoConstruccionCtrl),
+                _campo(
+                  'Horizonte (años)',
+                  _horizonteCtrl,
+                  entero: true,
+                  tooltip: 'Cuántos años a futuro planeas — 5 años es un horizonte típico.',
+                ),
+                _campo(
+                  'Costo de construcción por posición',
+                  _costoConstruccionCtrl,
+                  tooltip:
+                      'Costo total de obra (terreno, estructura, racks, equipo) '
+                      'dividido entre las posiciones que vas a construir. '
+                      'Pídele una cotización preliminar a un constructor si no '
+                      'la tienes.',
+                ),
                 _campo(
                   'Tasa de descuento anual',
                   _tasaDescuentoCtrl,
                   ayuda: 'Para traer los costos a valor presente',
+                  tooltip:
+                      'El costo de oportunidad del capital de tu empresa — '
+                      'pregúntale a finanzas, o usa la tasa de un préstamo '
+                      'similar si no tienes una definida.',
                 ),
                 _campo(
                   'Año de la etapa',
