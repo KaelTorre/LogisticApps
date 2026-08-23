@@ -305,11 +305,12 @@ ResultadoM8 compararEscenarios({
         orden: 1,
         modulo: 'M8',
         concepto: 'Inversión estimada — ${esc.nombre}',
-        formula: 'inversion = (sup_construida en m²) × costo_construccion_m2 + costo_equipos',
+        formula: 'Inversión = Superficie construida (m²) × Costo de construcción por m² '
+            '+ Costo de equipos',
         entradas: {
-          'sup_construida_m2': supConstruidaM2,
-          'costo_construccion_por_m2': esc.costoConstruccionPorM2,
-          'costo_equipos': esc.costoEquipos,
+          'Superficie construida (m²)': supConstruidaM2,
+          'Costo de construcción por m²': esc.costoConstruccionPorM2,
+          'Costo de equipos': esc.costoEquipos,
         },
         valor: inversionEstimada.toStringAsFixed(2),
         unidad: 'moneda del proyecto',
@@ -318,11 +319,12 @@ ResultadoM8 compararEscenarios({
         orden: 2,
         modulo: 'M8',
         concepto: 'Accesibilidad — ${esc.nombre}',
-        formula: 'etiqueta por tipo_sistema, CLAUDE.md sección 6.5',
-        entradas: {'tipo_sistema': esc.tipoSistema},
+        formula: 'Etiqueta de accesibilidad según el tipo de sistema de almacenamiento',
+        entradas: {'Tipo de sistema': esc.tipoSistema},
         valor: accesibilidad,
         unidad: 'descripción',
-        fuente: 'CLAUDE.md sección 6.5 — el costo de la densidad se declara siempre, no solo la ganancia',
+        fuente: 'Un sistema más denso siempre cuesta algo en accesibilidad: '
+            'se declara junto con la ganancia de posiciones, nunca por separado.',
       ),
     ];
 
@@ -353,11 +355,13 @@ ResultadoM8 compararEscenarios({
       orden: 1,
       modulo: 'M8',
       concepto: 'Escenarios comparados',
-      formula: 'ejecutar M2 a M7 por cada escenario, misma demanda y perfil de andén',
-      entradas: {'escenarios': resultados.map((r) => r.nombre).join(', ')},
+      formula: 'Se recalculan las posiciones, la superficie y el andén de cada '
+          'escenario con la misma demanda y el mismo perfil de camiones',
+      entradas: {'Escenarios comparados': resultados.map((r) => r.nombre).join(', ')},
       valor: '${resultados.length}',
       unidad: 'escenarios',
-      fuente: 'CLAUDE.md sección 6.5 — mostrar siempre el costo de la densidad junto a la ganancia',
+      fuente: 'Un sistema más denso siempre cuesta algo en accesibilidad: '
+          'se muestra junto con la ganancia de posiciones, nunca por separado.',
     ),
   ];
 

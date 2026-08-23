@@ -156,9 +156,9 @@ ResultadoLayout generarLayout({
       orden: 1,
       modulo: 'M3',
       concepto: 'Agrupación en fila doble',
-      formula: 'las filas contra un muro van simples; solo se emparejan las '
+      formula: 'Las filas contra un muro van simples; solo se emparejan las '
           'filas interiores (siempre flanqueadas por pasillo)',
-      entradas: {'filas': filas},
+      entradas: {'Filas': filas},
       valor: '$numPares pares${numSimples > 0 ? " + $numSimples fila(s) simple(s)" : ""}',
       unidad: 'grupos',
     ),
@@ -166,11 +166,12 @@ ResultadoLayout generarLayout({
       orden: 2,
       modulo: 'M3',
       concepto: 'Superficie de pasillos',
-      formula: 'sup_pasillos = Σ ancho_racks × ancho_pasillo (uno entre cada par de bloques)',
+      formula: 'Superficie de pasillos = suma de (Ancho de racks × Ancho de '
+          'pasillo), uno por cada espacio entre bloques de filas',
       entradas: {
-        'ancho_racks_mm': anchoRacksMm,
-        'ancho_pasillo_mm': anchoPasilloMm,
-        'numero_de_pasillos': bloques.length - 1,
+        'Ancho de racks': anchoRacksMm,
+        'Ancho de pasillo': anchoPasilloMm,
+        'Número de pasillos': bloques.length - 1,
       },
       valor: '$supPasillosMm2',
       unidad: 'mm²',
@@ -179,11 +180,12 @@ ResultadoLayout generarLayout({
       orden: 3,
       modulo: 'M3',
       concepto: 'Superficie construida (huella total del edificio)',
-      formula: 'sup_construida = (ancho_racks + 2×holgura_muro) × (profundidad_total + 2×holgura_muro)',
+      formula: 'Superficie construida = (Ancho de racks + 2 × Holgura de muro) × '
+          '(Profundidad total + 2 × Holgura de muro)',
       entradas: {
-        'ancho_racks_mm': anchoRacksMm,
-        'profundidad_total_mm': largoTotalMm - 2 * holguraMuroMm,
-        'holgura_muro_mm': holguraMuroMm,
+        'Ancho de racks': anchoRacksMm,
+        'Profundidad total': largoTotalMm - 2 * holguraMuroMm,
+        'Holgura de muro': holguraMuroMm,
       },
       valor: '$supConstruidaMm2',
       unidad: 'mm²',
@@ -191,9 +193,9 @@ ResultadoLayout generarLayout({
     FilaMemoria(
       orden: 4,
       modulo: 'M3',
-      concepto: 'Relación de superficie (indicador de calidad, sección 7)',
-      formula: 'sup_almacenamiento / sup_construida',
-      entradas: {'sup_racks_mm2': supRacksMm2, 'sup_construida_mm2': supConstruidaMm2},
+      concepto: 'Relación de superficie (indicador de calidad)',
+      formula: 'Relación de superficie = Superficie de almacenamiento ÷ Superficie construida',
+      entradas: {'Superficie de racks': supRacksMm2, 'Superficie construida': supConstruidaMm2},
       valor: (supRacksMm2 / supConstruidaMm2).toStringAsFixed(3),
       unidad: 'ratio',
     ),

@@ -91,11 +91,12 @@ ResultadoM4 calcularDimensionamientoSinTendencia({
       orden: 1,
       modulo: 'M4',
       concepto: 'Capacidad propia óptima',
-      formula: 'elegir C que minimiza costo(C) = costo_anual_propio(C) + '
-          'Σ_meses max(0, requerimiento[mes] − C) × tarifa_publica',
+      formula: 'Se prueba cada capacidad candidata y se elige la de menor costo total: '
+          'Costo total = Costo anual propio + suma del costo mensual de cubrir '
+          'con almacén público lo que exceda esa capacidad',
       entradas: {
-        'candidatos_evaluados': candidatos.length,
-        'costo_anual_propio_por_posicion': costoAnualPropioPorPosicion,
+        'Capacidades candidatas evaluadas': candidatos.length,
+        'Costo anual propio por posición': costoAnualPropioPorPosicion,
       },
       valor: '${optimo.capacidad}',
       unidad: 'posiciones',
@@ -104,8 +105,9 @@ ResultadoM4 calcularDimensionamientoSinTendencia({
       orden: 2,
       modulo: 'M4',
       concepto: 'Costo anual en el óptimo',
-      formula: 'costo(C*) = costo_propio(C*) + costo_público(C*)',
-      entradas: {'capacidad_optima': optimo.capacidad},
+      formula: 'Costo total = Costo propio + Costo de almacén público, '
+          'evaluados en la capacidad óptima',
+      entradas: {'Capacidad óptima': optimo.capacidad},
       valor:
           'propio=${optimo.costoPropio.toStringAsFixed(2)}, '
           'público=${optimo.costoPublico.toStringAsFixed(2)}, '

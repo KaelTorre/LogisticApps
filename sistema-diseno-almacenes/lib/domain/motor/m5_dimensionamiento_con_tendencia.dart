@@ -175,11 +175,12 @@ ResultadoM5 calcularDimensionamientoConTendencia({
       orden: 1,
       modulo: 'M5',
       concepto: 'Trayectoria de demanda',
-      formula: 'demanda[año] = demanda_inicial × (1+tasa_crecimiento)^(año−1)',
+      formula: 'Demanda de cada año = Demanda inicial × '
+          '(1 + Tasa de crecimiento anual) elevado a (año − 1)',
       entradas: {
-        'demanda_inicial': demandaInicial,
-        'tasa_crecimiento_anual': tasaCrecimientoAnual,
-        'horizonte_anios': horizonteAnios,
+        'Demanda inicial': demandaInicial,
+        'Tasa de crecimiento anual': tasaCrecimientoAnual,
+        'Horizonte (años)': horizonteAnios,
       },
       valor: demandaPorAnio.join(', '),
       unidad: 'posiciones/año',
@@ -188,8 +189,10 @@ ResultadoM5 calcularDimensionamientoConTendencia({
       orden: 2,
       modulo: 'M5',
       concepto: 'Mejor escenario por valor presente de costos',
-      formula: 'VPN(escenario) = Σ_año costo[año] / (1+tasa_descuento)^año; elegir el menor',
-      entradas: {'tasa_descuento_anual': tasaDescuentoAnual},
+      formula: 'VPN de cada escenario = suma, para cada año, del costo de ese año '
+          'dividido entre (1 + Tasa de descuento anual) elevado al número de año; '
+          'se elige el escenario con menor VPN',
+      entradas: {'Tasa de descuento anual': tasaDescuentoAnual},
       valor: '${escenarios.first.escenario.nombre} '
           '(VPN ${escenarios.first.costoPresenteTotal.toStringAsFixed(2)})',
       unidad: 'moneda del proyecto',

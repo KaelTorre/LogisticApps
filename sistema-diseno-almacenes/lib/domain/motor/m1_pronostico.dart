@@ -85,10 +85,10 @@ ResultadoM1 calcularPronostico({
       orden: 1,
       modulo: 'M1',
       concepto: 'Modelo de pronóstico elegido',
-      formula: 'elegir el modelo de menor MAPE entre '
-          '${modelos.map((mo) => mo.nombre).join(", ")}',
+      formula: 'Se calcula el error (MAPE) de cada modelo evaluado y se elige '
+          'el de menor error: ${modelos.map((mo) => mo.nombre).join(", ")}',
       entradas: {
-        for (final mo in modelos) mo.nombre: 'MAPE=${mo.mape.toStringAsFixed(2)}%',
+        for (final mo in modelos) mo.nombre: 'Error MAPE = ${mo.mape.toStringAsFixed(2)}%',
       },
       valor: elegido.nombre,
       unidad: 'modelo',
@@ -97,8 +97,8 @@ ResultadoM1 calcularPronostico({
       orden: 2,
       modulo: 'M1',
       concepto: 'Pronóstico para el horizonte',
-      formula: 'pronóstico[h] según $elegido.nombre',
-      entradas: {'horizonte': horizonte, 'mape': elegido.mape},
+      formula: 'Proyección período a período del modelo elegido (${elegido.nombre})',
+      entradas: {'Horizonte (períodos)': horizonte, 'Error MAPE del modelo elegido': elegido.mape},
       valor: elegido.pronostico.map((v) => v.toStringAsFixed(1)).join(', '),
       unidad: 'unidades/período',
     ),
@@ -147,7 +147,7 @@ ResultadoModeloPronostico _suavizacionSimple(List<double> y, double alpha, int h
   final fcast = [for (var t = 1; t < n; t++) s[t - 1]];
   final errores = _calcularErrores(y, fcast, 1);
   return ResultadoModeloPronostico(
-    nombre: 'suavizacion_simple',
+    nombre: 'Suavización exponencial simple',
     pronostico: List.filled(horizonte, s[n - 1]),
     mad: errores.mad,
     mse: errores.mse,
@@ -172,7 +172,7 @@ ResultadoModeloPronostico _holt(List<double> y, double alpha, double beta, int h
   final errores = _calcularErrores(y, fcast, 1);
   final pronostico = [for (var h = 1; h <= horizonte; h++) l[n - 1] + h * t[n - 1]];
   return ResultadoModeloPronostico(
-    nombre: 'holt',
+    nombre: 'Holt (con tendencia)',
     pronostico: pronostico,
     mad: errores.mad,
     mse: errores.mse,
@@ -219,7 +219,7 @@ ResultadoModeloPronostico _winters(
       l[n - 1] + h * t[n - 1] + s[n - m + ((h - 1) % m)],
   ];
   return ResultadoModeloPronostico(
-    nombre: 'winters',
+    nombre: 'Winters (tendencia y estacionalidad)',
     pronostico: pronostico,
     mad: errores.mad,
     mse: errores.mse,
@@ -267,7 +267,7 @@ ResultadoModeloPronostico _descomposicionClasica(List<double> y, int m, int hori
       (intercepto + pendiente * (n + h)) + indicesEstacionales[(n + h) % m],
   ];
   return ResultadoModeloPronostico(
-    nombre: 'descomposicion',
+    nombre: 'Descomposición clásica',
     pronostico: pronostico,
     mad: errores.mad,
     mse: errores.mse,

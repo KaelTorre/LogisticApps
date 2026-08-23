@@ -181,11 +181,12 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       orden: orden++,
       modulo: 'M3',
       concepto: 'Tarimas por nivel',
-      formula: 'n = floor((claro_util + holgura_x) / (ancho_tarima + holgura_x))',
+      formula: 'Tarimas por nivel = redondeo hacia abajo de '
+          '((Claro útil + Holgura X) ÷ (Ancho de tarima + Holgura X))',
       entradas: {
-        'largo_viga_mm': e.largoVigaMm,
-        'holgura_x_mm': e.holguraXMm,
-        'ancho_tarima_mm': e.anchoTarimaMm,
+        'Largo de viga': e.largoVigaMm,
+        'Holgura X': e.holguraXMm,
+        'Ancho de tarima': e.anchoTarimaMm,
       },
       valor: '$tarimasPorNivel',
       unidad: 'tarimas/nivel',
@@ -207,13 +208,14 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       modulo: 'M3',
       concepto: 'Paso de nivel',
       formula:
-          'paso = redondear_alza(alto_tarima + alto_carga + holgura_y + peralte_viga, ajuste_puntal)',
+          'Paso de nivel = (Alto de tarima + Alto de carga + Holgura Y + '
+          'Peralte de viga), redondeado hacia arriba al paso de ajuste del puntal',
       entradas: {
-        'alto_tarima_mm': e.altoTarimaMm,
-        'alto_carga_mm': e.altoCargaMm,
-        'holgura_y_mm': e.holguraYMm,
-        'peralte_viga_mm': e.peralteVigaMm,
-        'paso_ajuste_puntal_mm': e.pasoAjustePuntalMm,
+        'Alto de tarima': e.altoTarimaMm,
+        'Alto de carga': e.altoCargaMm,
+        'Holgura Y': e.holguraYMm,
+        'Peralte de viga': e.peralteVigaMm,
+        'Paso de ajuste del puntal': e.pasoAjustePuntalMm,
       },
       valor: '$pasoNivelMm',
       unidad: 'mm',
@@ -231,16 +233,17 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       orden: orden++,
       modulo: 'M3',
       concepto: 'Niveles',
-      formula: 'niveles = min(floor((altura_libre − reserva_techo) / paso), '
-          'floor(elevacion_max_equipo / paso))'
+      formula: 'Niveles = el menor entre '
+          '(redondeo hacia abajo de (Altura libre − Reserva de techo) ÷ Paso de nivel) y '
+          '(redondeo hacia abajo de Elevación máxima del equipo ÷ Paso de nivel)'
           '${equipoEsRestriccionActiva ? " — el EQUIPO es la restricción activa, no la altura del edificio" : ""}',
       entradas: {
-        'altura_libre_mm': e.alturaLibreMm,
-        'reserva_techo_mm': e.reservaTechoMm,
-        'elevacion_max_equipo_mm': e.elevacionMaxEquipoMm,
-        'paso_nivel_mm': pasoNivelMm,
-        'niveles_por_altura': nivelesPorAltura,
-        'niveles_por_equipo': nivelesPorEquipo,
+        'Altura libre': e.alturaLibreMm,
+        'Reserva de techo': e.reservaTechoMm,
+        'Elevación máxima del equipo': e.elevacionMaxEquipoMm,
+        'Paso de nivel': pasoNivelMm,
+        'Niveles según la altura del edificio': nivelesPorAltura,
+        'Niveles según el equipo': nivelesPorEquipo,
       },
       valor: '$niveles',
       unidad: 'niveles',
@@ -260,8 +263,12 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       orden: orden++,
       modulo: 'M3',
       concepto: 'Capacidad del módulo',
-      formula: 'posiciones_modulo = n × niveles × factor_fondo',
-      entradas: {'n': tarimasPorNivel, 'niveles': niveles, 'factor_fondo': e.factorFondo},
+      formula: 'Posiciones por módulo = Tarimas por nivel × Niveles × Factor de fondo',
+      entradas: {
+        'Tarimas por nivel': tarimasPorNivel,
+        'Niveles': niveles,
+        'Factor de fondo': e.factorFondo,
+      },
       valor: '$posicionesModulo',
       unidad: 'posiciones',
     ),
@@ -282,15 +289,15 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       orden: orden++,
       modulo: 'M3',
       concepto: 'Módulos y filas',
-      formula: 'modulos = ceil(posiciones_requeridas / posiciones_modulo); '
-          'modulos_por_fila = floor(largo_disponible / (largo_viga + perfil_ancho)); '
-          'filas = ceil(modulos / modulos_por_fila)',
+      formula: 'Módulos = redondeo hacia arriba de (Posiciones requeridas ÷ Posiciones por módulo); '
+          'Módulos por fila = redondeo hacia abajo de (Largo disponible ÷ (Largo de viga + Perfil ancho del bastidor)); '
+          'Filas = redondeo hacia arriba de (Módulos ÷ Módulos por fila)',
       entradas: {
-        'posiciones_requeridas': e.posicionesRequeridas,
-        'posiciones_modulo': posicionesModulo,
-        'largo_disponible_mm': e.largoDisponibleMm,
-        'largo_viga_mm': e.largoVigaMm,
-        'perfil_ancho_bastidor_mm': e.perfilAnchoBastidorMm,
+        'Posiciones requeridas': e.posicionesRequeridas,
+        'Posiciones por módulo': posicionesModulo,
+        'Largo disponible': e.largoDisponibleMm,
+        'Largo de viga': e.largoVigaMm,
+        'Perfil ancho del bastidor': e.perfilAnchoBastidorMm,
       },
       valor: '$modulos módulos, $modulosPorFila por fila, $filas filas',
       unidad: 'módulos/filas',
@@ -307,13 +314,14 @@ ResultadoM3 calcularSuperficie(EntradaM3 e) {
       orden: orden++,
       modulo: 'M3',
       concepto: 'Superficie de almacenamiento (huella de racks)',
-      formula: 'sup_racks = filas × modulos_por_fila × (largo_viga + perfil_ancho) × fondo',
+      formula: 'Superficie de racks = Filas × Módulos por fila × '
+          '(Largo de viga + Perfil ancho del bastidor) × Fondo de bastidor',
       entradas: {
-        'filas': filas,
-        'modulos_por_fila': modulosPorFila,
-        'largo_viga_mm': e.largoVigaMm,
-        'perfil_ancho_bastidor_mm': e.perfilAnchoBastidorMm,
-        'fondo_bastidor_mm': e.fondoBastidorMm,
+        'Filas': filas,
+        'Módulos por fila': modulosPorFila,
+        'Largo de viga': e.largoVigaMm,
+        'Perfil ancho del bastidor': e.perfilAnchoBastidorMm,
+        'Fondo de bastidor': e.fondoBastidorMm,
       },
       valor: '$supAlmacenamientoMm2',
       unidad: 'mm²',

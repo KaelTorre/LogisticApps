@@ -5,7 +5,7 @@ void main() {
   group('M1 — suavización exponencial simple (verificado a mano)', () {
     test('S_1=y_1, S_t=α·y_t+(1-α)·S_(t-1), α=0.5', () {
       final resultado = calcularPronostico(historico: [10, 12, 14], horizonte: 2, alpha: 0.5);
-      final ses = resultado.modelosEvaluados.firstWhere((m) => m.nombre == 'suavizacion_simple');
+      final ses = resultado.modelosEvaluados.firstWhere((m) => m.nombre == 'Suavización exponencial simple');
       // s0=10, s1=0.5*12+0.5*10=11, s2=0.5*14+0.5*11=12.5
       // fcast[1]=s0=10 (error 2), fcast[2]=s1=11 (error 3)
       expect(ses.mad, closeTo(2.5, 1e-9));
@@ -23,7 +23,7 @@ void main() {
         alpha: 0.5,
         beta: 0.5,
       );
-      final holt = resultado.modelosEvaluados.firstWhere((m) => m.nombre == 'holt');
+      final holt = resultado.modelosEvaluados.firstWhere((m) => m.nombre == 'Holt (con tendencia)');
       expect(holt.mad, closeTo(0, 1e-9));
       expect(holt.mse, closeTo(0, 1e-9));
       expect(holt.mape, closeTo(0, 1e-9));
@@ -38,7 +38,7 @@ void main() {
         alpha: 0.5,
         beta: 0.5,
       );
-      expect(resultado.modeloElegido.nombre, 'holt');
+      expect(resultado.modeloElegido.nombre, 'Holt (con tendencia)');
       expect(resultado.pronostico.length, 3);
     });
   });
@@ -46,7 +46,7 @@ void main() {
   group('M1 — selección de modelo y memoria', () {
     test('sin longitudEstacional solo evalúa 2 modelos (simple y holt)', () {
       final resultado = calcularPronostico(historico: [5, 6, 7, 8, 9], horizonte: 1);
-      expect(resultado.modelosEvaluados.map((m) => m.nombre), ['suavizacion_simple', 'holt']);
+      expect(resultado.modelosEvaluados.map((m) => m.nombre), ['Suavización exponencial simple', 'Holt (con tendencia)']);
     });
 
     test('con longitudEstacional pero historia insuficiente, tampoco incluye estacionales', () {
@@ -55,7 +55,7 @@ void main() {
         horizonte: 1,
         longitudEstacional: 4, // necesita 2*4=8 períodos, solo hay 5
       );
-      expect(resultado.modelosEvaluados.map((m) => m.nombre), ['suavizacion_simple', 'holt']);
+      expect(resultado.modelosEvaluados.map((m) => m.nombre), ['Suavización exponencial simple', 'Holt (con tendencia)']);
     });
 
     test('con historia estacional suficiente, evalúa los 4 modelos', () {
@@ -70,10 +70,10 @@ void main() {
         longitudEstacional: m,
       );
       expect(resultado.modelosEvaluados.map((mo) => mo.nombre), [
-        'suavizacion_simple',
-        'holt',
-        'winters',
-        'descomposicion',
+        'Suavización exponencial simple',
+        'Holt (con tendencia)',
+        'Winters (tendencia y estacionalidad)',
+        'Descomposición clásica',
       ]);
       for (final modelo in resultado.modelosEvaluados) {
         expect(modelo.mad, greaterThanOrEqualTo(0));

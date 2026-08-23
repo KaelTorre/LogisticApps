@@ -129,13 +129,15 @@ ResultadoM7 calcularAnden(EntradaM7 e) {
       orden: 1,
       modulo: 'M7',
       concepto: 'Menor número de puertas que cumple el objetivo',
-      formula: 'buscar menor c tal que ρ = λ/(c·μ) < ${e.rhoMaximo} y Wq ≤ '
-          '${e.esperaObjetivoHoras}h (Erlang C)',
+      formula: 'Se prueba con 1, 2, 3... puertas (cola M/M/c, fórmula de '
+          'Erlang C) hasta encontrar la menor cantidad donde la utilización '
+          'quede por debajo de ${(e.rhoMaximo * 100).toStringAsFixed(0)}% y '
+          'la espera en cola no supere ${e.esperaObjetivoHoras} horas',
       entradas: {
-        'camiones_hora_pico': e.camionesHoraPico,
-        'tiempo_medio_servicio_horas': e.tiempoMedioServicioHoras,
-        'espera_objetivo_horas': e.esperaObjetivoHoras,
-        'rho_maximo': e.rhoMaximo,
+        'Camiones en hora pico': e.camionesHoraPico,
+        'Tiempo medio de servicio (horas)': e.tiempoMedioServicioHoras,
+        'Espera objetivo (horas)': e.esperaObjetivoHoras,
+        'Utilización máxima permitida': e.rhoMaximo,
       },
       valor: '$puertasElegidas',
       unidad: 'puertas',
@@ -144,17 +146,27 @@ ResultadoM7 calcularAnden(EntradaM7 e) {
       orden: 2,
       modulo: 'M7',
       concepto: 'Utilización (ρ) y espera en cola (Wq)',
-      formula: 'ρ = λ/(c·μ); Wq = P_espera(Erlang C) × tiempo_medio_servicio / (c·(1−ρ))',
-      entradas: {'puertas': puertasElegidas, 'lambda': e.camionesHoraPico, 'mu': mu},
-      valor: 'ρ=${rhoElegido.toStringAsFixed(3)}, Wq=${esperaElegida.toStringAsFixed(3)}',
-      unidad: 'ρ adimensional, Wq en horas',
+      formula: 'Utilización = Camiones por hora ÷ (Puertas × Camiones que cada '
+          'puerta atiende por hora); Espera en cola = probabilidad de esperar '
+          '(Erlang C) × Tiempo medio de servicio ÷ (Puertas × (1 − Utilización))',
+      entradas: {
+        'Puertas': puertasElegidas,
+        'Camiones por hora (λ)': e.camionesHoraPico,
+        'Camiones atendidos por puerta y por hora (μ)': mu,
+      },
+      valor: 'Utilización = ${rhoElegido.toStringAsFixed(3)} (sin unidad), '
+          'Espera en cola = ${esperaElegida.toStringAsFixed(3)} horas',
+      unidad: '—',
     ),
     FilaMemoria(
       orden: 3,
       modulo: 'M7',
       concepto: 'Frente de andén',
-      formula: 'frente_anden = c × espaciamiento_puerta',
-      entradas: {'puertas': puertasElegidas, 'espaciamiento_puerta_mm': e.espaciamientoPuertaMm},
+      formula: 'Frente de andén = Puertas × Espaciamiento entre puertas',
+      entradas: {
+        'Puertas': puertasElegidas,
+        'Espaciamiento entre puertas': e.espaciamientoPuertaMm,
+      },
       valor: '$frenteAndenMm',
       unidad: 'mm',
     ),
@@ -162,20 +174,20 @@ ResultadoM7 calcularAnden(EntradaM7 e) {
       orden: 4,
       modulo: 'M7',
       concepto: 'Profundidad de patio',
-      formula: 'patio_profundidad = camion.patio_min_mm',
-      entradas: {'patio_min_mm': e.patioMinMm},
+      formula: 'Profundidad de patio = profundidad mínima de maniobra del camión de diseño',
+      entradas: {'Patio mínimo del camión de diseño': e.patioMinMm},
       valor: '${e.patioMinMm}',
       unidad: 'mm',
-      fuente: 'Catálogo de camiones, ver docs/fuentes_catalogo.md',
+      fuente: 'Catálogo de camiones de diseño del proyecto',
     ),
     FilaMemoria(
       orden: 5,
       modulo: 'M7',
       concepto: 'Superficie de preparación',
-      formula: 'sup_preparacion = c × area_staging_por_puerta',
+      formula: 'Superficie de preparación = Puertas × Área de preparación por puerta',
       entradas: {
-        'puertas': puertasElegidas,
-        'area_staging_por_puerta_mm2': e.areaStagingPorPuertaMm2,
+        'Puertas': puertasElegidas,
+        'Área de preparación por puerta': e.areaStagingPorPuertaMm2,
       },
       valor: '$supPreparacionMm2',
       unidad: 'mm²',

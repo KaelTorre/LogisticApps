@@ -74,6 +74,14 @@ class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
           MapEntry('Puertas de andén', '${widget.resultadoM7.puertas}'),
           MapEntry('Frente de andén', '${widget.resultadoM7.frenteAndenMm} mm'),
           MapEntry('Profundidad de patio', '${widget.resultadoM7.patioProfundidadMm} mm'),
+          MapEntry(
+            'Superficie de preparación',
+            '${(widget.resultadoM7.supPreparacionMm2 / 1000000).toStringAsFixed(1)} m²',
+          ),
+          MapEntry(
+            'Espera en cola',
+            '${(widget.resultadoM7.esperaHoras * 60).toStringAsFixed(1)} min',
+          ),
         ],
         memoria: memoriaCompleta,
         fuenteRegular: fuenteRegular,

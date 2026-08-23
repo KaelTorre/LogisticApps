@@ -115,9 +115,10 @@ ResultadoM6 evaluarConfiguraciones({
       orden: 1,
       modulo: 'M6',
       concepto: 'Barrido de configuraciones',
-      formula: 'Para filas en 1..modulos: modulos_por_fila = ceil(modulos/filas), '
-          'descartar si relación largo/ancho > $relacionMaxima:1',
-      entradas: {'modulos': modulos, 'relacion_maxima': relacionMaxima},
+      formula: 'Se prueba cada número de filas posible (Módulos por fila = '
+          'redondeo hacia arriba de Módulos ÷ Filas) y se descartan las '
+          'combinaciones cuya relación largo/ancho supere $relacionMaxima:1',
+      entradas: {'Módulos': modulos, 'Relación largo/ancho máxima permitida': relacionMaxima},
       valor: '${candidatos.length ~/ PatronFlujo.values.length} geometrías × ${PatronFlujo.values.length} patrones de flujo',
       unidad: 'configuraciones',
     ),
@@ -126,12 +127,14 @@ ResultadoM6 evaluarConfiguraciones({
       modulo: 'M6',
       concepto: 'Mejor configuración por distancia esperada',
       formula:
-          'distancia_esperada = Σ_filas P(visita) × dist_rectilinea(origen, fila) × 2, '
-          'P(visita) uniforme (sin perfil ABC)',
+          'Distancia esperada = suma, para cada fila, de la probabilidad de '
+          'visitarla × la distancia de ida y vuelta al punto de origen del '
+          'patrón de flujo (probabilidad de visita uniforme entre filas, '
+          'sin perfil ABC)',
       entradas: {
-        'filas': candidatos.first.filas,
-        'modulos_por_fila': candidatos.first.modulosPorFila,
-        'patron_flujo': candidatos.first.patronFlujo.codigo,
+        'Filas': candidatos.first.filas,
+        'Módulos por fila': candidatos.first.modulosPorFila,
+        'Patrón de flujo': candidatos.first.patronFlujo.codigo,
       },
       valor: '${candidatos.first.distanciaEsperadaMm}',
       unidad: 'mm',
