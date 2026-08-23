@@ -131,8 +131,25 @@ class _Plano2DState extends State<Plano2D> {
         // escala uniforme en X y centra el dibujo; en Y usa [ejeY], que ya
         // garantiza espacio mínimo por franja — el `SizedBox` crece a lo
         // que haga falta y `InteractiveViewer` deja acercar o alejar.
+        //
+        // `constrained: false` es obligatorio aquí: con el valor por
+        // defecto (`true`), InteractiveViewer le impone al hijo las
+        // restricciones de SU PROPIO tamaño en el layout (antes de
+        // aplicar ningún zoom/pan), así que un `SizedBox` más alto que el
+        // viewport queda recortado a la altura del viewport en el layout
+        // real — el pintado de más abajo (el andén) se sigue dibujando
+        // porque `CustomPaint` no recorta por defecto, pero el área
+        // "oficial" que InteractiveViewer deja recorrer con el pellizco o
+        // el arrastre nunca crece más allá de esa altura recortada, así
+        // que no hay forma de desplazarse hasta el andén una vez acercado
+        // — solo se ve completo en la vista inicial alejada porque ahí la
+        // escala pequeña lo comprime todo de vuelta dentro de esa área.
+        // `constrained: false` le da al hijo restricciones sin límite, para
+        // que ocupe su alto real y el desplazamiento sí llegue hasta el
+        // final.
         return InteractiveViewer(
           transformationController: _controller,
+          constrained: false,
           minScale: 0.2,
           maxScale: 8,
           child: SizedBox(
