@@ -1,5 +1,5 @@
-/// Las 3 formas de cotización de almacén público del capítulo 11 de Ballou
-/// (CLAUDE.md sección 7, M4). `costoMensual` recibe el desborde de ese mes
+/// Las 3 formas de cotización de almacén público (CLAUDE.md sección 7, M4).
+/// `costoMensual` recibe el desborde de ese mes
 /// (posiciones que no caben en la capacidad propia) y devuelve el costo de
 /// cubrirlo con espacio público.
 sealed class TarifaPublica {

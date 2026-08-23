@@ -198,7 +198,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                   const SizedBox(width: 4),
                   const Tooltip(
                     message:
-                        'Las 3 formas de cotización del capítulo 11: por manejo '
+                        'Las 3 formas de cotización más comunes: por manejo '
                         '(cobran por unidad que entra y sale), por espacio '
                         '(cobran por posición-mes ocupada) o arrendamiento fijo '
                         '(cobran lo mismo aunque uses poco).',
