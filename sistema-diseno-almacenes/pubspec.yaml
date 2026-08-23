@@ -70,6 +70,24 @@ dev_dependencies:
   drift_dev: ^2.34.5
   build_runner: ^2.16.0
   sqlite3: ^3.5.2
+  # Fase 9 (empaquetado): genera los íconos de Android/Windows desde un solo
+  # PNG maestro (assets/icon/). Herramienta de build, no corre dentro de la
+  # app -- no aplica la regla de "escríbelo en Dart" del motor de cálculo.
+  flutter_launcher_icons: ^0.14.4
+
+# Fase 9: ícono único (assets/icon/icon.svg) rasterizado a PNG, reutilizado
+# para Android (con capa adaptativa), Windows y el AppImage de Linux
+# (tool/appimage/). Corrido a mano una vez con `dart run
+# flutter_launcher_icons`; no se re-ejecuta automáticamente en cada build.
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#303F9F"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 256
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
