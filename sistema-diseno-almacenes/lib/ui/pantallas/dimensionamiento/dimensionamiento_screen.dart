@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/motor/m4_dimensionamiento_sin_tendencia.dart';
 import '../../../domain/motor/m5_dimensionamiento_con_tendencia.dart';
 import '../../../domain/motor/tarifa_publica.dart';
+import '../../widgets/grafica_costo_acumulado.dart';
 import '../../widgets/grafica_requerimiento_mensual.dart';
 
 enum _TipoTarifa { porManejo, porEspacio, arrendamiento }
@@ -48,6 +49,10 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
   String? _errorM4;
   String? _errorM5;
 
+  /// Qué escenario de M5 está tocado, para resaltar su línea en
+  /// [GraficaCostoAcumulado] — null = ninguno, se ven las 3 parejo.
+  EscenarioConstruccion? _escenarioResaltado;
+
   TarifaPublica _construirTarifa() {
     return switch (_tipoTarifa) {
       _TipoTarifa.porManejo => TarifaPorManejo(
@@ -82,7 +87,10 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
   }
 
   void _calcularM5() {
-    setState(() => _errorM5 = null);
+    setState(() {
+      _errorM5 = null;
+      _escenarioResaltado = null;
+    });
     if (!_formKeyM5.currentState!.validate()) return;
     try {
       setState(() {
@@ -165,8 +173,10 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
           ),
           _tarjeta(
             context,
+            paso: 1,
             icono: Icons.calendar_view_month_outlined,
             titulo: 'Tarifa de almacén público',
+            subtitulo: 'Se usa en los dos cálculos de abajo (M4 y M5)',
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -237,6 +247,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
             key: _formKeyM4,
             child: _tarjeta(
               context,
+              paso: 2,
               icono: Icons.show_chart,
               titulo: 'Sin tendencia (M4)',
               subtitulo: 'Cuánto poseer vs. cuánto cubrir con público, mes a mes',
@@ -288,6 +299,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                 ),
                 if (_resultadoM4 != null) ...[
                   const Divider(height: 32),
+                  _encabezadoResultado(context, 'RESULTADO'),
                   _filaResumen(
                     Icons.inventory_2_outlined,
                     'Capacidad propia óptima',
@@ -300,7 +312,16 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                   ),
                   const SizedBox(height: 12),
                   GraficaRequerimientoMensual(
-                    requerimientosMensuales: _mesesCtrl.map((c) => int.parse(c.text)).toList(),
+                    // Del resultado ya calculado, no de los controllers en
+                    // vivo: si el usuario borra o deja a medio editar un mes
+                    // después de calcular, los controllers pueden tener texto
+                    // no numérico en cualquier momento — leerlos aquí, en
+                    // build(), reventaba la pantalla entera con una
+                    // FormatException sin poder recuperarse (ni "Atrás" volvía
+                    // a funcionar, porque build() vuelve a tronar en cada
+                    // repintado). El resultado guardado es inmutable y ya
+                    // pasó por la validación de calcularDimensionamientoSinTendencia.
+                    requerimientosMensuales: _resultadoM4!.requerimientosMensuales,
                     capacidadPropia: _resultadoM4!.capacidadOptima,
                   ),
                 ],
@@ -312,6 +333,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
             key: _formKeyM5,
             child: _tarjeta(
               context,
+              paso: 3,
               icono: Icons.trending_up,
               titulo: 'Con tendencia (M5)',
               subtitulo: 'Todo ahora vs. por etapas vs. base + público',
@@ -370,13 +392,32 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                 ),
                 if (_resultadoM5 != null) ...[
                   const Divider(height: 32),
+                  _encabezadoResultado(context, 'RESULTADO'),
                   Text(
                     'Demanda proyectada: ${_resultadoM5!.demandaPorAnio.join(' → ')}',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
+                  Text(
+                    'Toca un escenario para resaltar su curva en la gráfica de abajo',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                  ),
+                  const SizedBox(height: 4),
                   ..._resultadoM5!.escenarios.map(
-                    (e) => _filaEscenario(context, e, esGanador: e == _resultadoM5!.escenarios.first),
+                    (e) => _filaEscenario(
+                      context,
+                      e,
+                      esGanador: e == _resultadoM5!.escenarios.first,
+                      seleccionado: _escenarioResaltado == e.escenario,
+                      onTap: () => setState(() {
+                        _escenarioResaltado = _escenarioResaltado == e.escenario ? null : e.escenario;
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GraficaCostoAcumulado(
+                    escenarios: _resultadoM5!.escenarios,
+                    resaltado: _escenarioResaltado,
                   ),
                 ],
               ],
@@ -387,13 +428,18 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
     );
   }
 
+  /// `paso` numera las 3 tarjetas de la pantalla (Tarifa → M4 → M5) para
+  /// que el orden de lectura de arriba hacia abajo se lea como una
+  /// secuencia de pasos, no como 3 formularios sueltos sin relación.
   Widget _tarjeta(
     BuildContext context, {
+    required int paso,
     required IconData icono,
     required String titulo,
     String? subtitulo,
     required List<Widget> children,
   }) {
+    final colores = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -403,19 +449,62 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
           children: [
             Row(
               children: [
-                Icon(icono, size: 20, color: Theme.of(context).colorScheme.primary),
+                Container(
+                  width: 22,
+                  height: 22,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: colores.primary, shape: BoxShape.circle),
+                  child: Text(
+                    '$paso',
+                    style: TextStyle(
+                      color: colores.onPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Icon(icono, size: 20, color: colores.primary),
                 const SizedBox(width: 8),
                 Text(titulo, style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             if (subtitulo != null) ...[
               const SizedBox(height: 2),
-              Text(subtitulo, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Padding(
+                padding: const EdgeInsets.only(left: 32),
+                child: Text(subtitulo, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ),
             ],
             const SizedBox(height: 12),
             ...children,
           ],
         ),
+      ),
+    );
+  }
+
+  /// Separa visualmente "lo que ingresaste" de "lo que te devolvió el
+  /// cálculo" dentro de una misma tarjeta — antes todo eran filas seguidas
+  /// sin ningún quiebre, y no quedaba claro dónde terminaba el formulario y
+  /// empezaba el resultado.
+  Widget _encabezadoResultado(BuildContext context, String texto) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(Icons.insights_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            texto,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.4,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -480,7 +569,13 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
     );
   }
 
-  Widget _filaEscenario(BuildContext context, ResultadoEscenario e, {required bool esGanador}) {
+  Widget _filaEscenario(
+    BuildContext context,
+    ResultadoEscenario e, {
+    required bool esGanador,
+    required bool seleccionado,
+    required VoidCallback onTap,
+  }) {
     final nombre = switch (e.escenario) {
       EscenarioConstruccion.todoAhora => 'Todo ahora',
       EscenarioConstruccion.porEtapas => 'Por etapas',
@@ -491,34 +586,53 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
       EscenarioConstruccion.porEtapas => Icons.stairs_outlined,
       EscenarioConstruccion.basePublico => Icons.compress_outlined,
     };
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: esGanador ? Colors.green.withValues(alpha: 0.08) : null,
-        border: Border.all(color: Colors.black12),
+    final colorSerie = GraficaCostoAcumulado.colores[e.escenario]!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: esGanador ? Colors.green.withValues(alpha: 0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icono, size: 20, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 10),
-          Expanded(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: seleccionado ? colorSerie : Colors.black12,
+                width: seleccionado ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Row(
               children: [
-                Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (esGanador) ...[
-                  const SizedBox(width: 6),
-                  const Tooltip(
-                    message: 'Menor valor presente de costos',
-                    child: Icon(Icons.star, size: 16, color: Colors.amber),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(color: colorSerie, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 10),
+                Icon(icono, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      if (esGanador) ...[
+                        const SizedBox(width: 6),
+                        const Tooltip(
+                          message: 'Menor valor presente de costos',
+                          child: Icon(Icons.star, size: 16, color: Colors.amber),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
+                Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
               ],
             ),
           ),
-          Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
-        ],
+        ),
       ),
     );
   }

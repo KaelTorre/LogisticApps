@@ -41,6 +41,13 @@ class GraficaRequerimientoMensual extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+                // Sin esto, fl_chart calcula solo un intervalo automático
+                // (0.5 para una serie de 12 puntos) y evalúa
+                // `getTitlesWidget` también en los x .5 — como
+                // `value.toInt()` trunca, cada mes queda dibujado dos veces
+                // ("E E F F M M..."). Mismo bug ya corregido antes en
+                // GraficaPronostico.
+                interval: 1,
                 getTitlesWidget: (value, meta) {
                   const meses = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
                   final i = value.toInt();

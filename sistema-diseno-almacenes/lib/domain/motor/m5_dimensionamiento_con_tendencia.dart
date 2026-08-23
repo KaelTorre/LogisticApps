@@ -89,7 +89,8 @@ ResultadoM5 calcularDimensionamientoConTendencia({
     throw ArgumentError.value(
       anioEtapa,
       'anioEtapa',
-      'Debe estar entre 1 y horizonteAnios - 1.',
+      'Debe estar entre 1 y ${horizonteAnios - 1} (el horizonte de '
+          '$horizonteAnios años, menos 1).',
     );
   }
   if (tasaDescuentoAnual < 0) {
