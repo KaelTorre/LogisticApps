@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../domain/export/pdf_builder.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../../domain/geometria/prisma_3d.dart';
@@ -86,9 +87,9 @@ class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('PDF exportado en ${archivo.path}'),
-          duration: const Duration(seconds: 6),
+        snackBarArchivoExportado(
+          mensaje: 'PDF exportado en ${archivo.path}',
+          rutaArchivo: archivo.path,
         ),
       );
     } catch (e) {

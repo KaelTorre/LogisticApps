@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../domain/export/dxf_writer.dart';
 import '../../../domain/geometria/generador_layout.dart';
 import '../../widgets/plano_2d.dart';
@@ -47,9 +48,9 @@ class _PlanoScreenState extends State<PlanoScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('DXF exportado en ${archivo.path}'),
-          duration: const Duration(seconds: 6),
+        snackBarArchivoExportado(
+          mensaje: 'DXF exportado en ${archivo.path}',
+          rutaArchivo: archivo.path,
         ),
       );
     } catch (e) {

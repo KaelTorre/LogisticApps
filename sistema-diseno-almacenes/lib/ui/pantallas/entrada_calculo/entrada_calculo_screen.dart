@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../core/tour/induccion_screen.dart';
 import '../../../core/tour/tour_controller.dart';
 import '../../../data/local/database.dart';
@@ -166,9 +167,9 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Proyecto exportado en ${archivo.path}'),
-          duration: const Duration(seconds: 6),
+        snackBarArchivoExportado(
+          mensaje: 'Proyecto exportado en ${archivo.path}',
+          rutaArchivo: archivo.path,
         ),
       );
     } catch (e) {

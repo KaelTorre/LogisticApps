@@ -49,6 +49,13 @@ dependencies:
   # Único uso: recordar si ya se mostró la inducción guiada (una bandera
   # booleana). Paquete oficial de Flutter, local, sin nube.
   shared_preferences: ^2.5.3
+  # Único uso: el botón "Ir a la carpeta" de los exportados dispara un
+  # Intent.ACTION_VIEW sobre el content:// URI del archivo (vía
+  # FileProvider) para que Android ofrezca abrir su ubicación en un gestor
+  # de archivos -- no hay forma de hacer eso desde Dart puro en Android. En
+  # Linux/Windows el mismo botón no necesita este paquete (dart:io.Process
+  # alcanza). Paquete oficial de la comunidad Flutter, mantenido, sin nube.
+  android_intent_plus: ^6.1.0
 
 dev_dependencies:
   flutter_test:
