@@ -11,11 +11,15 @@ import '../geometria/generador_layout.dart';
 /// preparación); es un hueco documentado, no una omisión silenciosa (ver
 /// README "Pendiente: zonas funcionales").
 ///
-/// Cotas incluidas (CLAUDE.md sección 8.3, exactamente esas cuatro): ancho y
-/// profundidad totales (superficie), ancho de pasillo, frente de andén y
-/// separación entre filas. La separación entre filas no es un parámetro de
-/// entrada: se mide directamente entre el primer par de rectángulos
-/// `reserva` consecutivos del layout, que es el mismo dato que
+/// Cotas incluidas (CLAUDE.md sección 8.3): ancho y profundidad totales
+/// (superficie) y frente de andén, una vez cada una — más el ancho de
+/// pasillo y la separación entre filas, **una cota por cada franja real**
+/// del layout (cada `reserva`, cada `circulacion` y cada hueco entre un par
+/// de `reserva` consecutivos), no solo una de muestra: en un DXF que se va
+/// a medir en un CAD, cada fila y cada pasillo necesita su propia cota al
+/// costado, igual que ya se ve en pantalla. La separación entre filas no es
+/// un parámetro de entrada: se mide directamente entre cada par de
+/// rectángulos `reserva` consecutivos del layout, que es el mismo dato que
 /// `generarLayout` ya usó para construirlos — medirlo de vuelta en vez de
 /// repetirlo como argumento evita que ambos números se puedan desincronizar.
 ///
@@ -52,21 +56,24 @@ String generarDxf({
   // Cota 2: profundidad total.
   w.cotaVertical(layout.anchoTotalMm + 300, 0, layout.largoTotalMm, layout.largoTotalMm);
 
-  // Cota 3: ancho de pasillo (primer rectángulo de circulación).
-  final pasillo = layout.rectangulos.where((r) => r.tipo == 'circulacion').firstOrNull;
-  if (pasillo != null) {
-    w.cotaVertical(-300, pasillo.yMm, pasillo.yMm + pasillo.largoMm, pasillo.largoMm);
+  // Cota 3: alto de cada franja individual (cada `reserva` y cada
+  // `circulacion`), pegada al costado izquierdo del edificio — así cada
+  // fila y cada pasillo se mide por separado, sin tener que restar dos
+  // cotas grandes a mano en el CAD.
+  for (final r in layout.rectangulos) {
+    w.cotaVertical(-300, r.yMm, r.yMm + r.largoMm, r.largoMm);
   }
 
-  // Cota 4: separación entre filas — medida entre el primer par de
-  // rectángulos `reserva` consecutivos, no recibida como parámetro.
+  // Cota 4: separación entre filas — una por cada hueco entre un par de
+  // rectángulos `reserva` consecutivos (la separación de espalda de una
+  // fila doble), no recibida como parámetro. Un poco más afuera que la
+  // cota 3 para que sus remates no se encimen.
   for (var i = 0; i < layout.rectangulos.length - 1; i++) {
     final a = layout.rectangulos[i];
     final b = layout.rectangulos[i + 1];
     if (a.tipo == 'reserva' && b.tipo == 'reserva') {
       final separacion = b.yMm - (a.yMm + a.largoMm);
-      w.cotaVertical(a.xMm - 600, a.yMm + a.largoMm, b.yMm, separacion);
-      break;
+      w.cotaVertical(-500, a.yMm + a.largoMm, b.yMm, separacion);
     }
   }
 
@@ -74,10 +81,6 @@ String generarDxf({
   w.cotaHorizontal(xAnden, xAnden + frenteAndenMm, yAnden + patioProfundidadMm + 300, frenteAndenMm);
 
   return w.build();
-}
-
-extension<T> on Iterable<T> {
-  T? get firstOrNull => isEmpty ? null : first;
 }
 
 const _capas = <String, int>{
@@ -146,17 +149,29 @@ class _DxfWriter {
     _code(b, 31, 0);
   }
 
-  /// Línea de cota horizontal entre `x1` y `x2` a la altura `y`, con la
-  /// etiqueta del valor centrada encima.
+  /// Milímetros que sobresale cada remate (marca perpendicular de inicio y
+  /// fin) a los dos lados de la línea de cota — la misma convención que ya
+  /// usa el plano en pantalla (`plano_2d.dart`), para que una cota nunca se
+  /// lea como una línea suelta sin marcar dónde empieza y dónde termina la
+  /// medida.
+  static const _remateMm = 50;
+
+  /// Línea de cota horizontal entre `x1` y `x2` a la altura `y`, con
+  /// remates verticales en cada extremo y la etiqueta del valor centrada
+  /// encima.
   void cotaHorizontal(num x1, num x2, num y, int valorMm) {
     _linea(x1, y, x2, y, 'COTAS');
+    _linea(x1, y - _remateMm, x1, y + _remateMm, 'COTAS');
+    _linea(x2, y - _remateMm, x2, y + _remateMm, 'COTAS');
     texto((x1 + x2) / 2, y, '$valorMm mm', 150, capa: 'COTAS');
   }
 
-  /// Línea de cota vertical entre `y1` y `y2` en `x`, con la etiqueta del
-  /// valor al lado.
+  /// Línea de cota vertical entre `y1` y `y2` en `x`, con remates
+  /// horizontales en cada extremo y la etiqueta del valor al lado.
   void cotaVertical(num x, num y1, num y2, int valorMm) {
     _linea(x, y1, x, y2, 'COTAS');
+    _linea(x - _remateMm, y1, x + _remateMm, y1, 'COTAS');
+    _linea(x - _remateMm, y2, x + _remateMm, y2, 'COTAS');
     texto(x, (y1 + y2) / 2, '$valorMm mm', 150, capa: 'COTAS');
   }
 

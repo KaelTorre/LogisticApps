@@ -144,7 +144,7 @@ void main() {
     });
   });
 
-  group('generarDxf — cotas (CLAUDE.md sección 8.3, exactamente 4 + andén)', () {
+  group('generarDxf — cotas (CLAUDE.md sección 8.3: una por franja, no una de muestra)', () {
     late String dxf;
     late List<_Entidad> textosCota;
 
@@ -157,15 +157,34 @@ void main() {
 
     String valorTexto(_Entidad e) => e.pares.firstWhere((p) => p.key == 1).value;
 
-    test('ancho total, profundidad total, ancho de pasillo, separación entre filas y frente de andén', () {
+    test('valores distintos: ancho total, profundidad total, alto de franja, separación entre filas y frente de andén', () {
       final valores = textosCota.map(valorTexto).toSet();
       expect(valores, {
         '6175 mm', // ancho total
         '10600 mm', // profundidad total
-        '2800 mm', // ancho de pasillo (= anchoPasilloMm)
+        '1100 mm', // alto de cada franja reserva (= fondoBastidorMm)
+        '2800 mm', // alto de cada franja pasillo (= anchoPasilloMm)
         '200 mm', // separación entre filas (= separacionEspaldaMm)
         '3600 mm', // frente de andén
       });
+    });
+
+    test('una cota por cada rectángulo (reserva o circulación), no solo una de muestra', () {
+      final reservas = layout.rectangulos.where((r) => r.tipo == 'reserva').length;
+      final circulaciones = layout.rectangulos.where((r) => r.tipo == 'circulacion').length;
+      // 2 cotas globales (ancho y profundidad total) + 1 por franja +
+      // 1 por separación de espalda (un par en este fixture, ver comentario
+      // del layout arriba) + 1 de frente de andén.
+      expect(textosCota, hasLength(2 + reservas + circulaciones + 1 + 1));
+    });
+
+    test('cada cota lleva remates de inicio y fin, no solo la línea suelta', () {
+      final lineasCota = _parseEntidades(
+        dxf,
+      ).where((e) => e.tipo == 'LINE' && e.capa == 'COTAS').toList();
+      // Cada llamada a cotaHorizontal/cotaVertical dibuja 3 LINE: la línea
+      // de cota más sus 2 remates perpendiculares — nunca solo 1.
+      expect(lineasCota, hasLength(textosCota.length * 3));
     });
   });
 
