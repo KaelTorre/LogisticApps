@@ -1,0 +1,271 @@
+{
+  "version": 1,
+  "notas": [
+    "Cada fila trae su propio campo 'fuente'. Cuando una fila combina un dato real verificado con un dato sin fuente publicada, el campo 'fuente' lo dice explícitamente y marca la parte ESTIMADO — nunca se deja como si todo el renglón viniera de la misma fuente.",
+    "Detalle completo de la investigación y enlaces en docs/fuentes_catalogo.md.",
+    "'capacidad_par_g' de catalogo_vigas se deja siempre en null a propósito: calcularlo a partir de la sección del perfil es cálculo estructural, fuera de alcance de este proyecto (CLAUDE.md sección 1). Solo se llena si se carga la ficha técnica de un producto comercial concreto.",
+    "No se sembró ningún equipo tipo 'transelevador' (EN clase 100/200): no hay dato real de pasillo ni de fabricante consultado esta sesión, y CLAUDE.md exige no inventar el pasillo cuando el fabricante lo define caso por caso.",
+    "catalogo_bastidores.altura_mm NO es 'la altura del producto vendido' (Mecalux no vende en alturas fijas discretas). Es la altura máxima de una sola pieza sin ensamble conector (12000mm, confirmado) — el motor M3, cuando exista, debe interpretarlo como techo antes de necesitar empalme, no como el valor a usar directamente."
+  ],
+  "tarimas": [
+    {
+      "codigo": "EPAL",
+      "largo_mm": 1200,
+      "ancho_mm": 800,
+      "alto_mm": 144,
+      "tara_g": 25000,
+      "carga_din_g": 1500000,
+      "carga_est_g": 4000000,
+      "region": "EU",
+      "fuente": "ISO 6780 / EN 13698 — huella, alto y cargas confirmados"
+    },
+    {
+      "codigo": "ISO-1200x1000",
+      "largo_mm": 1200,
+      "ancho_mm": 1000,
+      "alto_mm": 144,
+      "tara_g": 28000,
+      "carga_din_g": null,
+      "carga_est_g": null,
+      "region": "GLOBAL",
+      "fuente": "ISO 6780 — huella confirmada. Alto dentro del rango 120-150mm documentado para tarimas de madera de esta familia; tara ~28kg (fuentes comerciales, rango observado 18-30kg según fabricante) — no hay carga admisible publicada para esta huella genérica"
+    },
+    {
+      "codigo": "GMA",
+      "largo_mm": 1219,
+      "ancho_mm": 1016,
+      "alto_mm": 165,
+      "tara_g": 16800,
+      "carga_din_g": 1134000,
+      "carga_est_g": 2085000,
+      "region": "NA",
+      "fuente": "Interlake Mecalux (fabricante real) + FreightAmigo — huella, alto (6.5\"), tara promedio y cargas dinámica/estática confirmados"
+    },
+    {
+      "codigo": "ASIA-1100",
+      "largo_mm": 1100,
+      "ancho_mm": 1100,
+      "alto_mm": 150,
+      "tara_g": 18500,
+      "carga_din_g": 1250000,
+      "carga_est_g": null,
+      "region": "ASIA",
+      "fuente": "JIS Z0604 / pallet T11 (Japan Pallet Association) — huella, alto, tara (rango 17-20kg madera) y carga dinámica (rango 1000-1500kg) confirmados; sin dato de carga estática separado"
+    },
+    {
+      "codigo": "ISO-1067",
+      "largo_mm": 1067,
+      "ancho_mm": 1067,
+      "alto_mm": 152,
+      "tara_g": 17000,
+      "carga_din_g": null,
+      "carga_est_g": 1678000,
+      "region": "GLOBAL",
+      "fuente": "Comercial 42\"x42\" (Uline y otros distribuidores) — huella (1066.8mm, ver sección 4 de CLAUDE.md), alto (6\") y capacidad (~3700 lb) confirmados; tara promedio del rango 35-40 lb citado"
+    },
+    {
+      "codigo": "AU-1165",
+      "largo_mm": 1165,
+      "ancho_mm": 1165,
+      "alto_mm": 150,
+      "tara_g": 35000,
+      "carga_din_g": null,
+      "carga_est_g": 2000000,
+      "region": "AU",
+      "fuente": "AS 4068-1993 — huella, alto máximo (150mm) y capacidad (~2000kg) confirmados; tara promedio del rango 30-40kg del propio estándar (CHEP Australia cita 38kg para su pallet de referencia)"
+    }
+  ],
+  "bastidores": [
+    {
+      "codigo": "BAST-914",
+      "fondo_mm": 914,
+      "altura_mm": 12000,
+      "perfil_ancho_mm": 80,
+      "perfil_fondo_mm": 50,
+      "fuente": "Fondo comercial 36\" — confirmado (CLAUDE.md sección 6.2 + Mecalux). altura_mm = altura máxima de una sola pieza sin ensamble conector (confirmado, Mecalux); más allá se empalman dos bastidores. Perfil ESTIMADO, no verificado esta sesión"
+    },
+    {
+      "codigo": "BAST-1067",
+      "fondo_mm": 1067,
+      "altura_mm": 12000,
+      "perfil_ancho_mm": 80,
+      "perfil_fondo_mm": 50,
+      "fuente": "Fondo comercial 42\" — confirmado (CLAUDE.md sección 6.2). altura_mm = altura máxima de una sola pieza sin ensamble conector (confirmado, Mecalux). Perfil ESTIMADO, no verificado esta sesión"
+    },
+    {
+      "codigo": "BAST-1100",
+      "fondo_mm": 1100,
+      "altura_mm": 12000,
+      "perfil_ancho_mm": 80,
+      "perfil_fondo_mm": 50,
+      "fuente": "Mecalux (mecalux.pe/mecalux.com.mx) — fondo confirmado como estándar para tarima de 1200mm de profundidad. altura_mm = altura máxima de una sola pieza sin ensamble conector (confirmado, Mecalux). Perfil ESTIMADO"
+    },
+    {
+      "codigo": "BAST-1219",
+      "fondo_mm": 1219,
+      "altura_mm": 12000,
+      "perfil_ancho_mm": 80,
+      "perfil_fondo_mm": 50,
+      "fuente": "Fondo comercial 48\" — confirmado (CLAUDE.md sección 6.2). altura_mm = altura máxima de una sola pieza sin ensamble conector (confirmado, Mecalux). Perfil ESTIMADO"
+    }
+  ],
+  "vigas": [
+    {
+      "codigo": "VIGA-1825",
+      "largo_mm": 1825,
+      "peralte_mm": 110,
+      "capacidad_par_g": null,
+      "fuente": "Largo confirmado por Mecalux (2 tarimas EPAL + holgura EN 75mm); peralte tomado del perfil de 110mm de Industrias Bono (manual técnico real, no del mismo fabricante) — capacidad no calculable sin cálculo estructural, ver notas"
+    },
+    {
+      "codigo": "VIGA-2225",
+      "largo_mm": 2225,
+      "peralte_mm": 110,
+      "capacidad_par_g": null,
+      "fuente": "Largo confirmado por Mecalux (línea americana); peralte del perfil de 110mm de Industrias Bono — capacidad no calculable, ver notas"
+    },
+    {
+      "codigo": "VIGA-2700",
+      "largo_mm": 2700,
+      "peralte_mm": 152,
+      "capacidad_par_g": null,
+      "fuente": "Largo confirmado por Mecalux (línea europea); peralte del perfil de 152mm de Industrias Bono — capacidad no calculable, ver notas"
+    },
+    {
+      "codigo": "VIGA-3300",
+      "largo_mm": 3300,
+      "peralte_mm": 152,
+      "capacidad_par_g": null,
+      "fuente": "Largo confirmado por Mecalux (línea americana); peralte del perfil de 152mm de Industrias Bono — capacidad no calculable, ver notas"
+    },
+    {
+      "codigo": "VIGA-3600",
+      "largo_mm": 3600,
+      "peralte_mm": 152,
+      "capacidad_par_g": null,
+      "fuente": "Largo confirmado por Mecalux (línea europea, 3 tarimas EPAL); peralte del perfil de 152mm de Industrias Bono — capacidad no calculable, ver notas"
+    }
+  ],
+  "equipos": [
+    {
+      "codigo": "TRANSPALETA-MANUAL",
+      "tipo": "transpaleta",
+      "clase_en": null,
+      "pasillo_min_mm": 2000,
+      "pasillo_max_mm": 2400,
+      "elevacion_max_mm": 200,
+      "altura_mastil_mm": null,
+      "requiere_guiado": false,
+      "costo_unitario_cent": null,
+      "fuente": "EN 15620 (rango de referencia de CLAUDE.md sección 6.4) — no verificado con distribuidor esta sesión"
+    },
+    {
+      "codigo": "TRANSPALETA-ELECTRICA",
+      "tipo": "transpaleta",
+      "clase_en": null,
+      "pasillo_min_mm": 2400,
+      "pasillo_max_mm": 2700,
+      "elevacion_max_mm": 200,
+      "altura_mastil_mm": null,
+      "requiere_guiado": false,
+      "costo_unitario_cent": null,
+      "fuente": "EN 15620 (rango de referencia de CLAUDE.md sección 6.4) — no verificado con distribuidor esta sesión"
+    },
+    {
+      "codigo": "CONTRABALANCEADO-400",
+      "tipo": "contrabalanceado",
+      "clase_en": "400",
+      "pasillo_min_mm": 3540,
+      "pasillo_max_mm": 3721,
+      "elevacion_max_mm": 4350,
+      "altura_mastil_mm": 2135,
+      "requiere_guiado": false,
+      "costo_unitario_cent": null,
+      "fuente": "Hyster Company — guía técnica oficial S40-70FT (LatAm, 4/2015), distribuido en Perú por Eurolift. Pasillo = valor de tabla (2340-2521mm) + 1200mm de tarima estándar, según fórmula de la propia guía. Elevación y mástil: configuración estándar de 3 etapas FFL"
+    },
+    {
+      "codigo": "RETRACTIL-400",
+      "tipo": "retractil",
+      "clase_en": "400",
+      "pasillo_min_mm": 2700,
+      "pasillo_max_mm": 3000,
+      "elevacion_max_mm": 8636,
+      "altura_mastil_mm": 2210,
+      "requiere_guiado": false,
+      "costo_unitario_cent": null,
+      "fuente": "Elevación y mástil confirmados en guía técnica oficial Hyster N30-45ZR3/N30-35ZDR3 (LatAm), distribuido en Perú por Eurolift. Pasillo ESTIMADO — la propia guía remite a una tabla de estibado que no se extrajo esta sesión; se mantiene el rango EN 15620 de CLAUDE.md sección 6.4"
+    },
+    {
+      "codigo": "TRILATERAL-VNA-300",
+      "tipo": "trilateral",
+      "clase_en": "300A/300B",
+      "pasillo_min_mm": 1800,
+      "pasillo_max_mm": 2200,
+      "elevacion_max_mm": 15945,
+      "altura_mastil_mm": null,
+      "requiere_guiado": true,
+      "costo_unitario_cent": null,
+      "fuente": "Elevación confirmada en página de producto Hyster V30-35ZMU (LatAm), distribuido en Perú por Eurolift — modelo W35ZMU. Pasillo ESTIMADO, se mantiene el rango EN 15620 de CLAUDE.md sección 6.4. requiere_guiado=true por naturaleza del equipo (trilateral de pasillo muy angosto), no publicado explícitamente como riel vs. inducción"
+    }
+  ],
+  "camiones": [
+    {
+      "codigo": "C2",
+      "largo_mm": 12300,
+      "ancho_mm": 2600,
+      "patio_min_mm": 18000,
+      "fuente": "D.S. Nº 058-2003-MTC, Reglamento Nacional de Vehículos, Anexo IV (largo/ancho oficiales). Patio de maniobras: guía práctica de Centro de Ofibodegas (no es norma, ver docs/fuentes_catalogo.md), valor conservador para vehículo rígido"
+    },
+    {
+      "codigo": "C3",
+      "largo_mm": 13200,
+      "ancho_mm": 2600,
+      "patio_min_mm": 18000,
+      "fuente": "D.S. Nº 058-2003-MTC, Reglamento Nacional de Vehículos, Anexo IV (largo/ancho oficiales). Patio de maniobras: guía práctica de Centro de Ofibodegas (no es norma), valor conservador para vehículo rígido"
+    },
+    {
+      "codigo": "T2S2",
+      "largo_mm": 20500,
+      "ancho_mm": 2600,
+      "patio_min_mm": 25000,
+      "fuente": "D.S. Nº 058-2003-MTC, Reglamento Nacional de Vehículos, Anexo IV (largo/ancho oficiales, tracto 2 ejes + semirremolque 2 ejes). Patio de maniobras: guía práctica de Centro de Ofibodegas (no es norma), valor conservador para semirremolque"
+    }
+  ],
+  "parametros_norma": [
+    {
+      "norma": "EN",
+      "clave": "holgura_x_mm",
+      "valor": 75,
+      "clase": null,
+      "fuente": "EN 15620 — mínimo normativo"
+    },
+    {
+      "norma": "EN",
+      "clave": "holgura_y_mm",
+      "valor": 75,
+      "clase": null,
+      "fuente": "EN 15620 — mínimo normativo (rango original 75-100mm, se siembra el mínimo)"
+    },
+    {
+      "norma": "EN",
+      "clave": "voladizo_frontal_mm",
+      "valor": 75,
+      "clase": null,
+      "fuente": "EN 15620 — mínimo normativo"
+    },
+    {
+      "norma": "EN",
+      "clave": "separacion_espalda_mm",
+      "valor": 200,
+      "clase": null,
+      "fuente": "EN 15620 — mínimo normativo (flue space)"
+    },
+    {
+      "norma": "EN",
+      "clave": "holgura_muro_mm",
+      "valor": 200,
+      "clase": null,
+      "fuente": "EN 15620 — mínimo normativo"
+    }
+  ]
+}

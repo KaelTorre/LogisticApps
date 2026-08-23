@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Diseño de Almacenes
+Comment=Predimensiona y configura almacenes a partir de la demanda proyectada
+Exec=sistema_diseno_almacenes
+Icon=sistema_diseno_almacenes
+Categories=Office;Engineering;
+Terminal=false
