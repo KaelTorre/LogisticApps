@@ -392,7 +392,15 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                 ),
                 if (_resultadoM5 != null) ...[
                   const Divider(height: 32),
-                  _encabezadoResultado(context, 'RESULTADO'),
+                  _encabezadoResultado(
+                    context,
+                    'RESULTADO',
+                    tooltip:
+                        'VPN = Valor Presente Neto: todos los costos de '
+                        'ese escenario a lo largo del horizonte, traídos a '
+                        'valor de hoy con la tasa de descuento. Menor es '
+                        'mejor.',
+                  ),
                   Text(
                     'Demanda proyectada: ${_resultadoM5!.demandaPorAnio.join(' → ')}',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -488,7 +496,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
   /// cálculo" dentro de una misma tarjeta — antes todo eran filas seguidas
   /// sin ningún quiebre, y no quedaba claro dónde terminaba el formulario y
   /// empezaba el resultado.
-  Widget _encabezadoResultado(BuildContext context, String texto) {
+  Widget _encabezadoResultado(BuildContext context, String texto, {String? tooltip}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -504,6 +512,13 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
+          if (tooltip != null) ...[
+            const Spacer(),
+            Tooltip(
+              message: tooltip,
+              child: Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
+            ),
+          ],
         ],
       ),
     );
@@ -628,13 +643,7 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                     ],
                   ),
                 ),
-                Tooltip(
-                  message:
-                      'Valor Presente Neto: todos los costos de este '
-                      'escenario a lo largo del horizonte, traídos a valor '
-                      'de hoy con la tasa de descuento. Menor es mejor.',
-                  child: Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
-                ),
+                Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
               ],
             ),
           ),
