@@ -51,17 +51,20 @@ class _RaizAppState extends State<_RaizApp> {
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
+            debugShowCheckedModeBanner: false,
             home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
         if (snapshot.hasError) {
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             home: Scaffold(
               body: Center(child: Text('No se pudo cargar el catálogo: ${snapshot.error}')),
             ),
           );
         }
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Sistema de Diseño de Almacenes',
           theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
           home: EntradaCalculoScreen(db: _db, tour: snapshot.data!),
