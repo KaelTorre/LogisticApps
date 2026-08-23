@@ -22,7 +22,7 @@ import '../../domain/geometria/generador_layout.dart';
 /// no afecta la exportación a DXF: `dxf_writer.dart` lee las coordenadas en
 /// milímetros directo de [ResultadoLayout], nunca los píxeles de este
 /// painter.
-class Plano2D extends StatelessWidget {
+class Plano2D extends StatefulWidget {
   const Plano2D({
     super.key,
     required this.layout,
@@ -57,6 +57,30 @@ class Plano2D extends StatelessWidget {
   static const _alturaObjetivoPx = 500.0;
 
   @override
+  State<Plano2D> createState() => _Plano2DState();
+}
+
+class _Plano2DState extends State<Plano2D> {
+  final _controller = TransformationController();
+  bool _ajustadoInicial = false;
+
+  @override
+  void didUpdateWidget(covariant Plano2D oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.layout != widget.layout) {
+      // Un layout nuevo (otro cálculo) puede tener una altura de canvas muy
+      // distinta — el ajuste inicial de la vez anterior ya no aplica.
+      _ajustadoInicial = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -64,18 +88,42 @@ class Plano2D extends StatelessWidget {
             ? constraints.maxWidth
             : 800.0;
 
-        final espacioAnchoDibujo = anchoDisponible - 2 * _margenCotaPx;
-        final espacioAltoObjetivoDibujo =
-            _alturaObjetivoPx - 2 * _margenCotaPx - _franjaAndenPx - _margenCotaPx;
+        final espacioAnchoDibujo = anchoDisponible - 2 * Plano2D._margenCotaPx;
+        final espacioAltoObjetivoDibujo = Plano2D._alturaObjetivoPx -
+            2 * Plano2D._margenCotaPx -
+            Plano2D._franjaAndenPx -
+            Plano2D._margenCotaPx;
         final escala = [
-          espacioAnchoDibujo / layout.anchoTotalMm,
-          espacioAltoObjetivoDibujo / layout.largoTotalMm,
+          espacioAnchoDibujo / widget.layout.anchoTotalMm,
+          espacioAltoObjetivoDibujo / widget.layout.largoTotalMm,
         ].reduce((a, b) => a < b ? a : b);
 
-        final bandas = _construirBandas(layout);
+        final bandas = _construirBandas(widget.layout);
         final ejeY = _EjeY(bandas, escala);
-        final altoCanvas =
-            ejeY.alturaTotalPx + 2 * _margenCotaPx + _franjaAndenPx + _margenCotaPx;
+        final altoCanvas = ejeY.alturaTotalPx +
+            2 * Plano2D._margenCotaPx +
+            Plano2D._franjaAndenPx +
+            Plano2D._margenCotaPx;
+
+        // Con un layout de muchas filas el canvas puede salir bastante más
+        // alto que el espacio real disponible en pantalla (cada franja ya
+        // tiene su alto mínimo garantizado) — sin este ajuste, el andén
+        // queda fuera de la vista inicial y nada avisa que hay que
+        // arrastrar hacia abajo para encontrarlo. Al primer layout, si no
+        // entra completo, aleja el zoom lo justo para mostrarlo entero;
+        // nunca acerca más de 1:1. Después el usuario puede acercar o
+        // mover libremente sin que esto se vuelva a imponer.
+        if (!_ajustadoInicial && constraints.maxHeight.isFinite) {
+          _ajustadoInicial = true;
+          if (altoCanvas > constraints.maxHeight) {
+            final escalaAjuste = (constraints.maxHeight / altoCanvas).clamp(0.2, 1.0);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              _controller.value = Matrix4.identity()
+                ..scaleByDouble(escalaAjuste, escalaAjuste, escalaAjuste, 1.0);
+            });
+          }
+        }
 
         // Sin AspectRatio: un layout de 1 sola fila sin pasillo puede ser 20
         // veces más ancho que profundo, y forzar el widget a esa proporción
@@ -84,6 +132,7 @@ class Plano2D extends StatelessWidget {
         // garantiza espacio mínimo por franja — el `SizedBox` crece a lo
         // que haga falta y `InteractiveViewer` deja acercar o alejar.
         return InteractiveViewer(
+          transformationController: _controller,
           minScale: 0.2,
           maxScale: 8,
           child: SizedBox(
@@ -91,10 +140,10 @@ class Plano2D extends StatelessWidget {
             height: altoCanvas,
             child: CustomPaint(
               painter: _Plano2DPainter(
-                layout: layout,
-                modulosPorFila: modulosPorFila,
-                frenteAndenMm: frenteAndenMm,
-                patioProfundidadMm: patioProfundidadMm,
+                layout: widget.layout,
+                modulosPorFila: widget.modulosPorFila,
+                frenteAndenMm: widget.frenteAndenMm,
+                patioProfundidadMm: widget.patioProfundidadMm,
                 escala: escala,
                 bandas: bandas,
                 ejeY: ejeY,
