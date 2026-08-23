@@ -53,6 +53,8 @@ class _VistaIsometricaPainter extends CustomPainter {
   static const _margenPx = 24.0;
   static const _colorPuntal = Color(0xFF3949AB);
   static const _colorViga = Color(0xFFEF6C00);
+  static const _colorPiso = Color(0xFFE8E6E1);
+  static const _colorPisoBorde = Color(0xFFBDBBB6);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -93,10 +95,47 @@ class _VistaIsometricaPainter extends CustomPainter {
       return iso(rx, ry, z, escala, origen);
     }
 
+    _dibujarPiso(canvas, proyectar);
+
     for (final p in ordenarParaPintar(prismas, angulo)) {
       final base = p.tipo == 'puntal' ? _colorPuntal : _colorViga;
       _dibujarPrisma(canvas, p, proyectar, base);
     }
+  }
+
+  /// Un plano en z=0 que cubre la huella completa de la estructura visible,
+  /// dibujado antes que cualquier prisma. Sin esto la vista isométrica no
+  /// tiene ninguna referencia de "dónde está el suelo" — con un almacén
+  /// grande, sin ese ancla, es difícil ubicar qué se está viendo a simple
+  /// vista. Se calcula del propio [prismas] (ya filtrado por nivel de
+  /// corte), no de un valor aparte, para que nunca se pueda desincronizar
+  /// del resto del dibujo.
+  void _dibujarPiso(Canvas canvas, Offset Function(int, int, int) proyectar) {
+    var xMinMm = prismas.first.xMm;
+    var xMaxMm = prismas.first.xMm + prismas.first.dxMm;
+    var yMinMm = prismas.first.yMm;
+    var yMaxMm = prismas.first.yMm + prismas.first.dyMm;
+    for (final p in prismas) {
+      xMinMm = xMinMm < p.xMm ? xMinMm : p.xMm;
+      xMaxMm = xMaxMm > p.xMm + p.dxMm ? xMaxMm : p.xMm + p.dxMm;
+      yMinMm = yMinMm < p.yMm ? yMinMm : p.yMm;
+      yMaxMm = yMaxMm > p.yMm + p.dyMm ? yMaxMm : p.yMm + p.dyMm;
+    }
+    final piso = Path()
+      ..addPolygon([
+        proyectar(xMinMm, yMinMm, 0),
+        proyectar(xMaxMm, yMinMm, 0),
+        proyectar(xMaxMm, yMaxMm, 0),
+        proyectar(xMinMm, yMaxMm, 0),
+      ], true);
+    canvas.drawPath(piso, Paint()..color = _colorPiso);
+    canvas.drawPath(
+      piso,
+      Paint()
+        ..color = _colorPisoBorde
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
   }
 
   void _dibujarPrisma(

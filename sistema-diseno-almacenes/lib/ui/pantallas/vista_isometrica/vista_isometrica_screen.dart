@@ -19,7 +19,11 @@ class VistaIsometricaScreen extends StatefulWidget {
 
 class _VistaIsometricaScreenState extends State<VistaIsometricaScreen> {
   int _angulo = 0;
-  late int _nivelCorte = widget.niveles;
+  // Empieza en el nivel 1, no en el más alto: con un almacén grande,
+  // arrancar mostrando todos los niveles a la vez es ilegible de entrada
+  // (demasiados prismas encimados). Nivel 1 da una vista que se entiende
+  // de un vistazo, y desde ahí el usuario sube con el control.
+  int _nivelCorte = 1;
 
   static const _nombresAngulo = ['0°', '90°', '180°', '270°'];
 
