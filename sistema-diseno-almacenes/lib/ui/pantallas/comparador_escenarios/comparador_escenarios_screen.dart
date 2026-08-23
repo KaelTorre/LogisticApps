@@ -111,6 +111,16 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
     ),
   ];
 
+  /// Un color fijo por escenario (por índice en [_presets]), reutilizado en
+  /// la tarjeta de entrada y en la tarjeta de resultado del mismo escenario
+  /// — es el hilo visual que conecta "lo que configuré" con "lo que dio".
+  static const _coloresPreset = [Color(0xFF1E88E5), Color(0xFFFB8C00), Color(0xFF00897B)];
+
+  Color _colorDe(String tipoSistema) {
+    final i = _presets.indexWhere((p) => p.tipoSistema == tipoSistema);
+    return i >= 0 ? _coloresPreset[i % _coloresPreset.length] : Colors.grey;
+  }
+
   ResultadoM8? _resultado;
   String? _error;
 
@@ -304,11 +314,12 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Compara 3 formas de guardar la misma demanda: selectivo '
-                      '(cada tarima accesible), doble fondo y drive-in (más '
-                      'densos, pero con menos acceso directo). Los datos de abajo '
-                      'son compartidos; solo el factor de fondo, el honeycomb y '
-                      'los costos cambian por escenario.',
+                      'Con el mismo terreno y la misma demanda, ¿qué sistema de '
+                      'racking conviene? Se calcula el almacén 3 veces — una por '
+                      'cada sistema de la sección "Escenarios a comparar" más '
+                      'abajo — y se comparan lado a lado. El catálogo, el '
+                      'terreno y el andén de arriba son iguales en los 3; solo '
+                      'cambia el sistema, así que la comparación es justa.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -422,7 +433,34 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
                 _campo('Área de preparación por puerta (m²)', _areaStagingCtrl),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(
+                  Icons.compare_arrows_outlined,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'ESCENARIOS A COMPARAR',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.4,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 2, bottom: 8),
+              child: Text(
+                'Estos 3 sistemas son las opciones que se comparan abajo. Ajusta '
+                'cómo se construye y opera cada uno si tus números reales son otros.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ),
             for (final p in _presets) ...[
               _tarjetaEscenario(context, p),
               const SizedBox(height: 12),
@@ -436,7 +474,7 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
             ),
             if (_resultado != null) ...[
               const SizedBox(height: 16),
-              _tablaResultado(context, _resultado!),
+              _resultadoComparacion(context, _resultado!),
             ],
           ],
         ),
@@ -445,9 +483,13 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
   }
 
   Widget _tarjetaEscenario(BuildContext context, _PresetEscenario p) {
-    final colores = Theme.of(context).colorScheme;
+    final color = _colorDe(p.tipoSistema);
     return Card(
       margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color.withValues(alpha: 0.4), width: 1.5),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -455,7 +497,13 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
           children: [
             Row(
               children: [
-                Icon(p.icono, size: 20, color: colores.primary),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 8),
+                Icon(p.icono, size: 20, color: color),
                 const SizedBox(width: 8),
                 Text(p.nombre, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(width: 6),
@@ -500,8 +548,20 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
     );
   }
 
-  Widget _tablaResultado(BuildContext context, ResultadoM8 resultado) {
+  /// Reemplaza la tabla ancha de antes (con scroll horizontal, donde la
+  /// columna de accesibilidad quedaba cortada fuera de vista — justo la
+  /// columna que CLAUDE.md sección 6.5 exige mostrar siempre junto al
+  /// costo). Una tarjeta por escenario deja cada métrica en una fila
+  /// legible, sin scroll, y el color de cada tarjeta es el mismo que su
+  /// tarjeta de entrada de arriba.
+  Widget _resultadoComparacion(BuildContext context, ResultadoM8 resultado) {
     final colores = Theme.of(context).colorScheme;
+    final masBarato = resultado.escenarios.first;
+    final masCaro = resultado.escenarios.last;
+    final ahorroPorc = masCaro.costoPorPosicion == 0
+        ? 0.0
+        : (1 - masBarato.costoPorPosicion / masCaro.costoPorPosicion) * 100;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -514,12 +574,18 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline, size: 18, color: colores.onSecondaryContainer),
+              Icon(Icons.emoji_events_outlined, size: 18, color: colores.onSecondaryContainer),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Ordenados por costo por posición. La accesibilidad va siempre '
-                  'junto al costo: más densidad no es gratis.',
+                  resultado.escenarios.length > 1 && masCaro != masBarato
+                      ? '${masBarato.nombre} sale más barato por posición: '
+                            '${_formatoMoneda(masBarato.costoPorPosicion, decimales: 2)} vs '
+                            '${_formatoMoneda(masCaro.costoPorPosicion, decimales: 2)} de '
+                            '${masCaro.nombre} (${ahorroPorc.toStringAsFixed(0)}% menos). Pero '
+                            'mira su accesibilidad abajo antes de decidir: más densidad casi '
+                            'siempre cuesta algo en cómo se opera el almacén.'
+                      : '${masBarato.nombre}: ${_formatoMoneda(masBarato.costoPorPosicion, decimales: 2)} por posición.',
                   style: TextStyle(color: colores.onSecondaryContainer, fontSize: 13),
                 ),
               ),
@@ -527,46 +593,144 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
           ),
         ),
         const SizedBox(height: 12),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Escenario')),
-              DataColumn(label: Text('Posiciones')),
-              DataColumn(label: Text('Sup. construida (m²)')),
-              DataColumn(label: Text('Relación sup.')),
-              DataColumn(label: Text('Distancia (m)')),
-              DataColumn(label: Text('Inversión')),
-              DataColumn(label: Text('Costo/posición')),
-              DataColumn(label: Text('Accesibilidad')),
-            ],
-            rows: [
-              for (final e in resultado.escenarios)
-                DataRow(
-                  color: e == resultado.escenarios.first
-                      ? WidgetStateProperty.all(Colors.green.withValues(alpha: 0.1))
-                      : null,
-                  cells: [
-                    DataCell(Text(e.nombre)),
-                    DataCell(Text('${e.posicionesInstaladas}')),
-                    DataCell(Text((e.supConstruidaMm2 / 1000000).toStringAsFixed(1))),
-                    DataCell(Text('${(e.relacionSuperficie * 100).toStringAsFixed(0)}%')),
-                    DataCell(Text((e.distanciaEsperadaMm / 1000).toStringAsFixed(1))),
-                    DataCell(Text(e.inversionEstimada.toStringAsFixed(0))),
-                    DataCell(Text(e.costoPorPosicion.toStringAsFixed(2))),
-                    DataCell(
-                      SizedBox(
-                        width: 220,
-                        child: Text(e.accesibilidad, style: const TextStyle(fontSize: 12)),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ),
+        for (final e in resultado.escenarios) ...[
+          _tarjetaResultadoEscenario(context, e, esGanador: e == masBarato),
+          const SizedBox(height: 12),
+        ],
       ],
     );
+  }
+
+  Widget _tarjetaResultadoEscenario(
+    BuildContext context,
+    ResultadoEscenarioM8 e, {
+    required bool esGanador,
+  }) {
+    final color = _colorDe(e.tipoSistema);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: esGanador ? Colors.green.withValues(alpha: 0.06) : null,
+        border: Border.all(
+          color: esGanador ? Colors.green : color.withValues(alpha: 0.35),
+          width: esGanador ? 2 : 1,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                e.nombre,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              if (esGanador) ...[
+                const SizedBox(width: 6),
+                const Tooltip(
+                  message: 'Menor costo por posición instalada',
+                  child: Icon(Icons.star, size: 16, color: Colors.amber),
+                ),
+              ],
+              const Spacer(),
+              Text(
+                '${_formatoMoneda(e.costoPorPosicion, decimales: 2)} / posición',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: esGanador ? Colors.green.shade800 : null,
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 20),
+          _filaResumenComparador(
+            Icons.inventory_2_outlined,
+            'Posiciones instaladas',
+            '${e.posicionesInstaladas}',
+          ),
+          _filaResumenComparador(
+            Icons.crop_free_outlined,
+            'Superficie construida',
+            '${(e.supConstruidaMm2 / 1000000).toStringAsFixed(1)} m²',
+          ),
+          _filaResumenComparador(
+            Icons.percent,
+            'Almacenamiento / construida',
+            '${(e.relacionSuperficie * 100).toStringAsFixed(0)}%',
+          ),
+          _filaResumenComparador(
+            Icons.route_outlined,
+            'Distancia esperada de recorrido',
+            '${(e.distanciaEsperadaMm / 1000).toStringAsFixed(1)} m',
+          ),
+          _filaResumenComparador(
+            Icons.payments_outlined,
+            'Inversión estimada',
+            _formatoMoneda(e.inversionEstimada),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.accessibility_new_outlined, size: 16, color: Colors.grey.shade700),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    e.accesibilidad,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filaResumenComparador(IconData icono, String etiqueta, String valor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Icon(icono, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Expanded(child: Text(etiqueta, style: const TextStyle(fontSize: 13))),
+          Text(valor, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+
+  /// Miles separados por coma, sin depender del paquete `intl` — una
+  /// justificación de dependencia no vale la pena por un separador de
+  /// miles (CLAUDE.md: "ninguna dependencia nueva sin justificarla").
+  String _formatoMoneda(double valor, {int decimales = 0}) {
+    final texto = valor.toStringAsFixed(decimales);
+    final partes = texto.split('.');
+    final negativo = partes[0].startsWith('-');
+    final enteros = negativo ? partes[0].substring(1) : partes[0];
+    final buffer = StringBuffer();
+    for (var i = 0; i < enteros.length; i++) {
+      if (i > 0 && (enteros.length - i) % 3 == 0) buffer.write(',');
+      buffer.write(enteros[i]);
+    }
+    final decimalTexto = partes.length > 1 ? '.${partes[1]}' : '';
+    return '${negativo ? '-' : ''}$buffer$decimalTexto';
   }
 
   Widget _tarjeta(
