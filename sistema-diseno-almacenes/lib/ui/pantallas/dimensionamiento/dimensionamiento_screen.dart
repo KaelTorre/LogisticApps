@@ -628,7 +628,13 @@ class _DimensionamientoScreenState extends State<DimensionamientoScreen> {
                     ],
                   ),
                 ),
-                Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
+                Tooltip(
+                  message:
+                      'Valor Presente Neto: todos los costos de este '
+                      'escenario a lo largo del horizonte, traídos a valor '
+                      'de hoy con la tasa de descuento. Menor es mejor.',
+                  child: Text('VPN ${e.costoPresenteTotal.toStringAsFixed(0)}'),
+                ),
               ],
             ),
           ),
