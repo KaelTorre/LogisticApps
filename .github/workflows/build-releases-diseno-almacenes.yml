@@ -88,6 +88,12 @@ jobs:
   android:
     name: Android (.apk)
     runs-on: ubuntu-latest
+    # GitHub Actions no permite leer `secrets` directo en el `if:` de un
+    # step ("Unrecognized named-value: 'secrets'") -- solo está disponible
+    # armando un valor de `env:`, que sí puede referenciar secrets. De ahí
+    # se lee como env.HAS_ANDROID_KEYSTORE más abajo.
+    env:
+      HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -108,7 +114,7 @@ jobs:
       # firma debug -- el build no se rompe, solo queda sin firma real
       # hasta que se agreguen los secrets (ver README, sección Fase 9).
       - name: Preparar el keystore de release
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_ANDROID_KEYSTORE == 'true' }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
           cat > android/key.properties <<EOF
