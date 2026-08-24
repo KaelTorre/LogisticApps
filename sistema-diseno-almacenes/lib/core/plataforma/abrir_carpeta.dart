@@ -4,19 +4,15 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Carpeta donde deben guardarse los archivos exportados (DXF, PDF,
 /// proyecto). En Windows y Linux es la carpeta de documentos de la app. En
 /// Android es el almacenamiento externo específico de la app
-/// (`/storage/emulated/0/Android/data/<paquete>/files`) y NO el
-/// almacenamiento interno privado (`getApplicationDocumentsDirectory()`,
-/// bajo `/data/user/0/...`): ese último es invisible para cualquier
-/// gestor de archivos, así que "Ir a la carpeta" no tiene nada que
-/// mostrar. El externo específico de la app no requiere ningún permiso
-/// adicional en ninguna versión de Android (es una carpeta propia de la
-/// app, no almacenamiento compartido) y sí tiene un content:// URI de
-/// carpeta que un gestor de archivos puede navegar -- ver
-/// `_abrirCarpetaEnAndroid` más abajo.
+/// (`/storage/emulated/0/Android/data/<paquete>/files`); en la práctica da
+/// igual para "Abrir archivo"/"Compartir" (ver más abajo, ambos pasan por
+/// un content:// URI de todos modos), pero es la carpeta que además lee
+/// `ImportarProyectoScreen` para listar los `.json` exportados.
 Future<Directory> directorioExportacion() async {
   if (Platform.isAndroid) {
     final directorio = await getExternalStorageDirectory();
@@ -27,26 +23,55 @@ Future<Directory> directorioExportacion() async {
 
 /// Abre la ubicación de `rutaArchivo` en el gestor de archivos del sistema
 /// operativo -- nunca el archivo en sí, solo su carpeta contenedora, con el
-/// archivo preseleccionado cuando el sistema operativo lo permite.
-///
-/// Windows y Linux sí dejan el archivo preseleccionado (Explorer con
-/// `/select,`, o el gestor de archivos de escritorio vía D-Bus). Android no
-/// tiene un equivalente real a "selecciona este archivo en el explorador":
-/// su modelo de almacenamiento no expone "la carpeta" como concepto de
-/// primera clase entre apps. Ahí el mejor resultado alcanzable es abrir el
-/// gestor de archivos del sistema navegado a la carpeta contenedora (sin
-/// seleccionar el archivo dentro, pero sin abrirlo tampoco); si ningún
-/// gestor de archivos del dispositivo soporta eso, se cae al respaldo de
-/// abrir el archivo con la app que corresponda -- no una limitación de
-/// esta función, sino del sistema operativo.
+/// archivo preseleccionado. Solo tiene sentido en Windows y Linux (Explorer
+/// con `/select,`, o el gestor de archivos de escritorio vía D-Bus): ambos
+/// exponen "la carpeta" como concepto de primera clase entre apps. Android
+/// no -- ahí se usan en su lugar los botones "Abrir archivo" y "Compartir"
+/// (ver `snackBarArchivoExportado` más abajo).
 ///
 /// Devuelve `true` si se pudo lanzar algo; `false` si ningún método
 /// disponible funcionó (para que el llamador pueda avisar con un mensaje,
 /// en vez de fallar en silencio).
+Future<bool> abrirCarpetaConArchivoSeleccionado(String rutaArchivo) async {
+  if (Platform.isWindows) {
+    return _abrirEnWindows(rutaArchivo);
+  }
+  if (Platform.isLinux) {
+    return _abrirEnLinux(rutaArchivo);
+  }
+  return false;
+}
+
 /// El `SnackBar` que muestran las tres pantallas de exportación (DXF, PDF,
-/// proyecto portable) tras guardar el archivo: mismo mensaje + botón "Ir a
-/// la carpeta" en todas, para no repetir la construcción tres veces.
+/// proyecto portable) tras guardar el archivo, para no repetir la
+/// construcción tres veces. En Windows/Linux es mensaje + botón "Ir a la
+/// carpeta". En Android, donde no existe un equivalente real a "carpeta
+/// navegable entre apps", son dos acciones en su lugar: un botón de ícono
+/// "Abrir archivo" (`ACTION_VIEW`) y el botón de acción "Compartir", que
+/// invoca el share sheet nativo del sistema para que el usuario elija con
+/// qué app (WhatsApp, Drive, Gmail, ...) enviar el archivo.
 SnackBar snackBarArchivoExportado({required String mensaje, required String rutaArchivo}) {
+  if (Platform.isAndroid) {
+    return SnackBar(
+      content: Row(
+        children: [
+          Expanded(
+            child: Text(mensaje, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+          IconButton(
+            icon: const Icon(Icons.open_in_new, color: Colors.white),
+            tooltip: 'Abrir archivo',
+            onPressed: () => _abrirArchivoEnAndroid(rutaArchivo),
+          ),
+        ],
+      ),
+      duration: const Duration(seconds: 6),
+      action: SnackBarAction(
+        label: 'Compartir',
+        onPressed: () => _compartirArchivoEnAndroid(rutaArchivo),
+      ),
+    );
+  }
   return SnackBar(
     content: Text(mensaje),
     duration: const Duration(seconds: 6),
@@ -55,19 +80,6 @@ SnackBar snackBarArchivoExportado({required String mensaje, required String ruta
       onPressed: () => abrirCarpetaConArchivoSeleccionado(rutaArchivo),
     ),
   );
-}
-
-Future<bool> abrirCarpetaConArchivoSeleccionado(String rutaArchivo) async {
-  if (Platform.isWindows) {
-    return _abrirEnWindows(rutaArchivo);
-  }
-  if (Platform.isLinux) {
-    return _abrirEnLinux(rutaArchivo);
-  }
-  if (Platform.isAndroid) {
-    return _abrirEnAndroid(rutaArchivo);
-  }
-  return false;
 }
 
 Future<bool> _abrirEnWindows(String rutaArchivo) async {
@@ -116,55 +128,29 @@ Future<bool> _abrirEnLinux(String rutaArchivo) async {
   }
 }
 
-Future<bool> _abrirEnAndroid(String rutaArchivo) async {
-  if (await _abrirCarpetaEnAndroid(rutaArchivo)) return true;
-  return _abrirArchivoEnAndroid(rutaArchivo);
+/// Abre el archivo con la app que corresponda (`ACTION_VIEW` sobre el
+/// content:// URI que expone el `FileProvider` propio de la app -- Android
+/// exige eso para compartir un archivo con otra app desde Android 7 en
+/// adelante, un `file://` URI directo lanza `FileUriExposedException`).
+Future<void> _abrirArchivoEnAndroid(String rutaArchivo) async {
+  final autoridad = 'com.logisticapps.sistema_diseno_almacenes.fileprovider';
+  final nombreArchivo = rutaArchivo.split('/').last;
+  final uriContenido = 'content://$autoridad/documentos/$nombreArchivo';
+  final intent = AndroidIntent(
+    action: 'action_view',
+    data: uriContenido,
+    flags: [Flag.FLAG_GRANT_READ_URI_PERMISSION, Flag.FLAG_ACTIVITY_NEW_TASK],
+  );
+  await intent.launch();
 }
 
-/// Intenta mostrar la carpeta contenedora en el gestor de archivos del
-/// sistema (sin abrir el archivo) usando el content:// URI que expone el
-/// proveedor de almacenamiento externo de Android para el volumen
-/// primario. Solo es posible cuando el archivo vive en el almacenamiento
-/// externo específico de la app (ver `directorioExportacion`); el
-/// almacenamiento interno privado no tiene un URI de carpeta de este tipo.
-Future<bool> _abrirCarpetaEnAndroid(String rutaArchivo) async {
-  final carpeta = File(rutaArchivo).parent.path;
-  final marcador = carpeta.indexOf('/Android/');
-  if (marcador == -1) return false;
-  final relativo = carpeta.substring(marcador + 1);
-  final uriCarpeta =
-      'content://com.android.externalstorage.documents/document/'
-      '${Uri.encodeComponent('primary:$relativo')}';
-  try {
-    final intent = AndroidIntent(
-      action: 'action_view',
-      data: uriCarpeta,
-      type: 'vnd.android.document/directory',
-      flags: [Flag.FLAG_ACTIVITY_NEW_TASK, Flag.FLAG_GRANT_READ_URI_PERMISSION],
-    );
-    await intent.launch();
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-/// Respaldo si ningún gestor de archivos del dispositivo entiende el URI
-/// de carpeta: abre el archivo con la app que corresponda. Es peor que
-/// dejarlo seleccionado sin abrir, pero mejor que no hacer nada.
-Future<bool> _abrirArchivoEnAndroid(String rutaArchivo) async {
-  try {
-    final autoridad = 'com.logisticapps.sistema_diseno_almacenes.fileprovider';
-    final nombreArchivo = rutaArchivo.split('/').last;
-    final uriContenido = 'content://$autoridad/documentos/$nombreArchivo';
-    final intent = AndroidIntent(
-      action: 'action_view',
-      data: uriContenido,
-      flags: [Flag.FLAG_GRANT_READ_URI_PERMISSION, Flag.FLAG_ACTIVITY_NEW_TASK],
-    );
-    await intent.launch();
-    return true;
-  } catch (_) {
-    return false;
-  }
+/// Invoca el share sheet nativo de Android (`ACTION_SEND`) vía `share_plus`
+/// -- a diferencia de `_abrirArchivoEnAndroid`, acá conviene un paquete en
+/// vez de un `AndroidIntent` a mano porque `ACTION_SEND` necesita un extra
+/// `EXTRA_STREAM` de tipo `Uri`/Parcelable, que el mapa de argumentos de
+/// `android_intent_plus` no soporta. `share_plus` ya copia el archivo a su
+/// propio `FileProvider` internamente, así que no depende de la carpeta
+/// donde se haya guardado el export.
+Future<void> _compartirArchivoEnAndroid(String rutaArchivo) async {
+  await SharePlus.instance.share(ShareParams(files: [XFile(rutaArchivo)]));
 }
