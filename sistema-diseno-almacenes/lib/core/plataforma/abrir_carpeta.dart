@@ -3,6 +3,27 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// Carpeta donde deben guardarse los archivos exportados (DXF, PDF,
+/// proyecto). En Windows y Linux es la carpeta de documentos de la app. En
+/// Android es el almacenamiento externo específico de la app
+/// (`/storage/emulated/0/Android/data/<paquete>/files`) y NO el
+/// almacenamiento interno privado (`getApplicationDocumentsDirectory()`,
+/// bajo `/data/user/0/...`): ese último es invisible para cualquier
+/// gestor de archivos, así que "Ir a la carpeta" no tiene nada que
+/// mostrar. El externo específico de la app no requiere ningún permiso
+/// adicional en ninguna versión de Android (es una carpeta propia de la
+/// app, no almacenamiento compartido) y sí tiene un content:// URI de
+/// carpeta que un gestor de archivos puede navegar -- ver
+/// `_abrirCarpetaEnAndroid` más abajo.
+Future<Directory> directorioExportacion() async {
+  if (Platform.isAndroid) {
+    final directorio = await getExternalStorageDirectory();
+    if (directorio != null) return directorio;
+  }
+  return getApplicationDocumentsDirectory();
+}
 
 /// Abre la ubicación de `rutaArchivo` en el gestor de archivos del sistema
 /// operativo -- nunca el archivo en sí, solo su carpeta contenedora, con el
@@ -12,11 +33,12 @@ import 'package:flutter/material.dart';
 /// `/select,`, o el gestor de archivos de escritorio vía D-Bus). Android no
 /// tiene un equivalente real a "selecciona este archivo en el explorador":
 /// su modelo de almacenamiento no expone "la carpeta" como concepto de
-/// primera clase entre apps, así que ahí el mejor resultado alcanzable es
-/// pedirle al sistema que abra ese archivo con la app que corresponda
-/// (que en la práctica suele incluir un gestor de archivos entre las
-/// opciones) -- no una limitación de esta función, sino del sistema
-/// operativo.
+/// primera clase entre apps. Ahí el mejor resultado alcanzable es abrir el
+/// gestor de archivos del sistema navegado a la carpeta contenedora (sin
+/// seleccionar el archivo dentro, pero sin abrirlo tampoco); si ningún
+/// gestor de archivos del dispositivo soporta eso, se cae al respaldo de
+/// abrir el archivo con la app que corresponda -- no una limitación de
+/// esta función, sino del sistema operativo.
 ///
 /// Devuelve `true` si se pudo lanzar algo; `false` si ningún método
 /// disponible funcionó (para que el llamador pueda avisar con un mensaje,
@@ -95,6 +117,42 @@ Future<bool> _abrirEnLinux(String rutaArchivo) async {
 }
 
 Future<bool> _abrirEnAndroid(String rutaArchivo) async {
+  if (await _abrirCarpetaEnAndroid(rutaArchivo)) return true;
+  return _abrirArchivoEnAndroid(rutaArchivo);
+}
+
+/// Intenta mostrar la carpeta contenedora en el gestor de archivos del
+/// sistema (sin abrir el archivo) usando el content:// URI que expone el
+/// proveedor de almacenamiento externo de Android para el volumen
+/// primario. Solo es posible cuando el archivo vive en el almacenamiento
+/// externo específico de la app (ver `directorioExportacion`); el
+/// almacenamiento interno privado no tiene un URI de carpeta de este tipo.
+Future<bool> _abrirCarpetaEnAndroid(String rutaArchivo) async {
+  final carpeta = File(rutaArchivo).parent.path;
+  final marcador = carpeta.indexOf('/Android/');
+  if (marcador == -1) return false;
+  final relativo = carpeta.substring(marcador + 1);
+  final uriCarpeta =
+      'content://com.android.externalstorage.documents/document/'
+      '${Uri.encodeComponent('primary:$relativo')}';
+  try {
+    final intent = AndroidIntent(
+      action: 'action_view',
+      data: uriCarpeta,
+      type: 'vnd.android.document/directory',
+      flags: [Flag.FLAG_ACTIVITY_NEW_TASK, Flag.FLAG_GRANT_READ_URI_PERMISSION],
+    );
+    await intent.launch();
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Respaldo si ningún gestor de archivos del dispositivo entiende el URI
+/// de carpeta: abre el archivo con la app que corresponda. Es peor que
+/// dejarlo seleccionado sin abrir, pero mejor que no hacer nada.
+Future<bool> _abrirArchivoEnAndroid(String rutaArchivo) async {
   try {
     final autoridad = 'com.logisticapps.sistema_diseno_almacenes.fileprovider';
     final nombreArchivo = rutaArchivo.split('/').last;

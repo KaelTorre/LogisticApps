@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../domain/export/dxf_writer.dart';
@@ -41,9 +40,9 @@ class _PlanoScreenState extends State<PlanoScreen> {
         frenteAndenMm: widget.frenteAndenMm,
         patioProfundidadMm: widget.patioProfundidadMm,
       );
-      final directorio = await getApplicationDocumentsDirectory();
+      final directorio = await directorioExportacion();
       final marca = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
-      final archivo = File('${directorio.path}/almacen_$marca.dxf');
+      final archivo = File('${directorio.path}${Platform.pathSeparator}almacen_$marca.dxf');
       await archivo.writeAsString(dxf);
 
       if (!mounted) return;

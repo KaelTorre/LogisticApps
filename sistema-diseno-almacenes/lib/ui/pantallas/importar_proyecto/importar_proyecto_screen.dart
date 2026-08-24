@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
-/// Lista los `.json` de la carpeta de Documentos (donde `EntradaCalculoScreen`
-/// deja los proyectos exportados) para elegir cuál importar. No hay selector
-/// de archivos nativo (`file_picker`) todavía — CLAUDE.md pide "sin UI
+import '../../../core/plataforma/abrir_carpeta.dart';
+
+/// Lista los `.json` de la carpeta donde `EntradaCalculoScreen` deja los
+/// proyectos exportados (`directorioExportacion()` -- la misma carpeta que
+/// usan las tres pantallas de exportación, así los archivos que llegan de
+/// otra máquina también se ven si se copian ahí). No hay selector de
+/// archivos nativo (`file_picker`) todavía — CLAUDE.md pide "sin UI
 /// elaborada" para este tipo de pantalla, y copiar el archivo exportado de
 /// otra máquina a esta misma carpeta (USB, red local) es una operación de
 /// usuario normal. Un selector nativo puede sumarse después sin cambiar el
@@ -30,7 +33,7 @@ class _ImportarProyectoScreenState extends State<ImportarProyectoScreen> {
 
   Future<void> _listarArchivos() async {
     try {
-      final directorio = await getApplicationDocumentsDirectory();
+      final directorio = await directorioExportacion();
       final archivos = directorio
           .listSync()
           .whereType<File>()
