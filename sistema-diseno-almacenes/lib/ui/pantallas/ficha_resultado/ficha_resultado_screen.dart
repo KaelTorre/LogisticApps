@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../core/plataforma/abrir_carpeta.dart';
@@ -88,9 +87,9 @@ class _FichaResultadoScreenState extends State<FichaResultadoScreen> {
         fuenteNegrita: fuenteNegrita,
       );
 
-      final directorio = await getApplicationDocumentsDirectory();
+      final directorio = await directorioExportacion();
       final marca = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
-      final archivo = File('${directorio.path}/ficha_tecnica_$marca.pdf');
+      final archivo = File('${directorio.path}${Platform.pathSeparator}ficha_tecnica_$marca.pdf');
       await archivo.writeAsBytes(bytes);
 
       if (!mounted) return;

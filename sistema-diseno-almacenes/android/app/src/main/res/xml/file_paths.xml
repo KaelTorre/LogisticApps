@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Rutas que el FileProvider (ver AndroidManifest.xml) autoriza a exponer a
-  otras apps vía content:// URIs. `files-path` corresponde a
-  `context.getFilesDir()`. `path_provider`'s
-  `getApplicationDocumentsDirectory()`, donde se guardan los DXF/PDF/JSON
-  exportados en Android (ver `lib/core/plataforma/abrir_carpeta.dart`),
-  devuelve concretamente `getFilesDir()/app_flutter` (comportamiento
-  documentado del plugin), así que se expone esa subcarpeta directo bajo
-  el nombre "documentos" para que el URI no necesite repetir "app_flutter".
+  otras apps vía content:// URIs, usado solo como respaldo si ningún
+  gestor de archivos del dispositivo soporta el URI de carpeta que se
+  intenta primero (ver `_abrirCarpetaEnAndroid` en
+  `lib/core/plataforma/abrir_carpeta.dart`). `external-files-path`
+  corresponde a `context.getExternalFilesDir(null)`, que es exactamente lo
+  que devuelve `path_provider`'s `getExternalStorageDirectory()`, la
+  carpeta donde `directorioExportacion()` guarda los DXF/PDF/JSON
+  exportados en Android.
 -->
 <paths>
-    <files-path name="documentos" path="app_flutter/"/>
+    <external-files-path name="documentos" path="."/>
 </paths>

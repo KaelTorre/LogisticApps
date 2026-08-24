@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../core/tour/induccion_screen.dart';
@@ -160,9 +159,9 @@ class _EntradaCalculoScreenState extends State<EntradaCalculoScreen> {
         camion: _camionSeleccionado!,
       );
 
-      final directorio = await getApplicationDocumentsDirectory();
+      final directorio = await directorioExportacion();
       final marca = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
-      final archivo = File('${directorio.path}/proyecto_$marca.json');
+      final archivo = File('${directorio.path}${Platform.pathSeparator}proyecto_$marca.json');
       await archivo.writeAsString(proyecto.toJsonString());
 
       if (!mounted) return;
