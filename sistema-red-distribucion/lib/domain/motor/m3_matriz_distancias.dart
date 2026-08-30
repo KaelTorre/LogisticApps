@@ -17,15 +17,25 @@ class OrigenMatriz {
   final double longitud;
 }
 
-/// Un destino de la matriz — hoy siempre una zona de demanda.
+/// Un destino de la matriz — una zona de demanda (uso original de la
+/// Fase 4), o un sitio candidato (Fase 5: M4 necesita la distancia
+/// planta→almacén para el rubro de transporte de entrada, que la matriz de
+/// la Fase 4 no cubría porque solo conectaba orígenes con zonas). Mismo
+/// motor de troceado/caché de `construirMatriz` para ambos casos — la
+/// tabla `celda_matriz` ya declaraba `tipoDestino` genérico para esto (ver
+/// comentario de `CeldaMatrizTable`).
 class DestinoMatriz {
-  const DestinoMatriz({required this.id, required this.latitud, required this.longitud});
+  const DestinoMatriz({
+    required this.id,
+    required this.latitud,
+    required this.longitud,
+    this.tipo = 'zona',
+  });
 
   final int id;
   final double latitud;
   final double longitud;
-
-  String get tipo => 'zona';
+  final String tipo;
 }
 
 /// Progreso de `construirMatriz`, para que la Pantalla 9 muestre bloques

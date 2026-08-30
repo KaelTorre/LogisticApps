@@ -14,6 +14,13 @@ import '../../../domain/motor/m3_matriz_distancias.dart';
 
 /// Pantalla 9 (CLAUDE.md sección 8): estado de la matriz, progreso de
 /// construcción y proporción de celdas por fuente (`osrm` vs `haversine`).
+///
+/// Construye dos matrices bajo el mismo botón, con el mismo motor
+/// (`construirMatriz`, Fase 4): candidatos/plantas → zonas (lo que ya
+/// pedía la Fase 4) y, agregado en la Fase 5, plantas → candidatos — M4
+/// necesita esa segunda distancia para el rubro de transporte de entrada,
+/// y la Fase 4 solo había cubierto distancias hacia zonas (ver decisión
+/// documentada en el README del proyecto).
 class MatrizScreen extends StatefulWidget {
   const MatrizScreen({super.key});
 
@@ -23,7 +30,8 @@ class MatrizScreen extends StatefulWidget {
 
 class _MatrizScreenState extends State<MatrizScreen> {
   bool _cargando = true;
-  int _numOrigenes = 0;
+  int _numCandidatos = 0;
+  int _numPlantas = 0;
   int _numDestinos = 0;
   List<CeldaMatriz> _celdas = [];
   bool _sinConexion = false;
@@ -54,7 +62,8 @@ class _MatrizScreenState extends State<MatrizScreen> {
 
     if (!mounted) return;
     setState(() {
-      _numOrigenes = candidatos.length + plantas.length;
+      _numCandidatos = candidatos.length;
+      _numPlantas = plantas.length;
       _numDestinos = zonas.length;
       _celdas = celdas;
       _cargando = false;
@@ -82,7 +91,7 @@ class _MatrizScreenState extends State<MatrizScreen> {
       final zonas = await zonaRepository.obtenerPorProyecto(proyectoId);
       final celdasExistentes = await celdaRepository.obtenerPorProyecto(proyectoId);
 
-      final origenes = [
+      final origenesAZonas = [
         ...candidatos.map(
           (c) => OrigenMatriz(tipo: 'candidato', id: c.id!, latitud: c.latitud, longitud: c.longitud),
         ),
@@ -90,14 +99,14 @@ class _MatrizScreenState extends State<MatrizScreen> {
           (p) => OrigenMatriz(tipo: 'planta', id: p.id!, latitud: p.latitud, longitud: p.longitud),
         ),
       ];
-      final destinos = zonas
+      final destinosZonas = zonas
           .map((z) => DestinoMatriz(id: z.id!, latitud: z.latitud, longitud: z.longitud))
           .toList();
 
-      final nuevas = await construirMatriz(
+      final nuevasAZonas = await construirMatriz(
         proyectoId: proyectoId,
-        origenes: origenes,
-        destinos: destinos,
+        origenes: origenesAZonas,
+        destinos: destinosZonas,
         celdasExistentes: celdasExistentes,
         factorCircuidad: proyecto.factorCircuidad,
         cliente: _sinConexion ? null : osrmClient,
@@ -108,6 +117,34 @@ class _MatrizScreenState extends State<MatrizScreen> {
         },
       );
 
+      // Planta → candidato (Fase 5, M4 la necesita para el transporte de
+      // entrada) — mismo motor, `celdasExistentes` ya sirve para las dos
+      // llamadas porque las claves (tipoOrigen+origenId+tipoDestino+
+      // destinoId) de una y otra matriz nunca se pisan.
+      final origenesPlantas = plantas
+          .map((p) => OrigenMatriz(tipo: 'planta', id: p.id!, latitud: p.latitud, longitud: p.longitud))
+          .toList();
+      final destinosCandidatos = candidatos
+          .map(
+            (c) => DestinoMatriz(id: c.id!, latitud: c.latitud, longitud: c.longitud, tipo: 'candidato'),
+          )
+          .toList();
+
+      final nuevasPlantaCandidato = await construirMatriz(
+        proyectoId: proyectoId,
+        origenes: origenesPlantas,
+        destinos: destinosCandidatos,
+        celdasExistentes: celdasExistentes,
+        factorCircuidad: proyecto.factorCircuidad,
+        cliente: _sinConexion ? null : osrmClient,
+        maxCoordenadasPorConsulta: maxCoordenadasPorConsulta,
+        onProgreso: (progreso) {
+          if (!mounted) return;
+          setState(() => _progreso = progreso);
+        },
+      );
+
+      final nuevas = [...nuevasAZonas, ...nuevasPlantaCandidato];
       if (nuevas.isNotEmpty) {
         await celdaRepository.insertarTodas(nuevas);
       }
@@ -145,16 +182,19 @@ class _MatrizScreenState extends State<MatrizScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final totalEsperado = _numOrigenes * _numDestinos;
-    final cacheadas = _celdas.length;
-    final deOsrm = _celdas.where((c) => c.fuente == 'osrm').length;
-    final deHaversine = _celdas.where((c) => c.fuente == 'haversine').length;
+    final numOrigenes = _numCandidatos + _numPlantas;
+    final celdasAZonas = _celdas.where((c) => c.tipoDestino == 'zona').toList();
+    final celdasPlantaCandidato = _celdas.where((c) => c.tipoDestino == 'candidato').toList();
+    final totalEsperadoZonas = numOrigenes * _numDestinos;
+    final totalEsperadoPlantaCandidato = _numPlantas * _numCandidatos;
+    final deOsrm = celdasAZonas.where((c) => c.fuente == 'osrm').length;
+    final deHaversine = celdasAZonas.where((c) => c.fuente == 'haversine').length;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Matriz de distancias')),
       body: SafeArea(
-        child: (_numOrigenes == 0 || _numDestinos == 0)
-            ? _EstadoIncompleto(sinOrigenes: _numOrigenes == 0, sinDestinos: _numDestinos == 0)
+        child: (numOrigenes == 0 || _numDestinos == 0)
+            ? _EstadoIncompleto(sinOrigenes: numOrigenes == 0, sinDestinos: _numDestinos == 0)
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -166,13 +206,13 @@ class _MatrizScreenState extends State<MatrizScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Estado de la matriz', style: Theme.of(context).textTheme.titleSmall),
+                            Text('Distancias a zonas de demanda', style: Theme.of(context).textTheme.titleSmall),
                             const SizedBox(height: 8),
-                            Text('$_numOrigenes origen(es) (candidatos + plantas) × $_numDestinos zona(s) '
-                                '= $totalEsperado celda(s) esperadas.'),
+                            Text('$numOrigenes origen(es) (candidatos + plantas) × $_numDestinos zona(s) '
+                                '= $totalEsperadoZonas celda(s) esperadas.'),
                             const SizedBox(height: 4),
-                            Text('$cacheadas celda(s) calculada(s) hasta ahora.'),
-                            if (cacheadas > 0) ...[
+                            Text('${celdasAZonas.length} celda(s) calculada(s) hasta ahora.'),
+                            if (celdasAZonas.isNotEmpty) ...[
                               const SizedBox(height: 12),
                               _BarraProporcion(deOsrm: deOsrm, deHaversine: deHaversine),
                               const SizedBox(height: 4),
@@ -180,6 +220,21 @@ class _MatrizScreenState extends State<MatrizScreen> {
                                 '$deOsrm de OSRM (ruta real) · $deHaversine en línea recta (aproximado)',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
+                            ],
+                            if (_numPlantas > 0 && _numCandidatos > 0) ...[
+                              const Divider(height: 24),
+                              Text(
+                                'Distancias planta → sitio candidato',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '$_numPlantas planta(s) × $_numCandidatos candidato(s) = '
+                                '$totalEsperadoPlantaCandidato celda(s) esperadas — usadas por el costo de '
+                                'transporte de entrada (M4).',
+                              ),
+                              const SizedBox(height: 4),
+                              Text('${celdasPlantaCandidato.length} celda(s) calculada(s) hasta ahora.'),
                             ],
                           ],
                         ),
