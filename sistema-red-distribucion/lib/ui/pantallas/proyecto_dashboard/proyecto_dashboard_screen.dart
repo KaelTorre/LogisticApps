@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/estado/proyecto_activo.dart';
+import '../agregacion/agregacion_screen.dart';
 import '../auditoria/auditoria_datos_screen.dart';
 import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
@@ -53,6 +54,12 @@ final _modulos = [
     titulo: 'Auditoría de datos',
     descripcion: 'Hallazgos de calidad antes de calcular.',
     pantalla: (_) => const AuditoriaDatosScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.group,
+    titulo: 'Agregación',
+    descripcion: 'Agrupa clientes en zonas de demanda (M1).',
+    pantalla: (_) => const AgregacionScreen(),
   ),
 ];
 

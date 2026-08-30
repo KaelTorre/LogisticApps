@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 import '../../../core/dinero_utils.dart';
 import '../../../core/estado/proyecto_activo.dart';
 import '../../../data/models/sitio_candidato.dart';
+import '../../../data/repositories/parametros_costo_repository.dart';
 import '../../../data/repositories/sitio_candidato_repository.dart';
+import '../../../data/repositories/zona_demanda_repository.dart';
+import '../../../domain/motor/m2_centro_gravedad.dart';
 import 'candidato_form_screen.dart';
 
 /// Pantalla 6 (CLAUDE.md sección 8), lista: sitios candidatos del proyecto
-/// activo. "Generar por centro de gravedad" queda deshabilitado hasta la
-/// Fase 3: M2 (CLAUDE.md sección 7) recibe zonas de demanda, que todavía no
-/// existen — implementarlo antes rompería el orden de fases ("no se salta
-/// a una fase posterior", sección 0).
+/// activo, con generación automática por centro de gravedad (M2, CLAUDE.md
+/// sección 7) sobre las zonas de demanda que produjo M1 (Pantalla 5).
 class CandidatosScreen extends StatefulWidget {
   const CandidatosScreen({super.key});
 
@@ -78,6 +79,79 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
     await _cargar();
   }
 
+  Future<void> _generarPorCentroGravedad() async {
+    final proyectoId = _proyectoId;
+    final zonaRepository = context.read<ZonaDemandaRepository>();
+    final parametrosRepository = context.read<ParametrosCostoRepository>();
+    final candidatoRepository = context.read<SitioCandidatoRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final zonas = await zonaRepository.obtenerPorProyecto(proyectoId);
+    if (zonas.isEmpty) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Primero calculá las zonas de demanda en Agregación.'),
+          ),
+        );
+      return;
+    }
+
+    final parametros = await parametrosRepository.obtenerPorProyecto(proyectoId);
+    if (parametros == null) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Primero completá Parámetros de costo (tarifa de salida).'),
+          ),
+        );
+      return;
+    }
+
+    if (!mounted) return;
+    final p = await showDialog<int>(
+      context: context,
+      builder: (context) => _DialogoCantidadCandidatos(maximo: zonas.length),
+    );
+    if (p == null) return;
+
+    final sugerencias = generarCandidatosPorCentroGravedad(
+      zonas: zonas,
+      tarifaCentPorKmTon: parametros.tarifaSalidaCentPorKmTon.toDouble(),
+      p: p,
+    );
+
+    for (var i = 0; i < sugerencias.length; i++) {
+      await candidatoRepository.crear(
+        SitioCandidato(
+          proyectoId: proyectoId,
+          nombre: 'Candidato sugerido ${i + 1}',
+          latitud: sugerencias[i].latitud,
+          longitud: sugerencias[i].longitud,
+          costoFijoAnualCent: 0,
+          capacidadAnual: 0,
+          costoVariableManejoCentPorUnidad: 0,
+          origen: 'centro_gravedad',
+        ),
+      );
+    }
+
+    if (!mounted) return;
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            '${sugerencias.length} candidato(s) sugerido(s) — completá costo fijo, '
+            'capacidad y verificá que el punto sea edificable.',
+          ),
+        ),
+      );
+    await _cargar();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,18 +159,9 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
         title: const Text('Sitios candidatos'),
         actions: [
           IconButton(
-            onPressed: () => ScaffoldMessenger.of(context)
-              ..clearSnackBars()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'La generación automática por centro de gravedad se activa '
-                    'cuando el proyecto tenga zonas de demanda (Fase 3).',
-                  ),
-                ),
-              ),
+            onPressed: _generarPorCentroGravedad,
             icon: const Icon(LucideIcons.sparkles),
-            tooltip: 'Generar por centro de gravedad (disponible en la Fase 3)',
+            tooltip: 'Generar por centro de gravedad',
           ),
         ],
       ),
@@ -160,6 +225,61 @@ class _TarjetaCandidato extends StatelessWidget {
           tooltip: 'Eliminar',
         ),
       ),
+    );
+  }
+}
+
+class _DialogoCantidadCandidatos extends StatefulWidget {
+  const _DialogoCantidadCandidatos({required this.maximo});
+
+  final int maximo;
+
+  @override
+  State<_DialogoCantidadCandidatos> createState() => _DialogoCantidadCandidatosState();
+}
+
+class _DialogoCantidadCandidatosState extends State<_DialogoCantidadCandidatos> {
+  late int _p = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Generar por centro de gravedad'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Cada punto sugerido es un candidato a verificar, no una decisión: '
+            'puede caer en un lugar no edificable.',
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text('Cantidad de candidatos:'),
+              const Spacer(),
+              DropdownButton<int>(
+                value: _p,
+                items: [
+                  for (var i = 1; i <= widget.maximo; i++)
+                    DropdownMenuItem(value: i, child: Text('$i')),
+                ],
+                onChanged: (v) => setState(() => _p = v!),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_p),
+          child: const Text('Generar'),
+        ),
+      ],
     );
   }
 }
