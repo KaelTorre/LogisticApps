@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import '../../../data/models/escenario_almacen.dart';
 import '../../../data/models/escenario_asignacion.dart';
 import '../../../data/models/escenario_costo.dart';
 import '../../../data/models/memoria_calculo.dart';
+import '../../../data/models/punto_curva.dart';
 import '../../../data/repositories/celda_matriz_repository.dart';
 import '../../../data/repositories/escenario_almacen_repository.dart';
 import '../../../data/repositories/escenario_asignacion_repository.dart';
@@ -19,12 +21,15 @@ import '../../../data/repositories/escenario_repository.dart';
 import '../../../data/repositories/memoria_calculo_repository.dart';
 import '../../../data/repositories/parametros_costo_repository.dart';
 import '../../../data/repositories/planta_repository.dart';
+import '../../../data/repositories/punto_curva_repository.dart';
 import '../../../data/repositories/sitio_candidato_repository.dart';
 import '../../../data/repositories/zona_demanda_repository.dart';
 import '../../../domain/motor/evaluador_costo.dart';
+import '../../../domain/motor/fila_memoria.dart';
 import '../../../domain/motor/m4_costo_total.dart';
 import '../../../domain/motor/m5_asignacion.dart';
 import '../../../domain/motor/m6_heuristicas.dart';
+import '../../../domain/motor/m8_barrido.dart';
 import '../../../domain/motor/tarifas.dart';
 
 const _metodos = [
@@ -33,6 +38,7 @@ const _metodos = [
   ('intercambio', 'Intercambio (Teitz y Bart)'),
   ('recocido', 'Recocido simulado'),
   ('enumeracion', 'Enumeración exhaustiva (óptimo exacto)'),
+  ('barrido', 'Barrido (curva de costo, M8)'),
 ];
 
 const _limiteEnumeracion = 14;
@@ -103,6 +109,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
     final escenarioAlmacenRepo = context.read<EscenarioAlmacenRepository>();
     final escenarioAsignacionRepo = context.read<EscenarioAsignacionRepository>();
     final escenarioCostoRepo = context.read<EscenarioCostoRepository>();
+    final puntoCurvaRepo = context.read<PuntoCurvaRepository>();
     final memoriaRepo = context.read<MemoriaCalculoRepository>();
 
     setState(() {
@@ -162,19 +169,39 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
       final pFijo = int.tryParse(_pFijoCtrl.text.trim());
       final semilla = int.tryParse(_semillaCtrl.text.trim()) ?? 42;
 
-      final resultado = await _ejecutarMetodo(
-        metodo: _metodo,
-        candidatosIds: candidatosIds,
-        evaluador: evaluador,
-        pFijo: pFijo,
-        semilla: semilla,
-        cancelacion: token,
-      );
+      Set<int> abiertosGanadores;
+      List<FilaMemoria> memoriaMetodo;
+      List<PuntoCurvaResultado>? curvaParaPersistir;
+
+      if (_metodo == 'barrido') {
+        final resultado = await barrerNumeroAlmacenes(
+          candidatosDisponibles: candidatosIds,
+          candidatosPorId: candidatosPorId,
+          evaluador: evaluador,
+          pMax: pFijo,
+          cancelacion: token,
+          onProgreso: (p, pMaxBarrido) => _actualizarProgreso('Evaluando p=$p de $pMaxBarrido'),
+        );
+        abiertosGanadores = resultado.optimo.abiertos;
+        memoriaMetodo = resultado.memoria;
+        curvaParaPersistir = resultado.curva;
+      } else {
+        final resultado = await _ejecutarMetodo(
+          metodo: _metodo,
+          candidatosIds: candidatosIds,
+          evaluador: evaluador,
+          pFijo: pFijo,
+          semilla: semilla,
+          cancelacion: token,
+        );
+        abiertosGanadores = resultado.abiertos;
+        memoriaMetodo = resultado.memoria;
+      }
 
       // Reconstruye el detalle completo de la configuración ganadora para
       // persistirlo (el evaluador solo devuelve el costo total agregado).
       final asignacionFinal = asignarZonas(
-        abiertos: resultado.abiertos.toList(),
+        abiertos: abiertosGanadores.toList(),
         zonas: zonas,
         candidatosPorId: candidatosPorId,
         distanciaZonaCandidato: distanciaZonaCandidato,
@@ -182,7 +209,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
         conRestriccionCapacidad: _conRestriccionCapacidad,
       );
       final costoFinal = calcularCostoTotal(
-        abiertos: resultado.abiertos.toList(),
+        abiertos: abiertosGanadores.toList(),
         candidatosPorId: candidatosPorId,
         plantas: plantas,
         zonas: zonas,
@@ -208,7 +235,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
         ),
       );
 
-      final volumenPorCandidato = <int, double>{for (final id in resultado.abiertos) id: 0};
+      final volumenPorCandidato = <int, double>{for (final id in abiertosGanadores) id: 0};
       final zonasPorId = {for (final z in zonas) z.id!: z};
       for (final entrada in asignacionFinal.asignacion.entries) {
         final zona = zonasPorId[entrada.key]!;
@@ -216,7 +243,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
       }
 
       await escenarioAlmacenRepo.insertarTodos([
-        for (final candidatoId in resultado.abiertos)
+        for (final candidatoId in abiertosGanadores)
           EscenarioAlmacen(
             escenarioId: escenarioId,
             sitioCandidatoId: candidatoId,
@@ -251,7 +278,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
           EscenarioCosto(escenarioId: escenarioId, rubro: entrada.key, montoCent: entrada.value),
       ]);
 
-      final todaLaMemoria = [...resultado.memoria, ...asignacionFinal.memoria, ...costoFinal.memoria];
+      final todaLaMemoria = [...memoriaMetodo, ...asignacionFinal.memoria, ...costoFinal.memoria];
       await memoriaRepo.insertarTodas([
         for (var i = 0; i < todaLaMemoria.length; i++)
           MemoriaCalculo(
@@ -265,9 +292,23 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
           ),
       ]);
 
+      // M8 (barrido): un punto_curva por p evaluado, para la Pantalla 13.
+      if (curvaParaPersistir != null) {
+        await puntoCurvaRepo.insertarTodos([
+          for (final punto in curvaParaPersistir)
+            PuntoCurva(
+              escenarioId: escenarioId,
+              numeroAlmacenes: punto.numeroAlmacenes,
+              costoTotalCent: punto.costoTotalCent,
+              costoPorRubroJson: jsonEncode(punto.porRubro),
+              viableSegunServicio: punto.viableSegunServicio,
+            ),
+        ]);
+      }
+
       if (!mounted) return;
       setState(() {
-        _resumen = '"$nombre" guardado: ${resultado.abiertos.length} almacén(es) abierto(s), '
+        _resumen = '"$nombre" guardado: ${abiertosGanadores.length} almacén(es) abierto(s), '
             'costo total ${(costoFinal.costoTotalCent / 100).toStringAsFixed(2)}'
             '${asignacionFinal.zonasNoCubiertas.isNotEmpty ? ' · ${asignacionFinal.zonasNoCubiertas.length} zona(s) fuera del estándar de servicio' : ''}'
             '${asignacionFinal.zonasSinAsignar.isNotEmpty ? ' · ${asignacionFinal.zonasSinAsignar.length} zona(s) sin capacidad disponible' : ''}';

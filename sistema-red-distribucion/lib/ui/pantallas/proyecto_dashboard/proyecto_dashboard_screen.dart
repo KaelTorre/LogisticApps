@@ -7,10 +7,13 @@ import '../agregacion/agregacion_screen.dart';
 import '../auditoria/auditoria_datos_screen.dart';
 import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
+import '../comparador/comparador_escenarios_screen.dart';
+import '../curva/curva_screen.dart';
 import '../matriz/matriz_screen.dart';
 import '../optimizacion/optimizacion_screen.dart';
 import '../parametros_costo/parametros_costo_screen.dart';
 import '../plantas/plantas_screen.dart';
+import '../resultado_costos/resultado_costos_screen.dart';
 
 class _ModuloProyecto {
   const _ModuloProyecto({
@@ -72,8 +75,26 @@ final _modulos = [
   _ModuloProyecto(
     icono: LucideIcons.play,
     titulo: 'Optimización',
-    descripcion: 'Decide qué almacenes abrir (M6: ADD, DROP, intercambio, recocido).',
+    descripcion: 'Decide qué almacenes abrir (M6: ADD, DROP, intercambio, recocido, barrido).',
     pantalla: (_) => const OptimizacionScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.chartColumn,
+    titulo: 'Resultado — costos',
+    descripcion: 'Desglose por rubro de un escenario y comparación con la red actual.',
+    pantalla: (_) => const ResultadoCostosScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.chartLine,
+    titulo: 'Curva',
+    descripcion: 'Costo total contra número de almacenes (escenarios de barrido).',
+    pantalla: (_) => const CurvaScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.gitCompare,
+    titulo: 'Comparador de escenarios',
+    descripcion: 'Dos escenarios lado a lado: ahorro, almacenes y zonas que cambian.',
+    pantalla: (_) => const ComparadorEscenariosScreen(),
   ),
 ];
 
