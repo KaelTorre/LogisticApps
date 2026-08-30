@@ -8,6 +8,7 @@ import '../auditoria/auditoria_datos_screen.dart';
 import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
 import '../matriz/matriz_screen.dart';
+import '../optimizacion/optimizacion_screen.dart';
 import '../parametros_costo/parametros_costo_screen.dart';
 import '../plantas/plantas_screen.dart';
 
@@ -67,6 +68,12 @@ final _modulos = [
     titulo: 'Matriz de distancias',
     descripcion: 'Distancias reales por carretera entre orígenes y zonas (M3).',
     pantalla: (_) => const MatrizScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.play,
+    titulo: 'Optimización',
+    descripcion: 'Decide qué almacenes abrir (M6: ADD, DROP, intercambio, recocido).',
+    pantalla: (_) => const OptimizacionScreen(),
   ),
 ];
 
