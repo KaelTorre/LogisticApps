@@ -16,13 +16,35 @@ class OsrmCoordenada {
   final double lon;
 }
 
+/// Categoría de un [OsrmException] — quien llama (ej. M3, sección 7 de
+/// `sistema-red-distribucion/CLAUDE.md`) necesita distinguir "no hay red"
+/// (respaldo automático en línea recta, válido) de "el servicio está
+/// limitando peticiones" o cualquier otro error (se propaga tal cual, sin
+/// guardar nada a medias) — mensajes de texto no alcanzan para eso de forma
+/// robusta.
+enum CausaOsrmException {
+  /// Fallo de conexión (sin internet, DNS, TLS, timeout...).
+  redNoDisponible,
+
+  /// HTTP 429 persistente incluso después de los reintentos con backoff.
+  limitePeticiones,
+
+  /// OSRM respondió pero `code == "NoRoute"`.
+  sinRuta,
+
+  /// Cualquier otro error (HTTP distinto de 200/429, `code` desconocido).
+  otro,
+}
+
 /// Error de dominio para fallos de OSRM (red, rate limit, o `code` distinto
 /// de `"Ok"`). El mensaje ya está listo para mostrarse al usuario tal cual,
-/// nunca un crash genérico.
+/// nunca un crash genérico. [causa] permite a quien llama tomar una
+/// decisión distinta según el tipo de fallo (ver [CausaOsrmException]).
 class OsrmException implements Exception {
-  const OsrmException(this.mensaje);
+  const OsrmException(this.mensaje, {this.causa = CausaOsrmException.otro});
 
   final String mensaje;
+  final CausaOsrmException causa;
 
   @override
   String toString() => mensaje;
@@ -30,6 +52,7 @@ class OsrmException implements Exception {
 
 enum _TipoConsultaOsrm {
   matriz('matriz'),
+  matrizAsimetrica('matriz_asimetrica'),
   ruta('ruta');
 
   const _TipoConsultaOsrm(this.valor);
@@ -79,6 +102,42 @@ class OsrmClient {
     return respuesta;
   }
 
+  /// Matriz **asimétrica** de distancias/tiempos entre `origenes` y
+  /// `destinos` — a diferencia de [obtenerMatriz] (una lista, matriz
+  /// cuadrada), acá el servicio solo calcula `origenes.length ×
+  /// destinos.length` celdas, usando los parámetros `sources`/`destinations`
+  /// de OSRM (índices dentro de la lista combinada de coordenadas). Es lo
+  /// que M3 (`sistema-red-distribucion/CLAUDE.md` sección 7) necesita para
+  /// consultar solo candidatos/plantas × zonas, sin pedir la matriz
+  /// candidatos×candidatos que nadie usa.
+  ///
+  /// `respuesta.distanciasMetros[i][j]` es la distancia de `origenes[i]` a
+  /// `destinos[j]`.
+  Future<OsrmTableResponse> obtenerMatrizAsimetrica({
+    required List<OsrmCoordenada> origenes,
+    required List<OsrmCoordenada> destinos,
+  }) async {
+    final combinadas = [...origenes, ...destinos];
+    final indicesOrigenes = List.generate(origenes.length, (i) => i).join(';');
+    final indicesDestinos = List.generate(
+      destinos.length,
+      (i) => origenes.length + i,
+    ).join(';');
+
+    final json = await _consultarConCache(
+      tipo: _TipoConsultaOsrm.matrizAsimetrica,
+      coordenadas: combinadas,
+      construirUri: (coordsStr) => Uri.parse(
+        '$osrmBaseUrl/table/v1/driving/$coordsStr'
+        '?sources=$indicesOrigenes&destinations=$indicesDestinos'
+        '&annotations=distance,duration',
+      ),
+    );
+    final respuesta = OsrmTableResponse.fromJson(json);
+    _verificarCodigo(respuesta.code);
+    return respuesta;
+  }
+
   /// Geometría real de la ruta que recorre `coordenadas` en ese orden.
   Future<OsrmRouteResponse> obtenerRuta(
     List<OsrmCoordenada> coordenadas,
@@ -103,6 +162,7 @@ class OsrmClient {
         'OSRM no encontró una ruta entre los puntos indicados. '
         'Verifica que las coordenadas estén dentro de una zona con '
         'cobertura de calles en OpenStreetMap.',
+        causa: CausaOsrmException.sinRuta,
       );
     }
     throw OsrmException('OSRM respondió con un error: $code');
@@ -168,6 +228,7 @@ class OsrmClient {
         'para esta consulta; si ya la hiciste antes, revisa si hay una '
         'respuesta guardada en la caché local.\n\n'
         'Detalle técnico: ${e.runtimeType}: $e',
+        causa: CausaOsrmException.redNoDisponible,
       );
     }
 
@@ -176,6 +237,7 @@ class OsrmClient {
         throw const OsrmException(
           'OSRM está limitando las peticiones (código 429) y se agotaron '
           'los reintentos. Intenta de nuevo en unos minutos.',
+          causa: CausaOsrmException.limitePeticiones,
         );
       }
       await Future.delayed(osrmThrottleInterval * (intento + 2));

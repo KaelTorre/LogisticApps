@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:paquete_geo_logistica/paquete_geo_logistica.dart';
 import 'package:provider/provider.dart';
 
 import 'core/estado/proyecto_activo.dart';
 import 'core/theme.dart';
+import 'data/local/cache_ruteo_drift.dart';
 import 'data/local/database.dart';
 import 'data/repositories/celda_matriz_repository.dart';
 import 'data/repositories/cliente_repository.dart';
@@ -21,12 +25,23 @@ import 'data/repositories/zona_demanda_repository.dart';
 import 'ui/pantallas/proyectos/proyectos_screen.dart';
 
 void main() {
+  // Agrega raíces de CA explícitas (ver trusted_certs_http_overrides.dart en
+  // el paquete compartido) a todo HttpClient que se cree en la app — sin
+  // esto, un equipo Windows con el almacén de certificados del sistema
+  // incompleto ve fallar M3 (Fase 4, consultas reales a OSRM) aunque el
+  // navegador funcione bien. Mismo fix que sistema-optimizacion-rutas.
+  HttpOverrides.global = TrustedRootsHttpOverrides();
+
   final database = AppDatabase();
 
   runApp(
     MultiProvider(
       providers: [
         Provider<AppDatabase>.value(value: database),
+        Provider<OsrmClient>(
+          create: (_) => OsrmClient(cache: CacheRuteoDrift(database)),
+          dispose: (_, cliente) => cliente.dispose(),
+        ),
         Provider<ProyectoRepository>(create: (_) => ProyectoRepository(database)),
         Provider<ClienteRepository>(create: (_) => ClienteRepository(database)),
         Provider<ZonaDemandaRepository>(create: (_) => ZonaDemandaRepository(database)),

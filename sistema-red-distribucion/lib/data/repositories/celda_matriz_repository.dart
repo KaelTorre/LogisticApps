@@ -1,3 +1,5 @@
+import 'package:drift/drift.dart' show InsertMode;
+
 import '../local/database.dart';
 import '../models/celda_matriz.dart';
 
@@ -16,10 +18,12 @@ class CeldaMatrizRepository {
     return filas.map(_aDominio).toList();
   }
 
-  /// Inserción en bloque, sin resolución de conflictos: el `UNIQUE` de la
-  /// tabla (proyecto, origen, destino) es una salvaguarda contra duplicados
-  /// accidentales, no un mecanismo de upsert — quien repuebla una celda
-  /// primero la borra (ver `eliminarPorProyecto`, Fase 4).
+  /// Inserción en bloque con upsert sobre el `UNIQUE` de la tabla (proyecto,
+  /// origen, destino) vía `INSERT OR REPLACE` — M3 (Fase 4) rehace un
+  /// bloque entero de la matriz cuando cualquiera de sus celdas falta (ver
+  /// `construirMatriz`), lo que puede reenviar celdas que ya estaban
+  /// cacheadas con el mismo valor; `insertOrReplace` las pisa sin violar el
+  /// `UNIQUE` en vez de fallar.
   Future<void> insertarTodas(List<CeldaMatriz> celdas) async {
     await _database.batch((batch) {
       batch.insertAll(
@@ -38,6 +42,7 @@ class CeldaMatrizRepository {
               ),
             )
             .toList(),
+        mode: InsertMode.insertOrReplace,
       );
     });
   }

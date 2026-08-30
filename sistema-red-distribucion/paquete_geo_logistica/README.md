@@ -31,10 +31,15 @@ con su propia copia de estos archivos y sus tests siguen pasando tal cual.
   el paquete no depende de ningún motor de base de datos.
 - `SelectorUbicacionScreen` no trae un centro por defecto propio (antes era
   el depósito semilla de Pucallpa); cada app lo pasa como parámetro.
-
-## Pendiente (Fase 4 de `sistema-red-distribucion/CLAUDE.md`)
-
-`OsrmClient` todavía solo expone `obtenerMatriz`/`obtenerRuta` (coordenadas
-simétricas). La matriz asimétrica (`obtenerMatrizAsimetrica`), el troceado
-por límite de coordenadas y el respaldo en línea recta con factor de
-circuidad se agregan en la Fase 4, no en el andamiaje inicial.
+- `OsrmClient` agrega `obtenerMatrizAsimetrica(origenes, destinos)` (Fase 4
+  de `sistema-red-distribucion/CLAUDE.md`): matriz `origenes.length ×
+  destinos.length` vía los parámetros `sources`/`destinations` de OSRM, para
+  no pedir la matriz cuadrada completa cuando solo hacen falta candidatos ×
+  zonas. `OsrmException` ahora lleva un campo `causa`
+  (`CausaOsrmException`: `redNoDisponible` | `limitePeticiones` | `sinRuta` |
+  `otro`) para que quien llama distinga "no hay red" (respaldo válido en
+  línea recta) de un error real que debe propagarse. El troceado por límite
+  de coordenadas y el respaldo con factor de circuidad viven en la app
+  (M3, `lib/domain/motor/m3_matriz_distancias.dart`), no en el paquete — son
+  lógica de orquestación específica del modelo de ubicación, no del cliente
+  de ruteo en sí.

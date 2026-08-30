@@ -7,6 +7,7 @@ import '../agregacion/agregacion_screen.dart';
 import '../auditoria/auditoria_datos_screen.dart';
 import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
+import '../matriz/matriz_screen.dart';
 import '../parametros_costo/parametros_costo_screen.dart';
 import '../plantas/plantas_screen.dart';
 
@@ -60,6 +61,12 @@ final _modulos = [
     titulo: 'Agregación',
     descripcion: 'Agrupa clientes en zonas de demanda (M1).',
     pantalla: (_) => const AgregacionScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.route,
+    titulo: 'Matriz de distancias',
+    descripcion: 'Distancias reales por carretera entre orígenes y zonas (M3).',
+    pantalla: (_) => const MatrizScreen(),
   ),
 ];
 

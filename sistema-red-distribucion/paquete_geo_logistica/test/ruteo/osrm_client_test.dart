@@ -196,6 +196,123 @@ void main() {
     timeout: const Timeout(Duration(seconds: 5)),
   );
 
+  group('obtenerMatrizAsimetrica', () {
+    const origenes = [
+      OsrmCoordenada(lat: -8.375482, lon: -74.556342),
+      OsrmCoordenada(lat: -8.394832, lon: -74.577328),
+    ];
+    const destinos = [
+      OsrmCoordenada(lat: -8.385646, lon: -74.574080),
+      OsrmCoordenada(lat: -8.360000, lon: -74.540000),
+      OsrmCoordenada(lat: -8.400000, lon: -74.600000),
+    ];
+    const tablaAsimetricaOk = '''
+    {
+      "code": "Ok",
+      "distances": [[100.0, 200.0, 300.0], [400.0, 500.0, 600.0]],
+      "durations": [[10.0, 20.0, 30.0], [40.0, 50.0, 60.0]]
+    }
+    ''';
+
+    test('arma la URL con sources/destinations e incluye todas las coordenadas', () async {
+      Uri? uriCapturada;
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async {
+          uriCapturada = request.url;
+          return http.Response(tablaAsimetricaOk, 200);
+        }),
+      );
+
+      await client.obtenerMatrizAsimetrica(origenes: origenes, destinos: destinos);
+
+      final uri = uriCapturada!;
+      // 2 orígenes + 3 destinos = 5 coordenadas combinadas, en ese orden.
+      expect(
+        uri.path,
+        contains(
+          '-74.556342,-8.375482;-74.577328,-8.394832;'
+          '-74.57408,-8.385646;-74.54,-8.36;-74.6,-8.4',
+        ),
+      );
+      expect(uri.queryParameters['sources'], '0;1');
+      expect(uri.queryParameters['destinations'], '2;3;4');
+      client.dispose();
+    });
+
+    test('devuelve una matriz de origenes.length × destinos.length, no cuadrada', () async {
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async => http.Response(tablaAsimetricaOk, 200)),
+      );
+
+      final respuesta = await client.obtenerMatrizAsimetrica(origenes: origenes, destinos: destinos);
+
+      expect(respuesta.distanciasMetros, hasLength(2)); // origenes.length
+      expect(respuesta.distanciasMetros!.first, hasLength(3)); // destinos.length
+      expect(respuesta.distanciasMetros![1][2], 600.0);
+      client.dispose();
+    });
+
+    test('se cachea independientemente de obtenerMatriz (misma coordenadas, distinto tipo de consulta)', () async {
+      var llamadasHttp = 0;
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async {
+          llamadasHttp++;
+          return http.Response(tablaAsimetricaOk, 200);
+        }),
+      );
+
+      await client.obtenerMatrizAsimetrica(origenes: origenes, destinos: destinos);
+      await client.obtenerMatrizAsimetrica(origenes: origenes, destinos: destinos);
+
+      expect(llamadasHttp, 1);
+      client.dispose();
+    });
+  });
+
+  group('OsrmException.causa', () {
+    test('un fallo de red da causa=redNoDisponible', () async {
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async => throw const SocketExceptionFake()),
+      );
+
+      await expectLater(
+        client.obtenerMatriz(_coordenadasA),
+        throwsA(isA<OsrmException>().having((e) => e.causa, 'causa', CausaOsrmException.redNoDisponible)),
+      );
+      client.dispose();
+    });
+
+    test('un 429 persistente da causa=limitePeticiones', () async {
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async => http.Response('rate limited', 429)),
+      );
+
+      await expectLater(
+        client.obtenerMatriz(_coordenadasA),
+        throwsA(isA<OsrmException>().having((e) => e.causa, 'causa', CausaOsrmException.limitePeticiones)),
+      );
+      client.dispose();
+    }, timeout: const Timeout(Duration(seconds: 10)));
+
+    test('"NoRoute" da causa=sinRuta', () async {
+      final client = OsrmClient(
+        cache: cache,
+        httpClient: MockClient((request) async => http.Response(_tablaNoRoute, 200)),
+      );
+
+      await expectLater(
+        client.obtenerMatriz(_coordenadasA),
+        throwsA(isA<OsrmException>().having((e) => e.causa, 'causa', CausaOsrmException.sinRuta)),
+      );
+      client.dispose();
+    });
+  });
+
   test('CacheRuteoEnMemoria satisface la interfaz: acierto de caché no toca la red', () async {
     // Prueba directa de la interfaz CacheRuteo (sección 5.2 del CLAUDE.md):
     // guardar y releer un hash sin pasar nunca por el cliente OSRM.
