@@ -14,3 +14,10 @@ const LatLng centroMapaPorDefecto = LatLng(-8.375482, -74.556342);
 /// vuelve a correr el script y el número cambia, actualizar ambos archivos
 /// juntos.
 const int maxCoordenadasPorConsulta = 100;
+
+/// URL base del visor de red alojado en GitHub Pages (`visor-red/`, ver su
+/// README) — mismo patrón que `visorWebBaseUrl` de
+/// `sistema-optimizacion-rutas`. Ajustar si cambia el usuario/nombre del
+/// repositorio de GitHub.
+const String visorRedBaseUrl =
+    'https://kaeltorre.github.io/LogisticApps/sistema-red-distribucion/visor-red/';

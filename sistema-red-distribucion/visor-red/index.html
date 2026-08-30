@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Red de distribución — Sistema de Red de Distribución</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="encabezado">
+      <h1 id="titulo-escenario">Red de distribución</h1>
+      <div id="metricas"></div>
+    </header>
+
+    <main id="contenido">
+      <div id="mapa"></div>
+      <aside id="panel">
+        <p id="estado">Cargando red…</p>
+        <section id="seccion-almacenes" hidden>
+          <h2>Almacenes</h2>
+          <ul id="lista-almacenes"></ul>
+        </section>
+        <section id="seccion-zonas" hidden>
+          <h2>Zonas de demanda</h2>
+          <ul id="lista-zonas"></ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

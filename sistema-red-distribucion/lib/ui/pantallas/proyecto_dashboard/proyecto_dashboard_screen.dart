@@ -14,6 +14,7 @@ import '../optimizacion/optimizacion_screen.dart';
 import '../parametros_costo/parametros_costo_screen.dart';
 import '../plantas/plantas_screen.dart';
 import '../resultado_costos/resultado_costos_screen.dart';
+import '../resultado_mapa/resultado_mapa_screen.dart';
 
 class _ModuloProyecto {
   const _ModuloProyecto({
@@ -77,6 +78,12 @@ final _modulos = [
     titulo: 'Optimización',
     descripcion: 'Decide qué almacenes abrir (M6: ADD, DROP, intercambio, recocido, barrido).',
     pantalla: (_) => const OptimizacionScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.map,
+    titulo: 'Resultado — mapa',
+    descripcion: 'Territorios coloreados, almacenes abiertos y zonas no cubiertas.',
+    pantalla: (_) => const ResultadoMapaScreen(),
   ),
   _ModuloProyecto(
     icono: LucideIcons.chartColumn,

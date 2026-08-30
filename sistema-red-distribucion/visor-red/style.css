@@ -1,0 +1,185 @@
+:root {
+  --bg: #eef2fb;
+  --superficie: #ffffff;
+  --borde: rgba(11, 11, 11, 0.1);
+  --texto: #0b0b0b;
+  --texto-secundario: #52514e;
+  --primario: #2a78d6;
+  --primario-on: #ffffff;
+  --error-bg: #fbe4e1;
+  --error-texto: #7a1f1a;
+  --no-cubierta: #d4302a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0f17;
+    --superficie: #12141d;
+    --borde: rgba(255, 255, 255, 0.1);
+    --texto: #ffffff;
+    --texto-secundario: #c3c2b7;
+    --primario: #3987e5;
+    --primario-on: #ffffff;
+    --error-bg: #3a1a17;
+    --error-texto: #f2b8ae;
+    --no-cubierta: #ff6b64;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#encabezado {
+  padding: 16px 20px;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#titulo-escenario {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+#metricas {
+  display: flex;
+  gap: 16px;
+  color: var(--texto-secundario);
+  font-size: 0.9rem;
+}
+
+#contenido {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+#mapa {
+  flex: 2;
+  min-width: 0;
+}
+
+#panel {
+  flex: 1;
+  max-width: 340px;
+  min-width: 260px;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--superficie);
+  border-left: 1px solid var(--borde);
+}
+
+#panel h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-secundario);
+  margin: 20px 0 8px;
+}
+
+#panel section:first-of-type h2 {
+  margin-top: 0;
+}
+
+#estado {
+  color: var(--texto-secundario);
+  font-size: 0.9rem;
+}
+
+#estado.error {
+  background: var(--error-bg);
+  color: var(--error-texto);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+#lista-almacenes,
+#lista-zonas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#lista-almacenes li,
+#lista-zonas li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.punto-color {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.punto-color.sin-asignar {
+  background: #898781;
+}
+
+.zona-no-cubierta {
+  box-shadow: 0 0 0 2px var(--no-cubierta);
+}
+
+.etiqueta-no-cubierta {
+  color: var(--no-cubierta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.marcador-almacen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.marcador-zona {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.marcador-zona.no-cubierta {
+  box-shadow: 0 0 0 3px var(--no-cubierta);
+}
+
+@media (max-width: 800px) {
+  #contenido {
+    flex-direction: column;
+  }
+  #panel {
+    max-width: none;
+    max-height: 40vh;
+    border-left: none;
+    border-top: 1px solid var(--borde);
+  }
+}
