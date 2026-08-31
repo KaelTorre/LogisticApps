@@ -33,11 +33,13 @@ class _ZonaResultado {
     required this.zona,
     required this.territorio,
     required this.cumpleEstandar,
+    required this.distanciaMetros,
   });
 
   final ZonaDemanda zona;
   final _Territorio? territorio; // null = sin asignar
   final bool cumpleEstandar;
+  final int? distanciaMetros; // null = sin asignar
 }
 
 /// Pantalla 11 (CLAUDE.md sección 8): territorios coloreados, almacenes
@@ -108,12 +110,17 @@ class _ResultadoMapaScreenState extends State<ResultadoMapaScreen> {
     final zonasResultado = zonas.map((zona) {
       final asignacion = asignacionPorZona[zona.id];
       if (asignacion == null) {
-        return _ZonaResultado(zona: zona, territorio: null, cumpleEstandar: false);
+        return _ZonaResultado(zona: zona, territorio: null, cumpleEstandar: false, distanciaMetros: null);
       }
       final territorio = territorios[asignacion.sitioCandidatoId];
       final valor = params?.tipoEstandar == 'tiempo' ? asignacion.duracionSegundos : asignacion.distanciaMetros;
       final cumple = params == null || valor <= params.estandarServicioValor;
-      return _ZonaResultado(zona: zona, territorio: territorio, cumpleEstandar: cumple);
+      return _ZonaResultado(
+        zona: zona,
+        territorio: territorio,
+        cumpleEstandar: cumple,
+        distanciaMetros: asignacion.distanciaMetros,
+      );
     }).toList();
 
     if (!mounted) return;
@@ -219,11 +226,93 @@ class _ResultadoMapaScreenState extends State<ResultadoMapaScreen> {
                     padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
                     child: _LeyendaMapa(),
                   ),
-                  Expanded(child: _MapaTerritorios(territorios: _territorios, zonas: _zonas)),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final mapa = _MapaTerritorios(territorios: _territorios, zonas: _zonas);
+                        final lista = _ListaResultado(territorios: _territorios, zonas: _zonas);
+
+                        if (constraints.maxWidth >= 900) {
+                          return Row(
+                            children: [
+                              Expanded(child: mapa),
+                              const VerticalDivider(width: 1),
+                              SizedBox(width: 340, child: lista),
+                            ],
+                          );
+                        }
+                        return Column(
+                          children: [
+                            SizedBox(height: 320, child: mapa),
+                            const Divider(height: 1),
+                            Expanded(child: lista),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
     );
+  }
+}
+
+/// Lista de texto de todo lo que hay en el mapa — un marcador puede quedar
+/// tapado por otro (ej. una zona en el mismo punto que su almacén, cuando
+/// esa es la ubicación que minimiza el costo), pero un renglón de esta
+/// lista nunca desaparece. Mismo criterio que la lista de `visor-red/`.
+class _ListaResultado extends StatelessWidget {
+  const _ListaResultado({required this.territorios, required this.zonas});
+
+  final List<_Territorio> territorios;
+  final List<_ZonaResultado> zonas;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text('ALMACENES', style: Theme.of(context).textTheme.labelSmall),
+        ),
+        for (final t in territorios)
+          ListTile(
+            dense: true,
+            leading: CircleAvatar(backgroundColor: t.color, radius: 8),
+            title: Text(t.candidato.nombre),
+          ),
+        const Divider(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text('ZONAS DE DEMANDA', style: Theme.of(context).textTheme.labelSmall),
+        ),
+        for (final z in zonas)
+          ListTile(
+            dense: true,
+            leading: CircleAvatar(
+              backgroundColor: z.territorio?.color ?? colorSinAsignarTerritorio,
+              radius: 8,
+            ),
+            title: Text(z.zona.etiqueta),
+            subtitle: Text(_subtituloZona(z)),
+            trailing: z.cumpleEstandar
+                ? null
+                : Icon(Icons.warning_amber_rounded, color: colorScheme.error, size: 18),
+          ),
+      ],
+    );
+  }
+
+  String _subtituloZona(_ZonaResultado z) {
+    if (z.territorio == null) return 'Sin almacén asignado';
+    if (z.distanciaMetros == 0) {
+      return 'En la misma ubicación que "${z.territorio!.candidato.nombre}" (0 m)';
+    }
+    final km = (z.distanciaMetros! / 1000).toStringAsFixed(1);
+    return 'A $km km de "${z.territorio!.candidato.nombre}"';
   }
 }
 
