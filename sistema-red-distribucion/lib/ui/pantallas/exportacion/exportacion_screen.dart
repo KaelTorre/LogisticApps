@@ -72,7 +72,9 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
       await accion();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No se pudo exportar: $e')));
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text('No se pudo exportar: $e')));
     } finally {
       if (mounted) setState(() => _procesando = false);
     }
@@ -80,9 +82,9 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
 
   Future<void> _mostrarExportado(String mensaje, String ruta) async {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(snackBarArchivoExportado(mensaje: mensaje, rutaArchivo: ruta));
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(snackBarArchivoExportado(mensaje: mensaje, rutaArchivo: ruta));
   }
 
   Future<File> _escribir(String nombreArchivo, String contenido) async {
@@ -99,7 +101,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
     if (escenario == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Necesitás al menos un escenario calculado.')));
+      ).showSnackBar(const SnackBar(content: Text('Necesitas al menos un escenario calculado.')));
       return;
     }
     final proyectoRepo = context.read<ProyectoRepository>();
@@ -196,9 +198,9 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
       final portable = ProyectoRedPortable.fromJsonString(contenido);
       await importarProyecto(portable, database);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('"${portable.nombre}" importado como proyecto nuevo.')));
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text('"${portable.nombre}" importado como proyecto nuevo.')));
     });
   }
 
@@ -207,7 +209,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
     if (escenario == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Necesitás al menos un escenario calculado.')));
+      ).showSnackBar(const SnackBar(content: Text('Necesitas al menos un escenario calculado.')));
       return;
     }
     final almacenRepo = context.read<EscenarioAlmacenRepository>();
@@ -234,9 +236,9 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
       }
       if (ultimo == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('El escenario elegido no tiene almacenes abiertos.')));
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(const SnackBar(content: Text('El escenario elegido no tiene almacenes abiertos.')));
         return;
       }
       await _mostrarExportado('${archivos.length} archivo(s) de volumen exportado(s) en ${ultimo.parent.path}', ultimo.path);
@@ -248,7 +250,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
     if (escenario == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Necesitás al menos un escenario calculado.')));
+      ).showSnackBar(const SnackBar(content: Text('Necesitas al menos un escenario calculado.')));
       return;
     }
     final candidatoRepo = context.read<SitioCandidatoRepository>();
@@ -301,9 +303,11 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
 
       if (!mounted) return;
       if (resultado.excedeLimite || resultado.uri == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Este escenario es demasiado grande para compartir en un solo enlace.')),
-        );
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            const SnackBar(content: Text('Este escenario es demasiado grande para compartir en un solo enlace.')),
+          );
         return;
       }
       await showDialog<void>(
@@ -366,7 +370,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
                   ),
                   _SeccionExportacion(
                     titulo: 'Proyecto completo (JSON)',
-                    descripcion: 'Exportá el proyecto para abrirlo en otra máquina, o importá uno.',
+                    descripcion: 'Exporta el proyecto para abrirlo en otra máquina, o importa uno.',
                     icono: Icons.data_object_outlined,
                     habilitado: !_procesando,
                     onPressed: _exportarJson,
@@ -383,7 +387,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
                   ),
                   _SeccionExportacion(
                     titulo: 'Enlace del visor web',
-                    descripcion: 'Compartí el mapa de resultados sin que la otra persona instale la app.',
+                    descripcion: 'Comparte el mapa de resultados sin que la otra persona instale la app.',
                     icono: Icons.share_outlined,
                     habilitado: !_procesando && _seleccionado != null,
                     onPressed: _compartirEnlaceVisor,

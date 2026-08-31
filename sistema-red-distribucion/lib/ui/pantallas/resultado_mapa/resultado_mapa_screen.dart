@@ -158,7 +158,7 @@ class _ResultadoMapaScreenState extends State<ResultadoMapaScreen> {
           const SnackBar(
             content: Text(
               'Este escenario tiene demasiados almacenes y zonas para compartir en un '
-              'solo enlace — probá con un escenario más chico.',
+              'solo enlace — prueba con un escenario más chico.',
             ),
           ),
         );
@@ -314,7 +314,7 @@ class _SinEscenarios extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          'Todavía no hay ningún escenario calculado — corré una optimización primero.',
+          'Todavía no hay ningún escenario calculado — corre una optimización primero.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),

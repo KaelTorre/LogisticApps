@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/estado/proyecto_activo.dart';
+import '../../../core/grafica_utils.dart';
 import '../../../data/models/celda_matriz.dart';
 import '../../../data/models/escenario.dart';
 import '../../../data/repositories/escenario_asignacion_repository.dart';
@@ -86,7 +87,7 @@ class _ResultadoCostosScreenState extends State<ResultadoCostosScreen> {
     final redActualIds = candidatos.where((c) => c.esRedActual).map((c) => c.id!).toSet();
     if (redActualIds.isEmpty) {
       setState(() => _avisoComparacion = 'Ningún sitio candidato está marcado como "red actual" — '
-          'no hay con qué comparar. Marcalo desde Sitios candidatos.');
+          'no hay con qué comparar. Márcalo desde Sitios candidatos.');
       return;
     }
     if (params == null) return;
@@ -110,7 +111,7 @@ class _ResultadoCostosScreenState extends State<ResultadoCostosScreen> {
     if (faltaCobertura) {
       if (!mounted) return;
       setState(() => _avisoComparacion = 'Falta la matriz de distancias para algún sitio de la red '
-          'actual — construila en Matriz de distancias.');
+          'actual — constrúyela en Matriz de distancias.');
       return;
     }
 
@@ -228,10 +229,16 @@ class _GraficoRubros extends StatelessWidget {
   Widget build(BuildContext context) {
     final rubros = etiquetasRubro.keys.where((r) => porRubro.containsKey(r)).toList();
     final maximo = rubros.fold<int>(0, (m, r) => porRubro[r]! > m ? porRubro[r]! : m);
+    // Redondeado a un número "lindo" (no maximo × 1.15 tal cual): si no, el
+    // eje termina con una marca automática pegada al borde (ej. "11.4M"
+    // encima de "10M") porque el tope del eje no cae en un múltiplo del
+    // intervalo que fl_chart calcula solo. Redondear hacia arriba ya da de
+    // sobra el margen visual que antes se buscaba con el × 1.15.
+    final maxY = maximo == 0 ? 1.0 : techoLindoGrafica(maximo.toDouble());
 
     return BarChart(
       BarChartData(
-        maxY: maximo == 0 ? 1 : maximo * 1.15,
+        maxY: maxY,
         barGroups: [
           for (var i = 0; i < rubros.length; i++)
             BarChartGroupData(
@@ -318,7 +325,7 @@ class _SinEscenarios extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          'Todavía no hay ningún escenario calculado — corré una optimización primero.',
+          'Todavía no hay ningún escenario calculado — corre una optimización primero.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),

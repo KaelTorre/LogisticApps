@@ -106,7 +106,8 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                       controller: _demandaCtrl,
                       decoration: const InputDecoration(labelText: 'Demanda anual'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La demanda anual'),
+                      validator: (v) =>
+                          validarNumeroNoNegativo(v, etiqueta: 'La demanda anual', femenino: true),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -114,7 +115,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                       decoration: const InputDecoration(labelText: 'Pedidos anuales'),
                       keyboardType: TextInputType.number,
                       validator: (v) =>
-                          validarEnteroNoNegativo(v, etiqueta: 'Los pedidos anuales'),
+                          validarEnteroNoNegativo(v, etiqueta: 'Los pedidos anuales', plural: true),
                     ),
                     const SizedBox(height: 8),
                     SwitchListTile(

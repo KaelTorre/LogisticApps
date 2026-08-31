@@ -135,6 +135,19 @@ void main() {
         duracionSegundos: 200,
         fuente: 'haversine',
       ),
+      // Celda planta -> candidato (usada por M4 para el costo de entrada):
+      // `destinoId` referencia un sitio_candidato, no una zona. Cubre el caso
+      // que el resto de las celdas de este fixture no ejercitaba.
+      CeldaMatriz(
+        proyectoId: proyectoId,
+        tipoOrigen: 'planta',
+        origenId: plantaId,
+        tipoDestino: 'candidato',
+        destinoId: candidatoId,
+        distanciaMetros: 3000,
+        duracionSegundos: 300,
+        fuente: 'osrm',
+      ),
     ]);
 
     final escenarioId = await EscenarioRepository(origen).crear(
@@ -240,14 +253,21 @@ void main() {
     expect(parametrosImportados.tipoEstandar, 'distancia');
 
     final celdasImportadas = await CeldaMatrizRepository(destino).obtenerPorProyecto(nuevoProyectoId);
-    expect(celdasImportadas, hasLength(2));
+    expect(celdasImportadas, hasLength(3));
     final celdaCandidato = celdasImportadas.firstWhere((c) => c.tipoOrigen == 'candidato');
     expect(celdaCandidato.origenId, candidatosImportados.single.id);
     expect(celdaCandidato.destinoId, zonasImportadas.single.id);
     expect(celdaCandidato.distanciaMetros, 1000);
-    final celdaPlanta = celdasImportadas.firstWhere((c) => c.tipoOrigen == 'planta');
-    expect(celdaPlanta.origenId, plantasImportadas.single.id);
-    expect(celdaPlanta.fuente, 'haversine');
+    final celdaPlantaZona = celdasImportadas.firstWhere((c) => c.tipoOrigen == 'planta' && c.tipoDestino == 'zona');
+    expect(celdaPlantaZona.origenId, plantasImportadas.single.id);
+    expect(celdaPlantaZona.destinoId, zonasImportadas.single.id);
+    expect(celdaPlantaZona.fuente, 'haversine');
+    final celdaPlantaCandidato = celdasImportadas.firstWhere(
+      (c) => c.tipoOrigen == 'planta' && c.tipoDestino == 'candidato',
+    );
+    expect(celdaPlantaCandidato.origenId, plantasImportadas.single.id);
+    expect(celdaPlantaCandidato.destinoId, candidatosImportados.single.id);
+    expect(celdaPlantaCandidato.distanciaMetros, 3000);
 
     final escenariosImportados = await EscenarioRepository(destino).obtenerPorProyecto(nuevoProyectoId);
     expect(escenariosImportados, hasLength(1));

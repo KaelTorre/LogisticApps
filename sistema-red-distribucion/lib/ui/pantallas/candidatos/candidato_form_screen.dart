@@ -115,7 +115,7 @@ class _CandidatoFormScreenState extends State<CandidatoFormScreen> {
                             child: Text(
                               'Este punto fue sugerido por el algoritmo de centro de '
                               'gravedad — puede caer en un lugar no edificable. '
-                              'Verificalo antes de tomarlo como decisión final.',
+                              'Verifícalo antes de tomarlo como decisión final.',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSecondaryContainer,
                               ),
@@ -147,7 +147,8 @@ class _CandidatoFormScreenState extends State<CandidatoFormScreen> {
                       controller: _capacidadCtrl,
                       decoration: const InputDecoration(labelText: 'Capacidad anual'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual'),
+                      validator: (v) =>
+                          validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual', femenino: true),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

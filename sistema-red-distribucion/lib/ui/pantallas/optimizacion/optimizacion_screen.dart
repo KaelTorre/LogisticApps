@@ -38,7 +38,7 @@ const _metodos = [
   ('intercambio', 'Intercambio (Teitz y Bart)'),
   ('recocido', 'Recocido simulado'),
   ('enumeracion', 'Enumeración exhaustiva (óptimo exacto)'),
-  ('barrido', 'Barrido (curva de costo, M8)'),
+  ('barrido', 'Barrido (curva de costo)'),
 ];
 
 const _limiteEnumeracion = 14;
@@ -129,10 +129,10 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
       final params = await parametrosRepo.obtenerPorProyecto(proyectoId);
 
       if (params == null) {
-        throw StateError('Completá Parámetros de costo antes de optimizar.');
+        throw StateError('Completa Parámetros de costo antes de optimizar.');
       }
       if (candidatos.isEmpty || zonas.isEmpty) {
-        throw StateError('Necesitás al menos un sitio candidato y una zona de demanda.');
+        throw StateError('Necesitas al menos un sitio candidato y una zona de demanda.');
       }
 
       final candidatosPorId = {for (final c in candidatos) c.id!: c};
@@ -149,7 +149,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
         for (final c in candidatos) {
           if (!distanciaZonaCandidato.containsKey((z.id!, c.id!))) {
             throw StateError(
-              'Falta la distancia de "${c.nombre}" a "${z.etiqueta}" — construí la matriz primero.',
+              'Falta la distancia de "${c.nombre}" a "${z.etiqueta}" — construye la matriz primero.',
             );
           }
         }
@@ -418,7 +418,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
                     controller: _nombreCtrl,
                     decoration: const InputDecoration(
                       labelText: 'Nombre del escenario',
-                      hintText: 'Opcional — se genera uno si lo dejás vacío',
+                      hintText: 'Opcional — se genera uno si lo dejas vacío',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -436,7 +436,7 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         'La enumeración exhaustiva solo es viable hasta $_limiteEnumeracion candidatos '
-                        '($_numCandidatos cargados) — elegí otro método.',
+                        '($_numCandidatos cargados) — elige otro método.',
                         style: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                     ),

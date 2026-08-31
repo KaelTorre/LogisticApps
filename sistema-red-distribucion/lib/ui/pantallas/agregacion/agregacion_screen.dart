@@ -354,7 +354,7 @@ class _SinClientes extends StatelessWidget {
             Icon(LucideIcons.users, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
-              'Cargá clientes activos antes de calcular la agregación en zonas.',
+              'Carga clientes activos antes de calcular la agregación en zonas.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),

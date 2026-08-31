@@ -136,8 +136,8 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.folder_outlined,
         titulo: 'Proyecto',
         descripcion:
-            'Cada análisis vive dentro de un proyecto: le das un nombre, elegís '
-            'la moneda y la unidad en la que trabajás (toneladas, kilogramos o '
+            'Cada análisis vive dentro de un proyecto: le das un nombre, eliges '
+            'la moneda y la unidad en la que trabajas (toneladas, kilogramos o '
             'unidades — sin conversión automática entre proyectos, así que no '
             'conviene mezclarlas dentro de uno) y un horizonte en años. El '
             'factor de circuidad es un ajuste para cuando no hay una ruta real '
@@ -188,7 +188,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
             'Agrupa los clientes cercanos en zonas de demanda: en vez de '
             'evaluar cada cliente individualmente (lo que vuelve la matriz de '
             'distancias enorme e innecesaria), el sistema los junta en un '
-            'número de zonas que vos elegís, cada una con su propio centro y su '
+            'número de zonas que elijas, cada una con su propio centro y su '
             'demanda total sumada. Cuantas menos zonas, más rápido el cálculo — '
             'pero también menos preciso el resultado.',
         snapshot: (context) => _mapaMockup(context, puntos: 19, agrupados: true),
@@ -199,10 +199,10 @@ class _InduccionScreenState extends State<InduccionScreen> {
         descripcion:
             'Los lugares donde podrías abrir un centro de distribución, cada '
             'uno con su costo fijo anual, capacidad y costo de manejo. Los '
-            'cargás a mano, o le pedís al sistema que sugiera ubicaciones por '
+            'cargas a mano, o le pides al sistema que sugiera ubicaciones por '
             'centro de gravedad — el punto que minimiza la distancia ponderada '
             'a tus zonas de demanda. Esa sugerencia no es una decisión final: es '
-            'un punto de partida que tenés que confirmar (puede caer en un '
+            'un punto de partida que tienes que confirmar (puede caer en un '
             'lugar no edificable).',
         snapshot: (context) => _listaIconos(context, const [
           (Icons.add_location_alt_outlined, 'Manual'),
@@ -250,9 +250,9 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.play_circle_outline,
         titulo: 'Optimización',
         descripcion:
-            'El corazón del sistema: decide qué candidatos abrir. Podés fijar '
+            'El corazón del sistema: decide qué candidatos abrir. Puedes fijar '
             'el número de centros o dejar que el sistema lo decida solo '
-            '(comparando la curva de costo completa), y elegís entre varios '
+            '(comparando la curva de costo completa), y eliges entre varios '
             'métodos de búsqueda — desde uno rápido y directo hasta uno que '
             'explora más el espacio de soluciones a cambio de tardar más. Con '
             'pocos candidatos, el sistema puede incluso probar todas las '
@@ -266,7 +266,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
             'El resultado visual: cada centro abierto con su territorio '
             'coloreado (colores elegidos para que territorios vecinos nunca se '
             'confundan entre sí), las zonas que atiende, y en rojo las que '
-            'quedaron fuera del estándar de servicio. Desde acá también podés '
+            'quedaron fuera del estándar de servicio. Desde acá también puedes '
             'compartir un enlace que muestra este mismo mapa en un navegador, '
             'sin que la otra persona necesite instalar la app.',
         snapshot: (context) => _paletaMockup(context),
@@ -286,7 +286,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.show_chart_outlined,
         titulo: 'Curva',
         descripcion:
-            'Cuando le pedís al sistema que barra distintos números de '
+            'Cuando le pides al sistema que barra distintos números de '
             'centros, esta pantalla grafica el costo total contra esa '
             'cantidad, con el mínimo marcado — la recomendación del sistema, '
             'nunca escrita a mano.',
@@ -309,9 +309,9 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.ios_share_outlined,
         titulo: 'Exportación',
         descripcion:
-            'Reuní todo en una ficha técnica en PDF, exportá las tablas en '
+            'Reúne todo en una ficha técnica en PDF, exporta las tablas en '
             'CSV o el proyecto completo en JSON (para reabrirlo en otra '
-            'máquina), o generá el volumen anual que le tocó a cada centro '
+            'máquina), o genera el volumen anual que le tocó a cada centro '
             'abierto en el formato que espera la aplicación de diseño de '
             'almacenes — para arrancar el dimensionamiento de ese centro con '
             'un solo clic.',

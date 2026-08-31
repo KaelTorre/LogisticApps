@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/estado/proyecto_activo.dart';
+import '../../../core/grafica_utils.dart';
 import '../../../data/models/escenario.dart';
 import '../../../data/models/punto_curva.dart';
 import '../../../data/repositories/escenario_repository.dart';
@@ -166,7 +167,7 @@ class _BarrasApiladas extends StatelessWidget {
 
     return BarChart(
       BarChartData(
-        maxY: maximo * 1.1,
+        maxY: techoLindoGrafica(maximo.toDouble()),
         barGroups: [
           for (var i = 0; i < puntos.length; i++) _grupoApilado(i, puntos[i], desgloses[i]),
         ],
@@ -219,7 +220,7 @@ class _SinBarridos extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Text(
           'Todavía no hay ningún escenario generado con el método "Barrido" — '
-          'corré uno desde Optimización para ver la curva de costo.',
+          'corre uno desde Optimización para ver la curva de costo.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),

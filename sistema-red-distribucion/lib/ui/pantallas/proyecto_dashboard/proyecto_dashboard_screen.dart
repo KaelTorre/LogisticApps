@@ -65,19 +65,19 @@ final _modulos = [
   _ModuloProyecto(
     icono: LucideIcons.group,
     titulo: 'Agregación',
-    descripcion: 'Agrupa clientes en zonas de demanda (M1).',
+    descripcion: 'Agrupa clientes en zonas de demanda.',
     pantalla: (_) => const AgregacionScreen(),
   ),
   _ModuloProyecto(
     icono: LucideIcons.route,
     titulo: 'Matriz de distancias',
-    descripcion: 'Distancias reales por carretera entre orígenes y zonas (M3).',
+    descripcion: 'Distancias reales por carretera entre orígenes y zonas.',
     pantalla: (_) => const MatrizScreen(),
   ),
   _ModuloProyecto(
     icono: LucideIcons.play,
     titulo: 'Optimización',
-    descripcion: 'Decide qué almacenes abrir (M6: ADD, DROP, intercambio, recocido, barrido).',
+    descripcion: 'Decide qué almacenes abrir (ADD, DROP, intercambio, recocido, barrido).',
     pantalla: (_) => const OptimizacionScreen(),
   ),
   _ModuloProyecto(

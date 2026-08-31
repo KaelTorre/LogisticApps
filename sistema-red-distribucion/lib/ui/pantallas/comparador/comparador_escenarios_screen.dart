@@ -101,8 +101,8 @@ class _ComparadorEscenariosScreenState extends State<ComparadorEscenariosScreen>
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              'Necesitás al menos dos escenarios calculados para comparar. '
-              'Corré otra optimización desde Optimización.',
+              'Necesitas al menos dos escenarios calculados para comparar. '
+              'Corre otra optimización desde Optimización.',
               textAlign: TextAlign.center,
             ),
           ),

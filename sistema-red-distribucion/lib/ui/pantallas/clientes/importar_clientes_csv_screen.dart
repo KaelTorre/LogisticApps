@@ -76,7 +76,7 @@ class _ImportarClientesCsvScreenState extends State<ImportarClientesCsvScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Pegá el contenido del CSV (con o sin encabezado; separado '
+                    'Pega el contenido del CSV (con o sin encabezado; separado '
                     'por coma, punto y coma o tabulador). Columnas: nombre, '
                     'latitud, longitud, demanda_anual, pedidos_anuales.',
                     style: Theme.of(context).textTheme.bodyMedium,

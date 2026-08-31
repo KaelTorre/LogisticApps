@@ -91,7 +91,7 @@ class _ImportarProyectoScreenState extends State<ImportarProyectoScreen> {
             const SizedBox(height: 12),
             const Text(
               'No hay archivos .json en la carpeta de Documentos de la app. '
-              'Exportá un proyecto primero, o copiá uno de otra máquina a esa '
+              'Exporta un proyecto primero, o copia uno de otra máquina a esa '
               'misma carpeta.',
               textAlign: TextAlign.center,
             ),

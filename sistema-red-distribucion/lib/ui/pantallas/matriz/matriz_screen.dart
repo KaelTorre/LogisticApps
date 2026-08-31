@@ -231,7 +231,7 @@ class _MatrizScreenState extends State<MatrizScreen> {
                               Text(
                                 '$_numPlantas planta(s) × $_numCandidatos candidato(s) = '
                                 '$totalEsperadoPlantaCandidato celda(s) esperadas — usadas por el costo de '
-                                'transporte de entrada (M4).',
+                                'transporte de entrada.',
                               ),
                               const SizedBox(height: 4),
                               Text('${celdasPlantaCandidato.length} celda(s) calculada(s) hasta ahora.'),
@@ -371,7 +371,7 @@ class _EstadoIncompleto extends StatelessWidget {
   Widget build(BuildContext context) {
     final faltantes = [
       if (sinOrigenes) 'al menos un sitio candidato o planta',
-      if (sinDestinos) 'zonas de demanda (calculalas en Agregación)',
+      if (sinDestinos) 'zonas de demanda (calcúlalas en Agregación)',
     ].join(' y ');
 
     return Center(

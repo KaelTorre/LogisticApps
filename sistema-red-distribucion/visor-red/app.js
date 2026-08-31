@@ -80,7 +80,7 @@ async function iniciar() {
   } catch (e) {
     if (e instanceof Error && e.message === 'NAVEGADOR_SIN_SOPORTE') {
       mostrarError(
-        'Tu navegador es muy antiguo para abrir este link. Probá con una ' +
+        'Tu navegador es muy antiguo para abrir este link. Prueba con una ' +
           'versión reciente de Chrome, Firefox, Edge o Safari.',
       );
       return;

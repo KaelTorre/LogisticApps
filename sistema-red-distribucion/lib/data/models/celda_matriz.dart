@@ -15,7 +15,7 @@ class CeldaMatriz {
   final int proyectoId;
   final String tipoOrigen; // planta | candidato
   final int origenId;
-  final String tipoDestino; // zona (hoy siempre)
+  final String tipoDestino; // candidato | zona
   final int destinoId;
   final int distanciaMetros;
   final int duracionSegundos;

@@ -137,7 +137,7 @@ List<Hallazgo> _clienteSinPedidos(List<Cliente> clientes) {
           regla: 'cliente_sin_pedidos',
           mensaje: 'El cliente "${c.nombre}" no tiene pedidos anuales cargados.',
           accionSugerida: 'Cargar el número de pedidos anuales (afecta el costo '
-              'de procesamiento de pedidos, M4).',
+              'de procesamiento de pedidos).',
           entidadId: c.id,
         ),
       )

@@ -136,7 +136,8 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       controller: _tarifaEntradaFijaCtrl,
                       decoration: const InputDecoration(labelText: 'Tarifa fija'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija'),
+                      validator: (v) =>
+                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija', femenino: true),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -144,7 +145,7 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       decoration: const InputDecoration(labelText: 'Tarifa por km-tonelada'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
-                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada'),
+                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada', femenino: true),
                     ),
                     const SizedBox(height: 20),
                     Text('Transporte de salida (almacén → zona de demanda)',
@@ -154,7 +155,8 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       controller: _tarifaSalidaFijaCtrl,
                       decoration: const InputDecoration(labelText: 'Tarifa fija'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija'),
+                      validator: (v) =>
+                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija', femenino: true),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -162,7 +164,7 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       decoration: const InputDecoration(labelText: 'Tarifa por km-tonelada'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
-                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada'),
+                          validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada', femenino: true),
                     ),
                     const SizedBox(height: 20),
                     Text('Inventario y pedidos', style: Theme.of(context).textTheme.titleSmall),
@@ -173,7 +175,7 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                         labelText: 'Tasa anual de manejo de inventario (%)',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La tasa'),
+                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La tasa', femenino: true),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

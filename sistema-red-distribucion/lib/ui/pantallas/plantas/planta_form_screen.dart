@@ -107,7 +107,8 @@ class _PlantaFormScreenState extends State<PlantaFormScreen> {
                       controller: _capacidadCtrl,
                       decoration: const InputDecoration(labelText: 'Capacidad anual'),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual'),
+                      validator: (v) =>
+                          validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual', femenino: true),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

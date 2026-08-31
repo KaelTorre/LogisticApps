@@ -92,7 +92,7 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
         ..clearSnackBars()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Primero calculá las zonas de demanda en Agregación.'),
+            content: Text('Primero calcula las zonas de demanda en Agregación.'),
           ),
         );
       return;
@@ -104,7 +104,7 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
         ..clearSnackBars()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Primero completá Parámetros de costo (tarifa de salida).'),
+            content: Text('Primero completa Parámetros de costo (tarifa de salida).'),
           ),
         );
       return;
@@ -144,8 +144,8 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(
-            '${sugerencias.length} candidato(s) sugerido(s) — completá costo fijo, '
-            'capacidad y verificá que el punto sea edificable.',
+            '${sugerencias.length} candidato(s) sugerido(s) — completa costo fijo, '
+            'capacidad y verifica que el punto sea edificable.',
           ),
         ),
       );

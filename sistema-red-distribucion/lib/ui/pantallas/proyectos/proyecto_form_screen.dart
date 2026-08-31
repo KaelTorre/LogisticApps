@@ -137,7 +137,7 @@ class _ProyectoFormScreenState extends State<ProyectoFormScreen> {
                       decoration: const InputDecoration(labelText: 'Horizonte (años)'),
                       keyboardType: TextInputType.number,
                       validator: (v) =>
-                          validarEnteroNoNegativo(v, etiqueta: 'El horizonte'),
+                          validarEnteroPositivo(v, etiqueta: 'El horizonte'),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -150,7 +150,7 @@ class _ProyectoFormScreenState extends State<ProyectoFormScreen> {
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
-                          validarNumeroNoNegativo(v, etiqueta: 'El factor de circuidad'),
+                          validarNumeroPositivo(v, etiqueta: 'El factor de circuidad'),
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
