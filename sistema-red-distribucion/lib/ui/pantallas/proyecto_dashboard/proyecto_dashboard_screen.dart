@@ -9,6 +9,7 @@ import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
 import '../comparador/comparador_escenarios_screen.dart';
 import '../curva/curva_screen.dart';
+import '../escenarios/escenarios_screen.dart';
 import '../exportacion/exportacion_screen.dart';
 import '../matriz/matriz_screen.dart';
 import '../optimizacion/optimizacion_screen.dart';
@@ -79,6 +80,12 @@ final _modulos = [
     titulo: 'Optimización',
     descripcion: 'Decide qué almacenes abrir (ADD, DROP, intercambio, recocido, barrido).',
     pantalla: (_) => const OptimizacionScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.history,
+    titulo: 'Escenarios',
+    descripcion: 'Todos los escenarios calculados — elimina los que ya no necesites.',
+    pantalla: (_) => const EscenariosScreen(),
   ),
   _ModuloProyecto(
     icono: LucideIcons.map,

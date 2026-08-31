@@ -206,4 +206,64 @@ void main() {
 
     await database.close();
   });
+
+  test(
+    'eliminar el escenario que usa un candidato lo libera para poder borrarlo '
+    '(Pantalla Escenarios, agregada tras un reporte del usuario)',
+    () async {
+      final database = AppDatabase(NativeDatabase.memory());
+
+      final proyectoId = await ProyectoRepository(database).crear(
+        Proyecto(nombre: 'P', creadoEn: DateTime(2026, 1, 1).toIso8601String()),
+      );
+      final candidatoId = await SitioCandidatoRepository(database).crear(
+        SitioCandidato(
+          proyectoId: proyectoId,
+          nombre: 'Candidato 1',
+          latitud: 0,
+          longitud: 0,
+          costoFijoAnualCent: 1000,
+          capacidadAnual: 100,
+          costoVariableManejoCentPorUnidad: 10,
+          origen: 'manual',
+        ),
+      );
+      final escenarioId = await EscenarioRepository(database).crear(
+        Escenario(
+          proyectoId: proyectoId,
+          nombre: 'Escenario 1',
+          metodo: 'add',
+          costoTotalCent: 900000,
+          fecha: DateTime(2026, 1, 1).toIso8601String(),
+        ),
+      );
+      await EscenarioAlmacenRepository(database).insertarTodos([
+        EscenarioAlmacen(
+          escenarioId: escenarioId,
+          sitioCandidatoId: candidatoId,
+          volumenAsignado: 10,
+          costoFijoCent: 1000,
+          costoManejoCent: 100,
+        ),
+      ]);
+
+      // Mientras el escenario existe, el candidato está bloqueado.
+      await expectLater(
+        SitioCandidatoRepository(database).eliminar(candidatoId),
+        throwsA(anything),
+      );
+      expect(await database.select(database.sitioCandidatoTable).get(), hasLength(1));
+
+      await EscenarioRepository(database).eliminar(escenarioId);
+
+      expect(await database.select(database.escenarioTable).get(), isEmpty);
+      expect(await database.select(database.escenarioAlmacenTable).get(), isEmpty);
+
+      // Con el escenario fuera, el candidato ya se puede borrar sin error.
+      await SitioCandidatoRepository(database).eliminar(candidatoId);
+      expect(await database.select(database.sitioCandidatoTable).get(), isEmpty);
+
+      await database.close();
+    },
+  );
 }
