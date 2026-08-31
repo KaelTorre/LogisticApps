@@ -316,6 +316,9 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
     } on BusquedaCancelada {
       if (!mounted) return;
       setState(() => _error = 'Ejecución cancelada — no se guardó ningún escenario.');
+    } on StateError catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = '$e');

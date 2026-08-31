@@ -66,15 +66,20 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
     });
   }
 
-  Future<void> _conProgreso(Future<void> Function() accion) async {
+  Future<void> _conProgreso(Future<void> Function() accion, {String mensajeError = 'No se pudo exportar'}) async {
     setState(() => _procesando = true);
     try {
       await accion();
+    } on FormatException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text('$mensajeError: ${e.message}')));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text('No se pudo exportar: $e')));
+        ..showSnackBar(SnackBar(content: Text('$mensajeError: $e')));
     } finally {
       if (mounted) setState(() => _procesando = false);
     }
@@ -201,7 +206,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
         ..showSnackBar(SnackBar(content: Text('"${portable.nombre}" importado como proyecto nuevo.')));
-    });
+    }, mensajeError: 'No se pudo importar');
   }
 
   Future<void> _exportarVolumenUnidad4() async {

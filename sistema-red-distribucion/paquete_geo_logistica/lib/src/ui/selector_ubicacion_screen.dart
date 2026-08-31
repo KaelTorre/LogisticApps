@@ -25,7 +25,7 @@ class SelectorUbicacionScreen extends StatefulWidget {
     this.userAgentPackageName = 'com.logisticapps.paquete_geo_logistica',
     this.titulo = 'Elegir ubicación',
     this.textoAyuda =
-        'Movete por el mapa y hacé clic (o tocá) en el punto exacto para '
+        'Muévete por el mapa y haz clic (o toca) en el punto exacto para '
         'elegir la ubicación.',
   });
 

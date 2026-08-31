@@ -101,8 +101,8 @@ async function iniciar() {
   document.getElementById('titulo-escenario').textContent = datos.esc || 'Red de distribución';
   const noCubiertas = zonas.filter((z) => z[4] === 0).length;
   document.getElementById('metricas').innerHTML =
-    `<span>${almacenes.length} almacenes</span>` +
-    `<span>${zonas.length} zonas</span>` +
+    `<span>${almacenes.length} ${almacenes.length === 1 ? 'almacén' : 'almacenes'}</span>` +
+    `<span>${zonas.length} ${zonas.length === 1 ? 'zona' : 'zonas'}</span>` +
     (noCubiertas > 0 ? `<span style="color:${COLOR_NO_CUBIERTA}">${noCubiertas} sin cubrir</span>` : '');
 
   const mapa = L.map('mapa');
