@@ -137,43 +137,47 @@ ResultadoCosto calcularCostoTotal({
   memoria.addAll([
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_zonas demanda × costo_produccion_tonelada(planta que abastece el almacén asignado)',
+      formula: 'Producción — Σ_zonas demanda × costo_produccion_tonelada(planta que abastece el '
+          'almacén asignado)',
       entradasJson: jsonEncode({'zonas_asignadas': asignacionZonaCandidato.length}),
       salida: '${porRubro[rubroProduccion]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_abiertos volumen_almacén × (tarifa_entrada_fija + tarifa_entrada_km_ton × distancia_planta_almacen/1000)',
+      formula: 'Transporte de entrada — Σ_abiertos volumen_almacén × (tarifa_entrada_fija + '
+          'tarifa_entrada_km_ton × distancia_planta_almacen/1000)',
       entradasJson: jsonEncode({'almacenes_abiertos': abiertos.length}),
       salida: '${porRubro[rubroEntrada]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_zonas demanda × (tarifa_salida_fija + tarifa_salida_km_ton × distancia_zona_almacen/1000)',
+      formula: 'Transporte de salida — Σ_zonas demanda × (tarifa_salida_fija + tarifa_salida_km_ton × '
+          'distancia_zona_almacen/1000)',
       entradasJson: jsonEncode({'zonas_asignadas': asignacionZonaCandidato.length}),
       salida: '${porRubro[rubroSalida]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_abiertos costo_fijo_anual',
+      formula: 'Costo fijo — Σ_abiertos costo_fijo_anual',
       entradasJson: jsonEncode({'almacenes_abiertos': abiertos.length}),
       salida: '${porRubro[rubroFijo]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_abiertos volumen_almacén × costo_variable_manejo',
+      formula: 'Manejo — Σ_abiertos volumen_almacén × costo_variable_manejo',
       entradasJson: jsonEncode({'almacenes_abiertos': abiertos.length}),
       salida: '${porRubro[rubroManejo]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'inventario(n_abiertos) × valor_por_unidad × tasa_manejo_inventario_anual, donde '
-          'inventario(n) = inventario_base × √n (efecto de agrupación de riesgos)',
+      formula: 'Inventario — inventario(n_abiertos) × valor_por_unidad × '
+          'tasa_manejo_inventario_anual, donde inventario(n) = inventario_base × √n '
+          '(efecto de agrupación de riesgos)',
       entradasJson: jsonEncode({
         'n_abiertos': abiertos.length,
         'inventario_base': params.inventarioBaseUnaUbicacion,
@@ -185,14 +189,15 @@ ResultadoCosto calcularCostoTotal({
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'Σ_zonas pedidos_anuales × costo_por_pedido',
+      formula: 'Pedidos — Σ_zonas pedidos_anuales × costo_por_pedido',
       entradasJson: jsonEncode({'zonas_asignadas': asignacionZonaCandidato.length}),
       salida: '${porRubro[rubroPedidos]}',
       unidad: 'centavos',
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'costo_total = Σ (producción + entrada + salida + fijo + manejo + inventario + pedidos)',
+      formula: 'Costo total — Σ (producción + entrada + salida + fijo + manejo + inventario + '
+          'pedidos)',
       entradasJson: jsonEncode(porRubro),
       salida: '$total',
       unidad: 'centavos',

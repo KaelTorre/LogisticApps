@@ -219,8 +219,12 @@ class _OptimizacionScreenState extends State<OptimizacionScreen> {
         params: params,
       );
 
+      final ahora = DateTime.now();
+      final fechaCorta =
+          '${ahora.day.toString().padLeft(2, '0')}/${ahora.month.toString().padLeft(2, '0')}/'
+          '${ahora.year} ${ahora.hour.toString().padLeft(2, '0')}:${ahora.minute.toString().padLeft(2, '0')}';
       final nombre = _nombreCtrl.text.trim().isEmpty
-          ? '${_metodo.toUpperCase()} ${DateTime.now().toIso8601String()}'
+          ? '${_metodo.toUpperCase()} — $fechaCorta'
           : _nombreCtrl.text.trim();
 
       final escenarioId = await escenarioRepo.crear(
