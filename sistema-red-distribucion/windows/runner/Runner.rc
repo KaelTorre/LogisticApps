@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.logisticapps" "\0"
-            VALUE "FileDescription", "sistema_red_distribucion" "\0"
+            VALUE "FileDescription", "Sistema de Red de Distribución" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "sistema_red_distribucion" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.logisticapps. All rights reserved." "\0"
             VALUE "OriginalFilename", "sistema_red_distribucion.exe" "\0"
-            VALUE "ProductName", "sistema_red_distribucion" "\0"
+            VALUE "ProductName", "Red de Distribución" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

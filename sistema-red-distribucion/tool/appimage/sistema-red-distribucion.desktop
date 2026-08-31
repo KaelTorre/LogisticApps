@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Red de Distribución
+Comment=Decide cuántos centros de distribución abrir, dónde, y qué zona atiende cada uno
+Exec=sistema_red_distribucion
+Icon=sistema_red_distribucion
+Categories=Office;Engineering;
+Terminal=false

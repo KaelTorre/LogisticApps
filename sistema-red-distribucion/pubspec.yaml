@@ -102,6 +102,24 @@ dev_dependencies:
   build_runner: ^2.15.0
   sqlite3: ^3.3.4
 
+  # Fase 9: ícono propio (assets/icon/icon.svg rasterizado a PNG),
+  # reutilizado para Android (con capa adaptativa), Windows y el AppImage de
+  # Linux (tool/appimage/). Corrido a mano una vez con `dart run
+  # flutter_launcher_icons`; no se re-ejecuta automáticamente en cada build.
+  flutter_launcher_icons: ^0.14.4
+
+# Mismo azul que FlexScheme.shadBlue (lib/core/theme.dart, #2563EB) — no se
+# fragmenta la identidad visual entre el tema de la app y su propio ícono.
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#2563EB"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 256
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
