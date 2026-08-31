@@ -92,8 +92,15 @@ jobs:
     # step ("Unrecognized named-value: 'secrets'") -- solo está disponible
     # armando un valor de `env:`, que sí puede referenciar secrets. De ahí
     # se lee como env.HAS_ANDROID_KEYSTORE más abajo.
+    #
+    # Nombres con sufijo _RED_DISTRIBUCION (no ANDROID_KEYSTORE_BASE64 a
+    # secas): los secrets de un repo son globales, no por carpeta/proyecto.
+    # sistema-diseno-almacenes ya usa los nombres genéricos para SU propio
+    # keystore -- reusarlos acá pisaría ese secret con el keystore de este
+    # proyecto (o al revés), firmando la app equivocada con la llave
+    # equivocada sin que el build avise nada.
     env:
-      HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64_RED_DISTRIBUCION != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -115,10 +122,10 @@ jobs:
       - name: Preparar el keystore de release
         if: ${{ env.HAS_ANDROID_KEYSTORE == 'true' }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64_RED_DISTRIBUCION }}" | base64 -d > android/app/upload-keystore.jks
           cat > android/key.properties <<EOF
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD_RED_DISTRIBUCION }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD_RED_DISTRIBUCION }}
           keyAlias=upload
           storeFile=upload-keystore.jks
           EOF
