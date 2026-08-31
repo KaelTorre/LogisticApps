@@ -91,7 +91,23 @@ class _AgregacionScreenState extends State<AgregacionScreen> {
 
     final zonasCalculadas = agregarEnZonas(clientes: _clientes, k: _k);
 
-    await zonaRepository.eliminarPorProyecto(proyectoId);
+    try {
+      await zonaRepository.eliminarPorProyecto(proyectoId);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _recalculando = false);
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No se puede recalcular: una de las zonas actuales ya forma parte '
+              'de un escenario de optimización guardado.',
+            ),
+          ),
+        );
+      return;
+    }
     final zonasGuardadas = <ZonaDemanda>[];
     final asignaciones = <ClienteZona>[];
     for (var i = 0; i < zonasCalculadas.length; i++) {

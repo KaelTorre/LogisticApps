@@ -153,9 +153,9 @@ class CeldaMatrizTable extends Table {
   // apunta a una de dos tablas distintas según este valor.
   TextColumn get tipoOrigen => text()();
   IntColumn get origenId => integer()();
-  // Hoy siempre 'zona' (M3 solo consulta candidatos/plantas → zonas), pero
-  // se declara igual de genérico que tipoOrigen por si un futuro módulo
-  // agrega otro tipo de destino.
+  // candidato | zona — planta→candidato (necesaria para el costo de entrada
+  // de M4) y candidato/planta→zona conviven en esta misma tabla; el id real
+  // vive en destinoId, sin FK real por el mismo motivo que tipoOrigen.
   TextColumn get tipoDestino => text()();
   IntColumn get destinoId => integer()();
   IntColumn get distanciaMetros => integer()();

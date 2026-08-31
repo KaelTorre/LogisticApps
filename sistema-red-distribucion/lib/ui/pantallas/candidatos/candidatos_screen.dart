@@ -74,7 +74,22 @@ class _CandidatosScreenState extends State<CandidatosScreen> {
     );
     if (confirmado != true || !mounted) return;
 
-    await context.read<SitioCandidatoRepository>().eliminar(candidato.id!);
+    try {
+      await context.read<SitioCandidatoRepository>().eliminar(candidato.id!);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'No se puede eliminar: "${candidato.nombre}" ya forma parte de un '
+              'escenario de optimización guardado.',
+            ),
+          ),
+        );
+      return;
+    }
     if (!mounted) return;
     await _cargar();
   }
