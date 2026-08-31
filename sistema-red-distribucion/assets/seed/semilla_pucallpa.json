@@ -1,0 +1,705 @@
+{
+  "version": 1,
+  "nombre": "Pucallpa (caso de estudio)",
+  "moneda": "PEN",
+  "unidadPeso": "kilogramos",
+  "horizonteAnios": 5,
+  "factorCircuidad": 1.3,
+  "creadoEn": "2026-08-30T18:31:26.773492",
+  "clientes": [
+    {
+      "nombre": "Universidad Nacional de Ucayali",
+      "latitud": -8.394832,
+      "longitud": -74.577328,
+      "demandaAnual": 2340.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Aeropuerto Internacional Capitán FAP David Abenzur Rengifo",
+      "latitud": -8.385646,
+      "longitud": -74.57408,
+      "demandaAnual": 936.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Open Plaza Pucallpa",
+      "latitud": -8.387164,
+      "longitud": -74.567581,
+      "demandaAnual": 4420.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Hospital II Pucallpa - EsSalud",
+      "latitud": -8.391258,
+      "longitud": -74.547131,
+      "demandaAnual": 3120.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Puerto de Pucallpa",
+      "latitud": -8.387673,
+      "longitud": -74.528546,
+      "demandaAnual": 7280.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Universidad Alas Peruanas",
+      "latitud": -8.370582,
+      "longitud": -74.567438,
+      "demandaAnual": 1976.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Real Plaza Pucallpa",
+      "latitud": -8.384834,
+      "longitud": -74.556256,
+      "demandaAnual": 4940.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Grifo Yarinacocha Company",
+      "latitud": -8.3955641,
+      "longitud": -74.5959372,
+      "demandaAnual": 1300.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Divina Montaña",
+      "latitud": -8.403812,
+      "longitud": -74.628032,
+      "demandaAnual": 1820.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Manish Hotel",
+      "latitud": -8.393301,
+      "longitud": -74.568857,
+      "demandaAnual": 2860.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Clínica Esmedic E.I.R.L.",
+      "latitud": -8.3818002,
+      "longitud": -74.5343827,
+      "demandaAnual": 1456.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Clínica Juan Pablo II",
+      "latitud": -8.3815351,
+      "longitud": -74.5380421,
+      "demandaAnual": 1664.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Municipalidad Distrital de Manantay",
+      "latitud": -8.398003,
+      "longitud": -74.536225,
+      "demandaAnual": 1144.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Cliente Grifo",
+      "latitud": -8.41884,
+      "longitud": -74.559263,
+      "demandaAnual": 1300.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Centro Cultural de Pucallpa",
+      "latitud": -8.381852,
+      "longitud": -74.527971,
+      "demandaAnual": 780.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "EMAPACOP S.A.",
+      "latitud": -8.377232,
+      "longitud": -74.526916,
+      "demandaAnual": 1040.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Hospital Amazónico de Yarinacocha",
+      "latitud": -8.356146,
+      "longitud": -74.572832,
+      "demandaAnual": 3380.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Restaurantes Flotantes",
+      "latitud": -8.350583,
+      "longitud": -74.571548,
+      "demandaAnual": 2184.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    },
+    {
+      "nombre": "Policía Municipal de Yarinacocha",
+      "latitud": -8.355079,
+      "longitud": -74.576381,
+      "demandaAnual": 780.0,
+      "pedidosAnuales": 52,
+      "activo": true
+    }
+  ],
+  "zonas": [
+    {
+      "etiqueta": "Zona 1",
+      "latitud": -8.35409968032787,
+      "longitud": -74.57282631967213,
+      "demandaAgregada": 6344.0,
+      "pedidosAgregados": 156,
+      "numeroClientes": 3,
+      "errorAgregacionMetros": 314
+    },
+    {
+      "etiqueta": "Zona 2",
+      "latitud": -8.41884,
+      "longitud": -74.559263,
+      "demandaAgregada": 1300.0,
+      "pedidosAgregados": 52,
+      "numeroClientes": 1,
+      "errorAgregacionMetros": 0
+    },
+    {
+      "etiqueta": "Zona 3",
+      "latitud": -8.370582,
+      "longitud": -74.567438,
+      "demandaAgregada": 1976.0,
+      "pedidosAgregados": 52,
+      "numeroClientes": 1,
+      "errorAgregacionMetros": 0
+    },
+    {
+      "etiqueta": "Zona 4",
+      "latitud": -8.385934277777778,
+      "longitud": -74.56160391666668,
+      "demandaAgregada": 9360.0,
+      "pedidosAgregados": 104,
+      "numeroClientes": 2,
+      "errorAgregacionMetros": 634
+    },
+    {
+      "etiqueta": "Zona 5",
+      "latitud": -8.3955641,
+      "longitud": -74.5959372,
+      "demandaAgregada": 1300.0,
+      "pedidosAgregados": 52,
+      "numeroClientes": 1,
+      "errorAgregacionMetros": 0
+    },
+    {
+      "etiqueta": "Zona 6",
+      "latitud": -8.386995945741324,
+      "longitud": -74.53394068706625,
+      "demandaAgregada": 16484.0,
+      "pedidosAgregados": 364,
+      "numeroClientes": 7,
+      "errorAgregacionMetros": 893
+    },
+    {
+      "etiqueta": "Zona 7",
+      "latitud": -8.392717144067795,
+      "longitud": -74.57288419491526,
+      "demandaAgregada": 6136.0,
+      "pedidosAgregados": 156,
+      "numeroClientes": 3,
+      "errorAgregacionMetros": 537
+    },
+    {
+      "etiqueta": "Zona 8",
+      "latitud": -8.403812,
+      "longitud": -74.628032,
+      "demandaAgregada": 1820.0,
+      "pedidosAgregados": 52,
+      "numeroClientes": 1,
+      "errorAgregacionMetros": 0
+    }
+  ],
+  "asignacionesClienteZona": [
+    {
+      "clienteIndice": 16,
+      "zonaIndice": 0
+    },
+    {
+      "clienteIndice": 17,
+      "zonaIndice": 0
+    },
+    {
+      "clienteIndice": 18,
+      "zonaIndice": 0
+    },
+    {
+      "clienteIndice": 13,
+      "zonaIndice": 1
+    },
+    {
+      "clienteIndice": 5,
+      "zonaIndice": 2
+    },
+    {
+      "clienteIndice": 2,
+      "zonaIndice": 3
+    },
+    {
+      "clienteIndice": 6,
+      "zonaIndice": 3
+    },
+    {
+      "clienteIndice": 7,
+      "zonaIndice": 4
+    },
+    {
+      "clienteIndice": 3,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 4,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 10,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 11,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 12,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 14,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 15,
+      "zonaIndice": 5
+    },
+    {
+      "clienteIndice": 0,
+      "zonaIndice": 6
+    },
+    {
+      "clienteIndice": 1,
+      "zonaIndice": 6
+    },
+    {
+      "clienteIndice": 9,
+      "zonaIndice": 6
+    },
+    {
+      "clienteIndice": 8,
+      "zonaIndice": 7
+    }
+  ],
+  "sitiosCandidatos": [
+    {
+      "nombre": "Candidato 1 (centro de gravedad)",
+      "latitud": -8.386995945741324,
+      "longitud": -74.53394068706625,
+      "costoFijoAnualCent": 8000000,
+      "capacidadAnual": 300000.0,
+      "costoVariableManejoCentPorUnidad": 15,
+      "origen": "centro_gravedad",
+      "esRedActual": false
+    },
+    {
+      "nombre": "Candidato 2 (centro de gravedad)",
+      "latitud": -8.403811995708038,
+      "longitud": -74.62803198329881,
+      "costoFijoAnualCent": 8000000,
+      "capacidadAnual": 300000.0,
+      "costoVariableManejoCentPorUnidad": 15,
+      "origen": "centro_gravedad",
+      "esRedActual": false
+    },
+    {
+      "nombre": "Candidato 3 (centro de gravedad)",
+      "latitud": -8.35409968032787,
+      "longitud": -74.57282631967213,
+      "costoFijoAnualCent": 8000000,
+      "capacidadAnual": 300000.0,
+      "costoVariableManejoCentPorUnidad": 15,
+      "origen": "centro_gravedad",
+      "esRedActual": false
+    },
+    {
+      "nombre": "Candidato 4 (centro de gravedad)",
+      "latitud": -8.385934284273672,
+      "longitud": -74.56160393124263,
+      "costoFijoAnualCent": 8000000,
+      "capacidadAnual": 300000.0,
+      "costoVariableManejoCentPorUnidad": 15,
+      "origen": "centro_gravedad",
+      "esRedActual": false
+    }
+  ],
+  "plantas": [
+    {
+      "nombre": "Planta Pucallpa",
+      "latitud": -8.375482,
+      "longitud": -74.556342,
+      "capacidadAnual": 500000.0,
+      "costoProduccionCentPorUnidad": 50
+    }
+  ],
+  "parametrosCosto": {
+    "tarifaEntradaFijaCent": 5000,
+    "tarifaEntradaCentPorKmTon": 40,
+    "tarifaSalidaFijaCent": 3000,
+    "tarifaSalidaCentPorKmTon": 50,
+    "tasaManejoInventarioAnual": 0.25,
+    "valorPorUnidadCent": 200000,
+    "inventarioBaseUnaUbicacion": 5000.0,
+    "costoPorPedidoCent": 1500,
+    "tipoEstandar": "tiempo",
+    "estandarServicioValor": 14400
+  },
+  "celdasMatriz": [
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 0,
+      "distanciaMetros": 7127,
+      "duracionSegundos": 751,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 1,
+      "distanciaMetros": 6112,
+      "duracionSegundos": 559,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 2,
+      "distanciaMetros": 5741,
+      "duracionSegundos": 618,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 3,
+      "distanciaMetros": 3533,
+      "duracionSegundos": 382,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 4,
+      "distanciaMetros": 7364,
+      "duracionSegundos": 578,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 5,
+      "distanciaMetros": 0,
+      "duracionSegundos": 0,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 6,
+      "distanciaMetros": 7140,
+      "duracionSegundos": 639,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 0,
+      "tipoDestino": "zona",
+      "destinoIndice": 7,
+      "distanciaMetros": 10997,
+      "duracionSegundos": 779,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 0,
+      "distanciaMetros": 12674,
+      "duracionSegundos": 1146,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 1,
+      "distanciaMetros": 12073,
+      "duracionSegundos": 919,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 2,
+      "distanciaMetros": 10443,
+      "duracionSegundos": 901,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 3,
+      "distanciaMetros": 9601,
+      "duracionSegundos": 780,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 4,
+      "distanciaMetros": 5206,
+      "duracionSegundos": 425,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 5,
+      "distanciaMetros": 12693,
+      "duracionSegundos": 1052,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 6,
+      "distanciaMetros": 7742,
+      "duracionSegundos": 646,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 1,
+      "tipoDestino": "zona",
+      "destinoIndice": 7,
+      "distanciaMetros": 0,
+      "duracionSegundos": 0,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 0,
+      "distanciaMetros": 0,
+      "duracionSegundos": 0,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 1,
+      "distanciaMetros": 8181,
+      "duracionSegundos": 801,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 2,
+      "distanciaMetros": 2879,
+      "duracionSegundos": 324,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 3,
+      "distanciaMetros": 5205,
+      "duracionSegundos": 569,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 4,
+      "distanciaMetros": 7961,
+      "duracionSegundos": 711,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 5,
+      "distanciaMetros": 6952,
+      "duracionSegundos": 722,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 6,
+      "distanciaMetros": 7738,
+      "duracionSegundos": 772,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 2,
+      "tipoDestino": "zona",
+      "destinoIndice": 7,
+      "distanciaMetros": 11594,
+      "duracionSegundos": 912,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 0,
+      "distanciaMetros": 5167,
+      "duracionSegundos": 612,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 1,
+      "distanciaMetros": 4287,
+      "duracionSegundos": 357,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 2,
+      "distanciaMetros": 2716,
+      "duracionSegundos": 364,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 3,
+      "distanciaMetros": 0,
+      "duracionSegundos": 0,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 4,
+      "distanciaMetros": 4178,
+      "duracionSegundos": 303,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 5,
+      "distanciaMetros": 4907,
+      "duracionSegundos": 499,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 6,
+      "distanciaMetros": 3955,
+      "duracionSegundos": 363,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "candidato",
+      "origenIndice": 3,
+      "tipoDestino": "zona",
+      "destinoIndice": 7,
+      "distanciaMetros": 7811,
+      "duracionSegundos": 504,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "planta",
+      "origenIndice": 0,
+      "tipoDestino": "candidato",
+      "destinoIndice": 0,
+      "distanciaMetros": 4100,
+      "duracionSegundos": 484,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "planta",
+      "origenIndice": 0,
+      "tipoDestino": "candidato",
+      "destinoIndice": 1,
+      "distanciaMetros": 9658,
+      "duracionSegundos": 669,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "planta",
+      "origenIndice": 0,
+      "tipoDestino": "candidato",
+      "destinoIndice": 2,
+      "distanciaMetros": 3453,
+      "duracionSegundos": 370,
+      "fuente": "osrm"
+    },
+    {
+      "tipoOrigen": "planta",
+      "origenIndice": 0,
+      "tipoDestino": "candidato",
+      "destinoIndice": 3,
+      "distanciaMetros": 2172,
+      "duracionSegundos": 267,
+      "fuente": "osrm"
+    }
+  ],
+  "escenarios": []
+}

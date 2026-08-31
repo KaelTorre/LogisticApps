@@ -1,0 +1,141 @@
+name: Build releases - Red de Distribución (Windows + Android)
+
+# Disparo manual: Actions -> "Build releases - Red de Distribución (Windows +
+# Android)" -> Run workflow, eligiendo la rama. No corre en cada push para no
+# gastar minutos de CI en builds que nadie pidió. Linux se cubre aparte, en
+# la propia máquina de desarrollo (ver tool/appimage/build_appimage.sh) --
+# no necesita CI.
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: sistema-red-distribucion
+
+jobs:
+  windows:
+    name: Windows (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      # flutter build windows no empaqueta el runtime de Visual C++
+      # (VCRUNTIME140.dll, VCRUNTIME140_1.dll, MSVCP140.dll) -- el .exe
+      # depende de que el equipo destino ya lo tenga instalado, y si no,
+      # falla con "no se encontró VCRUNTIME140.dll" al abrirlo. Se copian
+      # acá las DLLs redistribuibles del propio runner (ilammy/msvc-dev-cmd
+      # expone VCToolsRedistDir) para que el .exe funcione en cualquier
+      # Windows sin instalar nada aparte.
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Bundle Visual C++ runtime DLLs
+        shell: pwsh
+        run: |
+          $dest = "build/windows/x64/runner/Release"
+          $crtDir = Get-ChildItem -Path "$env:VCToolsRedistDir\x64" -Directory -Filter "Microsoft.VC*.CRT" | Select-Object -First 1
+          foreach ($dll in "vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll") {
+            Copy-Item -Path (Join-Path $crtDir.FullName $dll) -Destination $dest -Force
+          }
+          Get-ChildItem $dest -Filter "*.dll" | Select-Object Name
+
+      # Un solo .exe portable en vez de repartir la carpeta Release/ entera
+      # como zip: se arma concatenando el módulo SFX de 7-Zip (7z.sfx, ya
+      # trae 7-Zip preinstalado en windows-latest pero NO el módulo SFX --
+      # se saca del propio instalador oficial descargado acá) + un config
+      # con la directiva RunProgram + el .7z comprimido de Release/. Al
+      # ejecutarlo, se autoextrae a una carpeta temporal y arranca la app
+      # sola, sin instalador ni pedir permisos de administrador.
+      - name: Bundle into a single portable .exe
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2301-x64.exe" -OutFile "7z-installer.exe"
+          & "C:\Program Files\7-Zip\7z.exe" e "7z-installer.exe" "7z.sfx" -o"sfx" -y
+
+          # Pararse DENTRO de Release/ antes de comprimir: si no, 7z guarda
+          # la ruta completa "build\windows\x64\runner\Release\..." en el
+          # archivo, y al autoextraerse aparece esa carpeta anidada entera
+          # en vez de soltar el .exe y las DLLs directo donde lo corriste.
+          $origDir = Get-Location
+          Push-Location "build\windows\x64\runner\Release"
+          & "C:\Program Files\7-Zip\7z.exe" a -mx=9 "$origDir\release.7z" *
+          Pop-Location
+
+          $configLines = @(
+            ';!@Install@!UTF-8!',
+            'Title="Red de Distribucion"',
+            'RunProgram="sistema_red_distribucion.exe"',
+            ';!@InstallEnd@!'
+          )
+          Set-Content -Path "config.txt" -Value $configLines -Encoding UTF8
+
+          cmd /c copy /b "sfx\7z.sfx" + "config.txt" + "release.7z" "sistema-red-distribucion-portable.exe"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sistema-red-distribucion-windows-portable
+          path: sistema-red-distribucion/sistema-red-distribucion-portable.exe
+          if-no-files-found: error
+
+  android:
+    name: Android (.apk)
+    runs-on: ubuntu-latest
+    # GitHub Actions no permite leer `secrets` directo en el `if:` de un
+    # step ("Unrecognized named-value: 'secrets'") -- solo está disponible
+    # armando un valor de `env:`, que sí puede referenciar secrets. De ahí
+    # se lee como env.HAS_ANDROID_KEYSTORE más abajo.
+    #
+    # Nombres con sufijo _RED_DISTRIBUCION (no ANDROID_KEYSTORE_BASE64 a
+    # secas): los secrets de un repo son globales, no por carpeta/proyecto.
+    # sistema-diseno-almacenes ya usa los nombres genéricos para SU propio
+    # keystore -- reusarlos acá pisaría ese secret con el keystore de este
+    # proyecto (o al revés), firmando la app equivocada con la llave
+    # equivocada sin que el build avise nada.
+    env:
+      HAS_ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64_RED_DISTRIBUCION != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Firma de release real: decodifica el keystore desde un secret del
+      # repo. Si el secret todavía no está configurado, este paso se salta
+      # entero y android/app/build.gradle.kts cae solo a la firma debug --
+      # el build no se rompe, solo queda sin firma real hasta que se
+      # agreguen los secrets (ver README, sección Fase 9).
+      - name: Preparar el keystore de release
+        if: ${{ env.HAS_ANDROID_KEYSTORE == 'true' }}
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64_RED_DISTRIBUCION }}" | base64 -d > android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD_RED_DISTRIBUCION }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD_RED_DISTRIBUCION }}
+          keyAlias=upload
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build Android APK (release)
+        run: flutter build apk --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sistema-red-distribucion-android
+          path: sistema-red-distribucion/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
