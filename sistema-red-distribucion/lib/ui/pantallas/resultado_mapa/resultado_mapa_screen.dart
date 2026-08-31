@@ -208,17 +208,109 @@ class _ResultadoMapaScreenState extends State<ResultadoMapaScreen> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: SelectorEscenario(
                       escenarios: _escenarios,
                       seleccionado: _seleccionado,
                       onCambiar: (e) => e == null ? null : _seleccionar(e),
                     ),
                   ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: _LeyendaMapa(),
+                  ),
                   Expanded(child: _MapaTerritorios(territorios: _territorios, zonas: _zonas)),
                 ],
               ),
             ),
+    );
+  }
+}
+
+/// Explica los tres elementos del mapa — sin esto, dos puntos y una línea
+/// sin contexto no se entienden solos (confirmado por el usuario).
+class _LeyendaMapa extends StatelessWidget {
+  const _LeyendaMapa();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final estiloTexto = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant);
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Wrap(
+          spacing: 20,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(LucideIcons.warehouse, size: 16, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 6),
+                Text('Almacén abierto', style: estiloTexto),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: colorScheme.surface, width: 1.5),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text('Zona — el color indica su almacén asignado', style: estiloTexto),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(color: colorSinAsignarTerritorio, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+                Text('Gris: zona sin ningún almacén asignado', style: estiloTexto),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.red, width: 3),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text('Borde rojo: fuera del estándar de servicio', style: estiloTexto),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 16, height: 2, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 6),
+                Text('Línea: qué almacén atiende a esa zona', style: estiloTexto),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

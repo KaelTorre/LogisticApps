@@ -89,12 +89,42 @@ class _CurvaScreenState extends State<CurvaScreen> {
                         const SizedBox(height: 16),
                         if (_puntos.isNotEmpty) ...[
                           Text('Costo total contra número de almacenes', style: Theme.of(context).textTheme.titleSmall),
+                          Text(
+                            'Cada punto es el mejor costo posible con esa cantidad de almacenes '
+                            'abiertos. El punto rojo es el mínimo — la recomendación del sistema.',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                           const SizedBox(height: 8),
-                          SizedBox(height: 260, child: _LineaCosto(puntos: _puntos)),
+                          if (_puntos.length == 1)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Text(
+                                'Este barrido solo evaluó ${_puntos.single.numeroAlmacenes} '
+                                'almacén(es) — hace falta más de un punto para dibujar una curva. '
+                                'El desglose de ese único punto está abajo.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            )
+                          else
+                            SizedBox(height: 260, child: _LineaCosto(puntos: _puntos)),
                           const SizedBox(height: 24),
                           Text('Desglose por rubro en cada punto', style: Theme.of(context).textTheme.titleSmall),
                           const SizedBox(height: 8),
+                          const _LeyendaRubros(),
+                          const SizedBox(height: 12),
                           SizedBox(height: 260, child: _BarrasApiladas(puntos: _puntos)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Eje horizontal: número de almacenes abiertos en ese punto.',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -102,6 +132,39 @@ class _CurvaScreenState extends State<CurvaScreen> {
                 ),
               ),
       ),
+    );
+  }
+}
+
+/// Qué representa cada color de la barra apilada — sin esto, siete colores
+/// sin etiquetar no dicen nada (confirmado por el usuario).
+class _LeyendaRubros extends StatelessWidget {
+  const _LeyendaRubros();
+
+  @override
+  Widget build(BuildContext context) {
+    final estiloTexto = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
+
+    return Wrap(
+      spacing: 14,
+      runSpacing: 6,
+      children: [
+        for (final rubro in etiquetasRubro.keys)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: coloresRubro[rubro], shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+              Text(etiquetasRubro[rubro]!, style: estiloTexto),
+            ],
+          ),
+      ],
     );
   }
 }
