@@ -57,7 +57,11 @@ class SelectorUbicacionCampo extends StatelessWidget {
               child: TextFormField(
                 key: const Key('campo_latitud'),
                 controller: latitudCtrl,
-                decoration: const InputDecoration(labelText: 'Latitud'),
+                decoration: const InputDecoration(
+                  labelText: 'Latitud',
+                  helperText: 'Entre -90 y 90.',
+                  helperMaxLines: 2,
+                ),
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                   decimal: true,
@@ -70,7 +74,11 @@ class SelectorUbicacionCampo extends StatelessWidget {
               child: TextFormField(
                 key: const Key('campo_longitud'),
                 controller: longitudCtrl,
-                decoration: const InputDecoration(labelText: 'Longitud'),
+                decoration: const InputDecoration(
+                  labelText: 'Longitud',
+                  helperText: 'Entre -180 y 180.',
+                  helperMaxLines: 2,
+                ),
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                   decimal: true,

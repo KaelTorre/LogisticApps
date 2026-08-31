@@ -134,7 +134,12 @@ class _ProyectoFormScreenState extends State<ProyectoFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _horizonteCtrl,
-                      decoration: const InputDecoration(labelText: 'Horizonte (años)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Horizonte (años)',
+                        helperText: 'A cuántos años planeas este análisis. Es solo referencia — '
+                            'no cambia ningún cálculo.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: TextInputType.number,
                       validator: (v) =>
                           validarEnteroPositivo(v, etiqueta: 'El horizonte'),

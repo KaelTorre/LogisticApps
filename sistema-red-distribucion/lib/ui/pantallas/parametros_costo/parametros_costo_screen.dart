@@ -134,7 +134,11 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _tarifaEntradaFijaCtrl,
-                      decoration: const InputDecoration(labelText: 'Tarifa fija'),
+                      decoration: const InputDecoration(
+                        labelText: 'Tarifa fija',
+                        helperText: 'Costo fijo de cada viaje de la planta al almacén, sin importar la distancia.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija', femenino: true),
@@ -142,7 +146,12 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _tarifaEntradaKmTonCtrl,
-                      decoration: const InputDecoration(labelText: 'Tarifa por km-tonelada'),
+                      decoration: const InputDecoration(
+                        labelText: 'Tarifa por km-tonelada',
+                        helperText:
+                            'Costo adicional por cada km recorrido, según el peso transportado.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada', femenino: true),
@@ -153,7 +162,11 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _tarifaSalidaFijaCtrl,
-                      decoration: const InputDecoration(labelText: 'Tarifa fija'),
+                      decoration: const InputDecoration(
+                        labelText: 'Tarifa fija',
+                        helperText: 'Costo fijo de cada viaje del almacén a la zona, sin importar la distancia.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La tarifa fija', femenino: true),
@@ -161,7 +174,12 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _tarifaSalidaKmTonCtrl,
-                      decoration: const InputDecoration(labelText: 'Tarifa por km-tonelada'),
+                      decoration: const InputDecoration(
+                        labelText: 'Tarifa por km-tonelada',
+                        helperText:
+                            'Costo adicional por cada km recorrido, según el peso transportado.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La tarifa por km-tonelada', femenino: true),
@@ -173,6 +191,10 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       controller: _tasaManejoInventarioCtrl,
                       decoration: const InputDecoration(
                         labelText: 'Tasa anual de manejo de inventario (%)',
+                        helperText:
+                            'Qué porcentaje del valor del inventario cuesta mantenerlo guardado un año '
+                            '(seguro, deterioro, capital inmovilizado). Ej: 25.',
+                        helperMaxLines: 3,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'La tasa', femenino: true),
@@ -180,7 +202,11 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _valorPorUnidadCtrl,
-                      decoration: const InputDecoration(labelText: 'Valor por unidad'),
+                      decoration: const InputDecoration(
+                        labelText: 'Valor por unidad',
+                        helperText: 'Precio o valor comercial de una unidad del producto.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'El valor por unidad'),
                     ),
@@ -189,6 +215,11 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                       controller: _inventarioBaseCtrl,
                       decoration: const InputDecoration(
                         labelText: 'Inventario base de una ubicación',
+                        helperText:
+                            'Cuánto inventario mantendrías con un solo almacén. Con más almacenes '
+                            'abiertos, el inventario total sube (nunca se multiplica en la misma '
+                            'proporción).',
+                        helperMaxLines: 3,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'El inventario base'),
@@ -196,7 +227,11 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _costoPorPedidoCtrl,
-                      decoration: const InputDecoration(labelText: 'Costo por pedido'),
+                      decoration: const InputDecoration(
+                        labelText: 'Costo por pedido',
+                        helperText: 'Costo administrativo de procesar cada pedido, sin importar su tamaño.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'El costo por pedido'),
                     ),
@@ -222,6 +257,8 @@ class _ParametrosCostoScreenState extends State<ParametrosCostoScreen> {
                             controller: _estandarServicioCtrl,
                             decoration: InputDecoration(
                               labelText: _tipoEstandar == 'distancia' ? 'Máximo (km)' : 'Máximo (min)',
+                              helperText: 'Más allá de esto, la zona queda sin cobertura.',
+                              helperMaxLines: 3,
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             validator: (v) =>

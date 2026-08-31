@@ -35,6 +35,7 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('campo_latitud')), '91');
     await tester.enterText(find.byKey(const Key('campo_longitud')), '0');
+    await tester.ensureVisible(find.text('Guardar'));
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
@@ -50,6 +51,7 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('campo_latitud')), '0');
     await tester.enterText(find.byKey(const Key('campo_longitud')), '-181');
+    await tester.ensureVisible(find.text('Guardar'));
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
@@ -71,6 +73,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, 'Cliente de prueba');
     await tester.enterText(find.widgetWithText(TextFormField, 'Demanda anual'), '100');
     await tester.enterText(find.widgetWithText(TextFormField, 'Pedidos anuales'), '10');
+    await tester.ensureVisible(find.text('Guardar'));
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 

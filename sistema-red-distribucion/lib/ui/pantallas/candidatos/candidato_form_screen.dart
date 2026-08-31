@@ -138,14 +138,24 @@ class _CandidatoFormScreenState extends State<CandidatoFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _costoFijoCtrl,
-                      decoration: const InputDecoration(labelText: 'Costo fijo anual'),
+                      decoration: const InputDecoration(
+                        labelText: 'Costo fijo anual',
+                        helperText:
+                            'Cuánto cuesta al año tener este centro abierto, exista o no volumen '
+                            '(renta, personal fijo, servicios).',
+                        helperMaxLines: 3,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) => validarNumeroNoNegativo(v, etiqueta: 'El costo fijo anual'),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _capacidadCtrl,
-                      decoration: const InputDecoration(labelText: 'Capacidad anual'),
+                      decoration: const InputDecoration(
+                        labelText: 'Capacidad anual',
+                        helperText: 'Cuánto volumen puede manejar este centro en un año, como máximo.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual', femenino: true),
@@ -155,6 +165,10 @@ class _CandidatoFormScreenState extends State<CandidatoFormScreen> {
                       controller: _costoVariableCtrl,
                       decoration: const InputDecoration(
                         labelText: 'Costo variable de manejo por unidad',
+                        helperText:
+                            'Cuánto cuesta manipular cada unidad que pasa por este centro '
+                            '(mano de obra, equipo). Sube o baja según cuánto se mueva.',
+                        helperMaxLines: 3,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>

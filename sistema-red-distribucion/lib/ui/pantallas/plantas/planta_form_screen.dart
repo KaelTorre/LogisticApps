@@ -105,7 +105,11 @@ class _PlantaFormScreenState extends State<PlantaFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _capacidadCtrl,
-                      decoration: const InputDecoration(labelText: 'Capacidad anual'),
+                      decoration: const InputDecoration(
+                        labelText: 'Capacidad anual',
+                        helperText: 'Cuánto puede producir o despachar esta planta en un año.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La capacidad anual', femenino: true),
@@ -113,7 +117,11 @@ class _PlantaFormScreenState extends State<PlantaFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _costoProduccionCtrl,
-                      decoration: const InputDecoration(labelText: 'Costo de producción por unidad'),
+                      decoration: const InputDecoration(
+                        labelText: 'Costo de producción por unidad',
+                        helperText: 'Cuánto cuesta fabricar o adquirir una unidad del producto en esta planta.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'El costo de producción'),

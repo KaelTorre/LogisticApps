@@ -104,7 +104,11 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _demandaCtrl,
-                      decoration: const InputDecoration(labelText: 'Demanda anual'),
+                      decoration: const InputDecoration(
+                        labelText: 'Demanda anual',
+                        helperText: 'Cuánto compra o consume este cliente en un año, en la unidad del proyecto.',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) =>
                           validarNumeroNoNegativo(v, etiqueta: 'La demanda anual', femenino: true),
@@ -112,7 +116,11 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _pedidosCtrl,
-                      decoration: const InputDecoration(labelText: 'Pedidos anuales'),
+                      decoration: const InputDecoration(
+                        labelText: 'Pedidos anuales',
+                        helperText: 'Cuántos pedidos separados hace este cliente en un año (no el volumen).',
+                        helperMaxLines: 2,
+                      ),
                       keyboardType: TextInputType.number,
                       validator: (v) =>
                           validarEnteroNoNegativo(v, etiqueta: 'Los pedidos anuales', plural: true),
