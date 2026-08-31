@@ -382,7 +382,7 @@ class _ExportacionScreenState extends State<ExportacionScreen> {
                     accionSecundaria: ('Importar', _importarJson),
                   ),
                   _SeccionExportacion(
-                    titulo: 'Volumen por centro (Unidad 4)',
+                    titulo: 'Volumen por centro',
                     descripcion:
                         'Un archivo por almacén abierto, con su volumen anual, listo para importar en el '
                         'Sistema de Diseño de Almacenes.',

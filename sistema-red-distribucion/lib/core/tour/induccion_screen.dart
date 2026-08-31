@@ -124,9 +124,8 @@ class _InduccionScreenState extends State<InduccionScreen> {
             'en cuáles ubicaciones, y qué zona de demanda atiende cada uno — '
             'minimizando el costo logístico total sujeto a un estándar de '
             'servicio. No es un ruteador de vehículos (no ordena visitas ni '
-            'ventanas horarias), no es un WMS, y no dimensiona el almacén en sí '
-            '(eso ya lo cubren otras dos aplicaciones del mismo curso). Este '
-            'recorrido te muestra, paso a paso, cada pantalla y para qué sirve — '
+            'ventanas horarias), no es un WMS, y no dimensiona el almacén en sí. '
+            'Este recorrido te muestra, paso a paso, cada pantalla y para qué sirve — '
             'avanza, retrocede o sáltalo cuando quieras. Ya viene cargado un caso '
             'de ejemplo con datos reales de Pucallpa para que puedas explorarlo '
             'de inmediato.',
