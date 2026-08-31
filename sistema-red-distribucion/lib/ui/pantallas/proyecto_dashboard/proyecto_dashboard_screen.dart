@@ -135,7 +135,7 @@ class ProyectoDashboardScreen extends StatelessWidget {
                 crossAxisCount: columnas,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                mainAxisExtent: 128,
+                mainAxisExtent: 168,
               ),
               itemCount: _modulos.length,
               itemBuilder: (context, index) {

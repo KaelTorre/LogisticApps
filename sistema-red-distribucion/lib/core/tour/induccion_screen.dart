@@ -126,9 +126,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
             'servicio. No es un ruteador de vehículos (no ordena visitas ni '
             'ventanas horarias), no es un WMS, y no dimensiona el almacén en sí. '
             'Este recorrido te muestra, paso a paso, cada pantalla y para qué sirve — '
-            'avanza, retrocede o sáltalo cuando quieras. Ya viene cargado un caso '
-            'de ejemplo con datos reales de Pucallpa para que puedas explorarlo '
-            'de inmediato.',
+            'avanza, retrocede o sáltalo cuando quieras.',
         snapshot: (context) => _iconoCentral(context, Icons.hub_outlined),
       ),
       PasoInduccion(
@@ -295,7 +293,7 @@ class _InduccionScreenState extends State<InduccionScreen> {
         icono: Icons.compare_arrows_outlined,
         titulo: 'Comparador de escenarios',
         descripcion:
-            'Pone dos escenarios lado a lado: qué centros abren y cuáles '
+            'Puedes comparar dos escenarios lado a lado: qué centros abren y cuáles '
             'cierran, qué zonas cambian de asignación, el ahorro anual, y si '
             'el cumplimiento del estándar de servicio mejora o empeora.',
         snapshot: (context) => _listaIconos(context, const [
