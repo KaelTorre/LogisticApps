@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../motor/fila_memoria.dart';
+import 'legibilidad_memoria.dart';
 
 /// Ficha técnica en PDF (CLAUDE.md Fase 9): mismo patrón que
 /// `pdf_builder.dart` de la Unidad 4 — función pura, `pw.MultiPage` A4,
@@ -72,16 +73,25 @@ Future<Uint8List> generarFichaPdfRed({
         pw.SizedBox(height: 6),
         pw.TableHelper.fromTextArray(
           headers: const ['Módulo', 'Fórmula', 'Entradas', 'Salida', 'Unidad'],
-          data: [for (final f in memoria) [f.modulo, f.formula, f.entradasJson, f.salida, f.unidad]],
+          data: [
+            for (final f in memoria)
+              [
+                moduloLegible(f.modulo),
+                f.formula,
+                entradasLegibles(f.entradasJson),
+                salidaLegible(f.salida, f.unidad),
+                unidadLegible(f.unidad),
+              ],
+          ],
           cellStyle: const pw.TextStyle(fontSize: 8),
           headerStyle: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
           cellAlignment: pw.Alignment.topLeft,
           columnWidths: {
-            0: const pw.FlexColumnWidth(0.8),
-            1: const pw.FlexColumnWidth(2.6),
-            2: const pw.FlexColumnWidth(2.6),
+            0: const pw.FlexColumnWidth(1.6),
+            1: const pw.FlexColumnWidth(2.4),
+            2: const pw.FlexColumnWidth(2.2),
             3: const pw.FlexColumnWidth(1.2),
-            4: const pw.FlexColumnWidth(1.0),
+            4: const pw.FlexColumnWidth(0.8),
           },
         ),
       ],

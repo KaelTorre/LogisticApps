@@ -159,7 +159,7 @@ ResultadoCosto calcularCostoTotal({
     FilaMemoria(
       modulo: 'M4',
       formula: 'Σ_abiertos costo_fijo_anual',
-      entradasJson: jsonEncode({'almacenes_abiertos': abiertos}),
+      entradasJson: jsonEncode({'almacenes_abiertos': abiertos.length}),
       salida: '${porRubro[rubroFijo]}',
       unidad: 'centavos',
     ),
@@ -172,8 +172,8 @@ ResultadoCosto calcularCostoTotal({
     ),
     FilaMemoria(
       modulo: 'M4',
-      formula: 'inventario(n_abiertos) × valor_por_unidad × tasa_manejo_inventario_anual  '
-          '[M7: inventario(n) = inventario_base × √n]',
+      formula: 'inventario(n_abiertos) × valor_por_unidad × tasa_manejo_inventario_anual, donde '
+          'inventario(n) = inventario_base × √n (efecto de agrupación de riesgos)',
       entradasJson: jsonEncode({
         'n_abiertos': abiertos.length,
         'inventario_base': params.inventarioBaseUnaUbicacion,
