@@ -3,6 +3,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/estado/proyecto_activo.dart';
+import '../../../core/tour/induccion_screen.dart';
+import '../../../core/tour/tour_controller.dart';
 import '../../../data/models/proyecto.dart';
 import '../../../data/repositories/proyecto_repository.dart';
 import '../proyecto_dashboard/proyecto_dashboard_screen.dart';
@@ -27,6 +29,17 @@ class _ProyectosScreenState extends State<ProyectosScreen> {
   void initState() {
     super.initState();
     _cargar();
+    final tour = context.read<TourController>();
+    if (!tour.yaVisto) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _abrirInduccion());
+    }
+  }
+
+  Future<void> _abrirInduccion() async {
+    if (!mounted) return;
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => InduccionScreen(tour: context.read<TourController>())));
   }
 
   Future<void> _cargar() async {
@@ -90,7 +103,12 @@ class _ProyectosScreenState extends State<ProyectosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sistema de Red de Distribución')),
+      appBar: AppBar(
+        title: const Text('Sistema de Red de Distribución'),
+        actions: [
+          IconButton(icon: const Icon(Icons.help_outline), tooltip: 'Inducción guiada', onPressed: _abrirInduccion),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirFormulario(),
         icon: const Icon(LucideIcons.plus),

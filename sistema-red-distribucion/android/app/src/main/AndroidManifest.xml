@@ -30,6 +30,21 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Para "Abrir archivo"/"Compartir" sobre los PDF/CSV/JSON
+             exportados (Fase 9), este FileProvider expone el archivo
+             puntual a través de un content:// URI. Android exige
+             FileProvider para compartir archivos con otra app desde
+             Android 7 en adelante; un file:// URI directo lanza
+             FileUriExposedException. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.logisticapps.sistema_red_distribucion.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

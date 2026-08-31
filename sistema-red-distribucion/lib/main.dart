@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 
 import 'core/estado/proyecto_activo.dart';
 import 'core/theme.dart';
+import 'core/tour/tour_controller.dart';
 import 'data/local/cache_ruteo_drift.dart';
 import 'data/local/database.dart';
+import 'data/seed/sembrar_caso_estudio.dart';
 import 'data/repositories/celda_matriz_repository.dart';
 import 'data/repositories/cliente_repository.dart';
 import 'data/repositories/cliente_zona_repository.dart';
@@ -24,7 +26,7 @@ import 'data/repositories/sitio_candidato_repository.dart';
 import 'data/repositories/zona_demanda_repository.dart';
 import 'ui/pantallas/proyectos/proyectos_screen.dart';
 
-void main() {
+Future<void> main() async {
   // Agrega raíces de CA explícitas (ver trusted_certs_http_overrides.dart en
   // el paquete compartido) a todo HttpClient que se cree en la app — sin
   // esto, un equipo Windows con el almacén de certificados del sistema
@@ -32,7 +34,13 @@ void main() {
   // navegador funcione bien. Mismo fix que sistema-optimizacion-rutas.
   HttpOverrides.global = TrustedRootsHttpOverrides();
 
+  // `sembrarCasoEstudioSiVacio` lee un asset (`rootBundle`) antes de
+  // `runApp` — hace falta el binding inicializado explícitamente.
+  WidgetsFlutterBinding.ensureInitialized();
+
   final database = AppDatabase();
+  await sembrarCasoEstudioSiVacio(database);
+  final tour = await TourController.crear();
 
   runApp(
     MultiProvider(
@@ -58,6 +66,7 @@ void main() {
         Provider<EscenarioCostoRepository>(create: (_) => EscenarioCostoRepository(database)),
         Provider<PuntoCurvaRepository>(create: (_) => PuntoCurvaRepository(database)),
         Provider<MemoriaCalculoRepository>(create: (_) => MemoriaCalculoRepository(database)),
+        Provider<TourController>.value(value: tour),
         ChangeNotifierProvider<ProyectoActivo>(create: (_) => ProyectoActivo()),
       ],
       child: const SistemaRedDistribucionApp(),

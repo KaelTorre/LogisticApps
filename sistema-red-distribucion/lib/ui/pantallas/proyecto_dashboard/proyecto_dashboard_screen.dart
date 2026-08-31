@@ -9,6 +9,7 @@ import '../candidatos/candidatos_screen.dart';
 import '../clientes/clientes_screen.dart';
 import '../comparador/comparador_escenarios_screen.dart';
 import '../curva/curva_screen.dart';
+import '../exportacion/exportacion_screen.dart';
 import '../matriz/matriz_screen.dart';
 import '../optimizacion/optimizacion_screen.dart';
 import '../parametros_costo/parametros_costo_screen.dart';
@@ -102,6 +103,12 @@ final _modulos = [
     titulo: 'Comparador de escenarios',
     descripcion: 'Dos escenarios lado a lado: ahorro, almacenes y zonas que cambian.',
     pantalla: (_) => const ComparadorEscenariosScreen(),
+  ),
+  _ModuloProyecto(
+    icono: LucideIcons.share2,
+    titulo: 'Exportación',
+    descripcion: 'Ficha técnica en PDF, CSV, proyecto portable y enlace del visor web.',
+    pantalla: (_) => const ExportacionScreen(),
   ),
 ];
 

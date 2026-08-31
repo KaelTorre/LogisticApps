@@ -83,6 +83,11 @@ dependencies:
   url_launcher: ^6.3.2
   android_intent_plus: ^6.1.0
 
+  # Recordar si la inducción guiada ya se mostró (Fase 9) — una sola bandera
+  # booleana persistida entre arranques; mismo paquete que ya usa
+  # sistema-diseno-almacenes para lo mismo.
+  shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -108,10 +113,17 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  # DejaVu Sans (assets/fonts/): tildes/ñ y símbolos matemáticos en el PDF
+  # de exportación — la Helvetica base del paquete `pdf` no los dibuja. Ver
+  # assets/CREDITS.md para la licencia.
+  assets:
+    - assets/fonts/DejaVuSans.ttf
+    - assets/fonts/DejaVuSans-Bold.ttf
+    # Caso de estudio precargado (Fase 9): proyecto completo de Pucallpa,
+    # con la matriz de distancias ya calculada con OSRM real — generado una
+    # sola vez por tool/generar_semilla_pucallpa.dart, nunca en el arranque
+    # real de la app (ver lib/data/seed/sembrar_caso_estudio.dart).
+    - assets/seed/semilla_pucallpa.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

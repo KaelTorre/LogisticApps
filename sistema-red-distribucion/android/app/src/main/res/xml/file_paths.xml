@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rutas que el FileProvider (ver AndroidManifest.xml) autoriza a exponer a
+  otras apps vía content:// URIs. `external-files-path` corresponde a
+  `context.getExternalFilesDir(null)`, exactamente lo que devuelve
+  `path_provider`'s `getExternalStorageDirectory()` — la carpeta donde
+  `directorioExportacion()` guarda los PDF/CSV/JSON exportados en Android.
+-->
+<paths>
+    <external-files-path name="documentos" path="."/>
+</paths>
