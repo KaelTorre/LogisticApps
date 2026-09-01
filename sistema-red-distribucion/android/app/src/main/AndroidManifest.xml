@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Requerido para las teselas de OpenStreetMap (flutter_map) y las
+         peticiones al servicio de ruteo (OSRM) y de geocodificación. Sin
+         esto, en un build de release (el manifest de debug ya lo trae
+         aparte, agregado por el propio Flutter para hot reload) el mapa
+         se ve como un rectángulo gris vacío sin ningún error visible: las
+         peticiones de red simplemente no se permiten. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Red de Distribución"
         android:name="${applicationName}"
