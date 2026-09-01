@@ -6,7 +6,9 @@ import '../../../core/estado/organizacion_activa.dart';
 import '../../../data/models/organizacion.dart';
 import '../../../data/repositories/organizacion_repository.dart';
 import '../acciones/acciones_screen.dart';
+import '../auditoria_facturas/auditoria_facturas_screen.dart';
 import '../captura/captura_screen.dart';
+import '../diagnostico_organizacional/diagnostico_organizacional_screen.dart';
 import '../evaluacion/evaluacion_periodo_screen.dart';
 import '../indicadores/indicadores_screen.dart';
 import '../informe_costo_servicio/informe_costo_servicio_screen.dart';
@@ -268,6 +270,24 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Reloj de periodos: avanzar, retroceder, estado en vivo',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => RelojSimulacionScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.radar,
+          titulo: 'Diagnóstico organizacional',
+          subtitulo: 'Etapa de desarrollo, ejes y orientación dominante',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => DiagnosticoOrganizacionalScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.receipt,
+          titulo: 'Auditoría de facturas',
+          subtitulo: 'Recálculo contra el tarifario y monto recuperable',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => AuditoriaFacturasScreen(organizacionId: organizacion.id!)),
           ),
         ),
         const SizedBox(height: 12),
