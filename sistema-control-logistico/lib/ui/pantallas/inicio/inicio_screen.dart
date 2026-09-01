@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/estado/organizacion_activa.dart';
 import '../../../data/models/organizacion.dart';
 import '../../../data/repositories/organizacion_repository.dart';
+import '../captura/captura_screen.dart';
 import '../indicadores/indicadores_screen.dart';
 import '../organizacion/organizacion_form_screen.dart';
 import '../periodos/periodos_screen.dart';
@@ -166,6 +167,15 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Catálogo con meta, banda y sentido de mejora',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => IndicadoresScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.clipboardList,
+          titulo: 'Captura',
+          subtitulo: 'Ingreso de mediciones por periodo, con importación CSV',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => CapturaScreen(organizacionId: organizacion.id!)),
           ),
         ),
       ],

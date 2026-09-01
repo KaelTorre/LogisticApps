@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/models/indicador.dart';
 import '../../../data/repositories/indicador_repository.dart';
+import '../detalle_indicador/detalle_indicador_screen.dart';
 import 'indicador_form_screen.dart';
 
 const _etiquetasCategoria = {
@@ -105,10 +106,24 @@ class _IndicadoresScreenState extends State<IndicadoresScreen> {
                     '${indicador.activo ? '' : ' · inactivo'}',
                   ),
                   onTap: () => _abrirFormulario(existente: indicador),
-                  trailing: IconButton(
-                    icon: const Icon(LucideIcons.trash2),
-                    tooltip: 'Eliminar',
-                    onPressed: () => _confirmarEliminar(indicador),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(LucideIcons.chartLine),
+                        tooltip: 'Ver serie',
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => DetalleIndicadorScreen(indicador: indicador),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(LucideIcons.trash2),
+                        tooltip: 'Eliminar',
+                        onPressed: () => _confirmarEliminar(indicador),
+                      ),
+                    ],
                   ),
                 );
               },
