@@ -11,6 +11,9 @@ import '../evaluacion/evaluacion_periodo_screen.dart';
 import '../indicadores/indicadores_screen.dart';
 import '../informe_costo_servicio/informe_costo_servicio_screen.dart';
 import '../informe_productividad/informe_productividad_screen.dart';
+import '../laboratorio_calibrador/laboratorio_calibrador_screen.dart';
+import '../laboratorio_contraste/laboratorio_contraste_screen.dart';
+import '../laboratorio_generador/laboratorio_generador_screen.dart';
 import '../organizacion/organizacion_form_screen.dart';
 import '../periodos/periodos_screen.dart';
 import '../presupuesto/presupuesto_screen.dart';
@@ -246,6 +249,33 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Presupuestado contra real y variaciones',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => PresupuestoScreen(organizacion: organizacion)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.flaskConical,
+          titulo: 'Laboratorio — generador',
+          subtitulo: 'Series sintéticas por patrón, con semilla reproducible',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => LaboratorioGeneradorScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.gitCompare,
+          titulo: 'Laboratorio — contraste',
+          subtitulo: 'Umbral simple contra reconocimiento de patrones',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => LaboratorioContrasteScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.slidersHorizontal,
+          titulo: 'Laboratorio — calibrador',
+          subtitulo: 'Propuesta de banda óptima a partir de eventos marcados',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => LaboratorioCalibradorScreen(organizacionId: organizacion.id!)),
           ),
         ),
       ],
