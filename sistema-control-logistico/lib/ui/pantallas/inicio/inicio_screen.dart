@@ -17,6 +17,7 @@ import '../laboratorio_generador/laboratorio_generador_screen.dart';
 import '../organizacion/organizacion_form_screen.dart';
 import '../periodos/periodos_screen.dart';
 import '../presupuesto/presupuesto_screen.dart';
+import '../reloj_simulacion/reloj_simulacion_screen.dart';
 import '../tabla_desempeno/tabla_desempeno_screen.dart';
 import '../verificacion/verificacion_screen.dart';
 
@@ -258,6 +259,15 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Series sintéticas por patrón, con semilla reproducible',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => LaboratorioGeneradorScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.clock,
+          titulo: 'Laboratorio — simulación',
+          subtitulo: 'Reloj de periodos: avanzar, retroceder, estado en vivo',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => RelojSimulacionScreen(organizacionId: organizacion.id!)),
           ),
         ),
         const SizedBox(height: 12),
