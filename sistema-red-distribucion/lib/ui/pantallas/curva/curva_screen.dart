@@ -226,11 +226,15 @@ class _BarrasApiladas extends StatelessWidget {
     final desgloses = [
       for (final p in puntos) Map<String, int>.from(jsonDecode(p.costoPorRubroJson) as Map),
     ];
-    final maximo = puntos.isEmpty ? 1 : puntos.map((p) => p.costoTotalCent).reduce((a, b) => a > b ? a : b);
+    // costoTotalCent viene en céntimos; se convierte antes de graficar para
+    // que el eje muestre el mismo monto que la curva de línea de arriba (que
+    // sí divide entre 100) -- si no, el eje queda 100 veces más grande de lo
+    // real (ej. "800M" en vez de "8M" soles).
+    final maximo = puntos.isEmpty ? 1.0 : puntos.map((p) => p.costoTotalCent / 100).reduce((a, b) => a > b ? a : b);
 
     return BarChart(
       BarChartData(
-        maxY: techoLindoGrafica(maximo.toDouble()),
+        maxY: techoLindoGrafica(maximo),
         barGroups: [
           for (var i = 0; i < puntos.length; i++) _grupoApilado(i, puntos[i], desgloses[i]),
         ],
@@ -262,7 +266,7 @@ class _BarrasApiladas extends StatelessWidget {
     var acumulado = 0.0;
     final items = <BarChartRodStackItem>[];
     for (final rubro in etiquetasRubro.keys) {
-      final valor = (desglose[rubro] ?? 0).toDouble();
+      final valor = (desglose[rubro] ?? 0) / 100;
       items.add(BarChartRodStackItem(acumulado, acumulado + valor, coloresRubro[rubro]!));
       acumulado += valor;
     }
