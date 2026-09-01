@@ -10,6 +10,13 @@ import '../../../data/repositories/medicion_repository.dart';
 import '../../../data/repositories/periodo_repository.dart';
 import '../../../domain/importacion/importador_csv_mediciones.dart';
 
+const _etiquetasOrigen = {
+  'manual': 'Manual',
+  'importado': 'Importado',
+  'derivado': 'Derivado',
+  'sintetico': 'Sintético',
+};
+
 /// Pantalla 6 (CLAUDE.md sección 9): ingreso de mediciones del periodo,
 /// con importación CSV. Un indicador a la vez -- la fila de cada periodo
 /// muestra su medición actual (si existe) y se edita tocándola.
@@ -265,7 +272,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
                                   ? const Text('Sin medición')
                                   : Text(
                                       '${medicion.valor.toStringAsFixed(indicador.decimales)} '
-                                      '${indicador.unidad} · ${medicion.origen}',
+                                      '${indicador.unidad} · ${_etiquetasOrigen[medicion.origen] ?? medicion.origen}',
                                     ),
                               trailing: const Icon(LucideIcons.pencil, size: 18),
                               onTap: () => _editarValor(periodo),

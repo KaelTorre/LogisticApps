@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/estado/organizacion_activa.dart';
 import 'core/theme.dart';
+import 'core/tour/tour_controller.dart';
 import 'data/local/database.dart';
 import 'data/repositories/accion_catalogo_repository.dart';
 import 'data/repositories/accion_tomada_repository.dart';
@@ -33,11 +34,13 @@ Future<void> main() async {
     AccionCatalogoRepository(database),
     ReglaAccionRepository(database),
   );
+  final tour = await TourController.crear();
 
   runApp(
     MultiProvider(
       providers: [
         Provider<AppDatabase>.value(value: database),
+        Provider<TourController>.value(value: tour),
         Provider<OrganizacionRepository>(create: (_) => OrganizacionRepository(database)),
         Provider<PeriodoRepository>(create: (_) => PeriodoRepository(database)),
         Provider<IndicadorRepository>(create: (_) => IndicadorRepository(database)),
