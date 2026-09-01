@@ -228,13 +228,18 @@ class _GraficoRubros extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rubros = etiquetasRubro.keys.where((r) => porRubro.containsKey(r)).toList();
-    final maximo = rubros.fold<int>(0, (m, r) => porRubro[r]! > m ? porRubro[r]! : m);
+    // Los montos vienen en céntimos (invariante monetaria del proyecto); se
+    // convierten acá, antes de graficar, para que el eje muestre el mismo
+    // monto que la lista de abajo -- si no, el eje queda 100 veces más
+    // grande de lo real (ej. "500M" en vez de "5M" soles).
+    final porRubroSoles = {for (final r in rubros) r: porRubro[r]! / 100};
+    final maximo = rubros.fold<double>(0, (m, r) => porRubroSoles[r]! > m ? porRubroSoles[r]! : m);
     // Redondeado a un número "lindo" (no maximo × 1.15 tal cual): si no, el
     // eje termina con una marca automática pegada al borde (ej. "11.4M"
     // encima de "10M") porque el tope del eje no cae en un múltiplo del
     // intervalo que fl_chart calcula solo. Redondear hacia arriba ya da de
     // sobra el margen visual que antes se buscaba con el × 1.15.
-    final maxY = maximo == 0 ? 1.0 : techoLindoGrafica(maximo.toDouble());
+    final maxY = maximo == 0 ? 1.0 : techoLindoGrafica(maximo);
 
     return BarChart(
       BarChartData(
@@ -245,7 +250,7 @@ class _GraficoRubros extends StatelessWidget {
               x: i,
               barRods: [
                 BarChartRodData(
-                  toY: (porRubro[rubros[i]] ?? 0).toDouble(),
+                  toY: porRubroSoles[rubros[i]] ?? 0,
                   color: coloresRubro[rubros[i]],
                   width: 22,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
