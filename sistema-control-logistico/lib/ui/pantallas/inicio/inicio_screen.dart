@@ -9,8 +9,12 @@ import '../acciones/acciones_screen.dart';
 import '../captura/captura_screen.dart';
 import '../evaluacion/evaluacion_periodo_screen.dart';
 import '../indicadores/indicadores_screen.dart';
+import '../informe_costo_servicio/informe_costo_servicio_screen.dart';
+import '../informe_productividad/informe_productividad_screen.dart';
 import '../organizacion/organizacion_form_screen.dart';
 import '../periodos/periodos_screen.dart';
+import '../presupuesto/presupuesto_screen.dart';
+import '../tabla_desempeno/tabla_desempeno_screen.dart';
 import '../verificacion/verificacion_screen.dart';
 
 const _etiquetasTipoEmpresa = {
@@ -206,6 +210,42 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Confirmar si las acciones tomadas corrigieron la desviación',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => VerificacionScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.circleDollarSign,
+          titulo: 'Costo y servicio',
+          subtitulo: 'Desglose por proceso, peso relativo y centro de utilidades',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => InformeCostoServicioScreen(organizacion: organizacion)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.gauge,
+          titulo: 'Productividad',
+          subtitulo: 'Índices de productividad contra su meta',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => InformeProductividadScreen(organizacion: organizacion)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.tableProperties,
+          titulo: 'Tabla de desempeño',
+          subtitulo: 'Matriz de indicadores por periodo con semáforo',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => TablaDesempenoScreen(organizacion: organizacion)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.wallet,
+          titulo: 'Presupuesto',
+          subtitulo: 'Presupuestado contra real y variaciones',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => PresupuestoScreen(organizacion: organizacion)),
           ),
         ),
       ],
