@@ -5,10 +5,13 @@ import 'package:provider/provider.dart';
 import '../../../core/estado/organizacion_activa.dart';
 import '../../../data/models/organizacion.dart';
 import '../../../data/repositories/organizacion_repository.dart';
+import '../acciones/acciones_screen.dart';
 import '../captura/captura_screen.dart';
+import '../evaluacion/evaluacion_periodo_screen.dart';
 import '../indicadores/indicadores_screen.dart';
 import '../organizacion/organizacion_form_screen.dart';
 import '../periodos/periodos_screen.dart';
+import '../verificacion/verificacion_screen.dart';
 
 const _etiquetasTipoEmpresa = {
   'extractiva': 'Extractiva',
@@ -176,6 +179,33 @@ class _Dashboard extends StatelessWidget {
           subtitulo: 'Ingreso de mediciones por periodo, con importación CSV',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => CapturaScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.scanSearch,
+          titulo: 'Evaluación del periodo',
+          subtitulo: 'Veredictos, clasificación y reglas disparadas',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => EvaluacionPeriodoScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.listChecks,
+          titulo: 'Acciones',
+          subtitulo: 'Propuestas del sistema y seguimiento de lo registrado',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => AccionesScreen(organizacionId: organizacion.id!)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _TarjetaAcceso(
+          icono: LucideIcons.badgeCheck,
+          titulo: 'Verificación',
+          subtitulo: 'Confirmar si las acciones tomadas corrigieron la desviación',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => VerificacionScreen(organizacionId: organizacion.id!)),
           ),
         ),
       ],

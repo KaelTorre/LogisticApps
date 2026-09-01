@@ -19,10 +19,20 @@ import 'data/repositories/presupuesto_repository.dart';
 import 'data/repositories/regla_accion_repository.dart';
 import 'data/repositories/regla_patron_repository.dart';
 import 'data/repositories/verificacion_accion_repository.dart';
+import 'data/seed/sembrar_catalogos.dart';
 import 'ui/pantallas/inicio/inicio_screen.dart';
 
-void main() {
+Future<void> main() async {
+  // sembrarReglasDeSistemaSiVacio/sembrarBibliotecaAccionesSiVacio leen la
+  // base antes de runApp -- hace falta el binding inicializado.
+  WidgetsFlutterBinding.ensureInitialized();
+
   final database = AppDatabase();
+  await sembrarReglasDeSistemaSiVacio(ReglaPatronRepository(database));
+  await sembrarBibliotecaAccionesSiVacio(
+    AccionCatalogoRepository(database),
+    ReglaAccionRepository(database),
+  );
 
   runApp(
     MultiProvider(
