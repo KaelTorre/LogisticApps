@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Control Logístico
+Comment=Control de lazo cerrado de indicadores logísticos: evalúa la serie, clasifica desviaciones y verifica acciones correctoras
+Exec=sistema_control_logistico
+Icon=sistema_control_logistico
+Categories=Office;Engineering;
+Terminal=false
