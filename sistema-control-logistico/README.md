@@ -51,6 +51,28 @@ El usuario pidió un recorrido completo de la aplicación como usuario final -- 
 
 Auditoría de idioma en todo el código, no solo en lo nuevo: se revisó texto por texto buscando voseo argentino, la construcción "recién cuando..." (que en el sentido de "solo cuando" es específicamente rioplatense, aunque "recién" en su sentido normal es panhispánico), y referencias visibles a `CLAUDE.md`/la Unidad del curso/Ballou. Se encontró y corrigió una sola instancia real: "Recién cuando el patrón se sostiene..." en la inducción guiada, cambiado a "Solo cuando...". El resto del texto ya usaba español estándar (las conjugaciones imperativas del proyecto siempre fueron en tú, no en vos) y todas las referencias al contrato técnico ya vivían exclusivamente en comentarios de código para desarrolladores, nunca en texto que el usuario final llega a ver -- confirmado con una búsqueda dedicada sobre cada pantalla. `flutter analyze` limpio y 115/115 tests en verde después de cada corrección, y cada una de las ocho se volvió a verificar visualmente bajo Xvfb sobre un build reconstruido desde cero.
 
+## Mejoras posteriores al cierre (2026-09-02)
+
+Después de cerrar el proyecto, el usuario probó el sistema como usuario real en su propio equipo y encontró y pidió corregir varios puntos más:
+
+- **El ícono de Android salía en blanco.** El PNG de primer plano del ícono adaptativo (`assets/icon/icon_foreground.png`) se había rasterizado del SVG sin fijar `-background none`, y para ese SVG en particular (dos círculos blancos sin ningún fondo) eso perdía todo el dibujo, dejando una imagen sólida de un solo color. Se corrigió la rasterización y se regeneraron los recursos de Android con `flutter_launcher_icons`. Se subió además `pubspec.yaml` a `1.1.0+2` para que Android reconozca la nueva APK como una actualización.
+- **"Cargar caso de estudio de ejemplo" parecía no responder.** El botón no tenía ningún indicador de carga mientras sembraba las ~370 filas del caso (36 periodos + 9 indicadores + 324 mediciones), así que durante esos segundos se veía exactamente igual que antes de tocarlo. Se agregó spinner y bloqueo del botón mientras carga, se envolvió toda la siembra en una transacción (nunca queda una organización a medio crear si algo falla) y se bloqueó la creación de una segunda organización con un mensaje claro en vez de fallar en silencio.
+- **El panel de Inicio era una lista plana de 17 accesos sin ningún orden.** Se reorganizó en secciones según el flujo real de uso: Configuración (una sola vez), Ciclo de control (los cuatro pasos que se repiten cada periodo, numerados), Informes y análisis, Laboratorio de escenarios, Otros módulos y Exportar -- con una tarjeta "Primeros pasos" cuando a la organización le falta un periodo o un indicador.
+- **La gráfica de serie no tenía ninguna leyenda** que explicara qué era la línea, qué la banda sombreada. Se agregó una leyenda (valor medido, meta, banda de tolerancia) y una línea punteada de meta que antes no existía en el propio dibujo, solo como texto aparte.
+- **No había forma de fijar qué acción corresponde a cada escenario.** El catálogo de acciones (`accion_catalogo` + `regla_accion`) solo se sembraba una vez desde código, sin ninguna pantalla para verlo o ampliarlo. Se agregó "Catálogo de acciones": lista las acciones agrupadas por categoría y magnitud con sus reglas disparadoras, y permite crear, editar y eliminar acciones propias.
+- **Un usuario real se equivocó de magnitud al crear una acción propia** (la mapeó a "Ajuste menor" para un escenario que en realidad clasificó "Contingencia") y no entendía por qué no aparecía como propuesta. Se agregó "Cómo clasifica el sistema": una guía de referencia que explica en lenguaje llano las seis reglas y la cascada de prioridad real de la clasificación, enlazada desde el catálogo de acciones, el formulario de acción y Evaluación del periodo.
+
+`flutter analyze` limpio y 115/117 → 117/117 tests en verde a lo largo de todos estos cambios (se agregaron 2 tests nuevos para el catálogo de acciones).
+
+## Documentación
+
+`docs/word/` contiene el Manual de Usuario y la Memoria Descriptiva en formato Word (`docs/word/salida/`), generados con el motor de documentación compartido del repositorio, con capturas reales de la aplicación corriendo contra el caso de estudio. Para regenerarlos tras un cambio de contenido:
+
+```bash
+/home/kael/Escritorio/documentacion/word/.venv/bin/python docs/word/generar_manual_usuario.py
+/home/kael/Escritorio/documentacion/word/.venv/bin/python docs/word/generar_memoria_descriptiva.py
+```
+
 ## Requisitos previos
 
 - Flutter SDK (canal estable) en el PATH.
