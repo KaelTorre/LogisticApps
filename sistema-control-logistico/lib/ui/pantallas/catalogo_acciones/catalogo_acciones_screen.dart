@@ -6,6 +6,7 @@ import '../../../data/models/accion_catalogo.dart';
 import '../../../data/models/regla_accion.dart';
 import '../../../data/repositories/accion_catalogo_repository.dart';
 import '../../../data/repositories/regla_accion_repository.dart';
+import '../guia_clasificacion/guia_clasificacion_screen.dart';
 import 'accion_catalogo_form_screen.dart';
 
 const _categorias = ['costo', 'servicio', 'productividad'];
@@ -95,7 +96,18 @@ class _CatalogoAccionesScreenState extends State<CatalogoAccionesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Catálogo de acciones')),
+      appBar: AppBar(
+        title: const Text('Catálogo de acciones'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.circleHelp),
+            tooltip: 'Cómo clasifica el sistema',
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const GuiaClasificacionScreen())),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirFormulario(),
         icon: const Icon(LucideIcons.plus),

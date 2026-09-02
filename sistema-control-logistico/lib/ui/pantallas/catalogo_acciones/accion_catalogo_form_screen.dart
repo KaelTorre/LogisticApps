@@ -5,6 +5,7 @@ import '../../../data/models/accion_catalogo.dart';
 import '../../../data/models/regla_accion.dart';
 import '../../../data/repositories/accion_catalogo_repository.dart';
 import '../../../data/repositories/regla_accion_repository.dart';
+import '../guia_clasificacion/guia_clasificacion_screen.dart';
 
 const _categorias = ['costo', 'servicio', 'productividad'];
 const _etiquetasCategoria = {
@@ -251,8 +252,22 @@ class _AccionCatalogoFormScreenState extends State<AccionCatalogoFormScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Escenario: para qué combinación de categoría y magnitud se propone esta acción.',
+              'Escenario: para qué combinación de categoría y magnitud se propone esta acción. La '
+              'magnitud debe coincidir exactamente con la que el sistema calcule para el periodo -- no '
+              'se adivina por el nombre.',
               style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const GuiaClasificacionScreen())),
+              child: Text(
+                '¿No sabes qué magnitud escoger? Consulta cómo clasifica el sistema.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.primary),
+              ),
             ),
             const SizedBox(height: 8),
             Row(

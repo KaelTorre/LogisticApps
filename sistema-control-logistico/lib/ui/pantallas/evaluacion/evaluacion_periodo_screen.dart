@@ -15,6 +15,7 @@ import '../../../data/repositories/medicion_repository.dart';
 import '../../../data/repositories/memoria_evaluacion_repository.dart';
 import '../../../data/repositories/periodo_repository.dart';
 import '../../../data/repositories/regla_patron_repository.dart';
+import '../guia_clasificacion/guia_clasificacion_screen.dart';
 import '../../../domain/motor/m1_reglas_patron.dart';
 import '../../../domain/motor/m2_clasificador.dart';
 import '../../../domain/motor/orquestador_evaluacion.dart';
@@ -276,7 +277,18 @@ class _EvaluacionPeriodoScreenState extends State<EvaluacionPeriodoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Evaluación del periodo')),
+      appBar: AppBar(
+        title: const Text('Evaluación del periodo'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.circleHelp),
+            tooltip: 'Cómo clasifica el sistema',
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const GuiaClasificacionScreen())),
+          ),
+        ],
+      ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _periodos.isEmpty || _indicadores.isEmpty
