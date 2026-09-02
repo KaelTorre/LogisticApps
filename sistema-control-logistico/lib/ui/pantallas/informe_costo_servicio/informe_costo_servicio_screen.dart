@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
 
+import '../../../core/formato_moneda.dart';
 import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../data/models/organizacion.dart';
 import '../../../data/models/periodo.dart';
@@ -106,7 +107,7 @@ class _InformeCostoServicioScreenState extends State<InformeCostoServicioScreen>
       resumen: [
         MapEntry(
           'Costo logístico total',
-          '${informe.costoTotal.toStringAsFixed(2)} ${widget.organizacion.moneda}',
+          formatearMoneda(informe.costoTotal, widget.organizacion.moneda),
         ),
         MapEntry('Periodo', periodo.etiqueta),
       ],
@@ -217,7 +218,7 @@ class _InformeCostoServicioScreenState extends State<InformeCostoServicioScreen>
                               child: ListTile(
                                 leading: const Icon(LucideIcons.circleDollarSign),
                                 title: Text(
-                                  '${informe.costoTotal.toStringAsFixed(2)} ${widget.organizacion.moneda}',
+                                  formatearMoneda(informe.costoTotal, widget.organizacion.moneda),
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 subtitle: const Text('Costo logístico total'),

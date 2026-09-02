@@ -178,8 +178,9 @@ class _LaboratorioCalibradorScreenState extends State<LaboratorioCalibradorScree
                                   const SizedBox(height: 8),
                                   Text(
                                     'Detecta ${resultado.detectadosReales} de ${resultado.totalReales} '
-                                    'periodo(s) marcados como reales, con ${resultado.falsasAlarmas} '
-                                    'falsa(s) alarma(s).',
+                                    '${resultado.totalReales == 1 ? 'periodo marcado' : 'periodos marcados'} '
+                                    'como reales, con ${resultado.falsasAlarmas} '
+                                    '${resultado.falsasAlarmas == 1 ? 'falsa alarma' : 'falsas alarmas'}.',
                                   ),
                                   if (resultado.pierdeAlgunaDeteccionReal)
                                     Padding(

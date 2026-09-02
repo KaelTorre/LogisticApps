@@ -152,37 +152,72 @@ class _TablaDesempenoScreenState extends State<TablaDesempenoScreen> {
                 ),
               ),
             )
+          // Los nombres de indicador van en su propia tabla, fuera del
+          // scroll horizontal -- con hasta treinta y seis periodos, sin
+          // esto se pierde de vista qué fila es cuál apenas se desplaza la
+          // tabla hacia la derecha. El scroll vertical (para cuando hay
+          // muchos indicadores) envuelve a las dos tablas juntas, para que
+          // se desplacen siempre a la par.
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: [
-                    const DataColumn(label: Text('Indicador')),
-                    for (final p in _periodos) DataColumn(label: Text(p.etiqueta)),
-                  ],
-                  rows: [
-                    for (final indicador in _indicadores)
-                      DataRow(
-                        cells: [
-                          DataCell(Text(indicador.nombre)),
-                          for (final periodo in _periodos)
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DataTable(
+                    columns: const [DataColumn(label: Text('Indicador'))],
+                    rows: [
+                      for (final indicador in _indicadores)
+                        DataRow(
+                          cells: [
                             DataCell(
-                              Tooltip(
-                                message:
-                                    _etiquetasEstado[_estadoPorCelda[(indicador.id!, periodo.id!)]] ??
-                                    'Sin evaluar',
-                                child: Icon(
-                                  LucideIcons.circle,
-                                  size: 16,
-                                  color: _colorEstado(context, _estadoPorCelda[(indicador.id!, periodo.id!)]),
+                              SizedBox(
+                                width: 220,
+                                child: Tooltip(
+                                  message: indicador.nombre,
+                                  child: Text(
+                                    indicador.nombre,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: [for (final p in _periodos) DataColumn(label: Text(p.etiqueta))],
+                        rows: [
+                          for (final indicador in _indicadores)
+                            DataRow(
+                              cells: [
+                                for (final periodo in _periodos)
+                                  DataCell(
+                                    Tooltip(
+                                      message:
+                                          _etiquetasEstado[_estadoPorCelda[(indicador.id!, periodo.id!)]] ??
+                                          'Sin evaluar',
+                                      child: Icon(
+                                        LucideIcons.circle,
+                                        size: 16,
+                                        color: _colorEstado(
+                                          context,
+                                          _estadoPorCelda[(indicador.id!, periodo.id!)],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                         ],
                       ),
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
     );

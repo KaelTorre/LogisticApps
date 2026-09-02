@@ -373,7 +373,7 @@ class _Dashboard extends StatelessWidget {
           titulo: 'Auditoría de facturas',
           subtitulo: 'Recálculo contra el tarifario y monto recuperable',
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => AuditoriaFacturasScreen(organizacionId: organizacion.id!)),
+            MaterialPageRoute(builder: (_) => AuditoriaFacturasScreen(organizacion: organizacion)),
           ),
         ),
         const SizedBox(height: 12),
