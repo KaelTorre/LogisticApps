@@ -255,6 +255,85 @@ void main() {
     );
   });
 
+  test(
+    'AccionCatalogoRepository: eliminar una acción borra en cascada sus mapeos de ReglaAccion',
+    () async {
+      final accionRepo = AccionCatalogoRepository(database);
+      final accionId = await accionRepo.crear(
+        const AccionCatalogo(
+          codigo: 'AC-PROPIA-1',
+          titulo: 'Acción propia del usuario',
+          descripcion: 'desc',
+          categoriaIndicador: 'costo',
+          magnitudTipica: 'ajuste_menor',
+          esDeSistema: false,
+        ),
+      );
+      final reglaAccionRepo = ReglaAccionRepository(database);
+      await reglaAccionRepo.crear(
+        ReglaAccion(
+          categoriaIndicador: 'costo',
+          reglaDisparada: 'R2',
+          clasificacion: 'ajuste_menor',
+          accionId: accionId,
+          prioridad: 1,
+        ),
+      );
+      await reglaAccionRepo.crear(
+        ReglaAccion(
+          categoriaIndicador: 'costo',
+          reglaDisparada: 'R3',
+          clasificacion: 'ajuste_menor',
+          accionId: accionId,
+          prioridad: 1,
+        ),
+      );
+      expect((await reglaAccionRepo.obtenerTodas()).length, 2);
+
+      await accionRepo.eliminar(accionId);
+
+      expect(await accionRepo.obtenerTodas(), isEmpty);
+      expect(await reglaAccionRepo.obtenerTodas(), isEmpty);
+    },
+  );
+
+  test(
+    'AccionCatalogoRepository: no se puede eliminar una acción que ya fue tomada',
+    () async {
+      final evaluacionId = await EvaluacionRepository(database).crear(
+        Evaluacion(
+          indicadorId: indicadorId,
+          periodoId: periodoId,
+          estado: 'desviacion',
+          clasificacion: 'ajuste_menor',
+          reglasDisparadasJson: '["R2"]',
+          severidadCalculada: 1,
+        ),
+      );
+      final accionRepo = AccionCatalogoRepository(database);
+      final accionId = await accionRepo.crear(
+        const AccionCatalogo(
+          codigo: 'AC-USADA-1',
+          titulo: 'Acción ya usada',
+          descripcion: 'desc',
+          categoriaIndicador: 'costo',
+          magnitudTipica: 'ajuste_menor',
+        ),
+      );
+      await AccionTomadaRepository(database).crear(
+        AccionTomada(
+          evaluacionId: evaluacionId,
+          accionCatalogoId: accionId,
+          responsable: 'Jefe de Transporte',
+          fechaCompromiso: '2026-02-01',
+          fechaRegistro: '2026-01-15T10:00:00',
+        ),
+      );
+
+      await expectLater(accionRepo.eliminar(accionId), throwsA(anything));
+    },
+  );
+
   test('AccionTomadaRepository: alta, lectura, modificación, baja', () async {
     final evaluacionId = await EvaluacionRepository(database).crear(
       Evaluacion(

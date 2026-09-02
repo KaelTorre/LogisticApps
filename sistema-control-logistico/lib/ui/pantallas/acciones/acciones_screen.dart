@@ -16,6 +16,7 @@ import '../../../data/repositories/indicador_repository.dart';
 import '../../../data/repositories/periodo_repository.dart';
 import '../../../data/repositories/regla_accion_repository.dart';
 import '../../../domain/motor/m3_emparejador_acciones.dart';
+import '../catalogo_acciones/catalogo_acciones_screen.dart';
 
 const _etiquetasClasificacion = {
   'ajuste_menor': 'Ajuste menor',
@@ -137,9 +138,16 @@ class _AccionesScreenState extends State<AccionesScreen> {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
         ..showSnackBar(
-          const SnackBar(
+          SnackBar(
             showCloseIcon: true,
-            content: Text('No hay ninguna acción del catálogo mapeada para este caso.'),
+            content: const Text('No hay ninguna acción del catálogo mapeada para este caso.'),
+            action: SnackBarAction(
+              label: 'Configurar',
+              onPressed: () => _irACatalogo(
+                categoria: contexto.indicador.categoria,
+                magnitud: contexto.evaluacion.clasificacion,
+              ),
+            ),
           ),
         );
       return;
@@ -175,15 +183,52 @@ class _AccionesScreenState extends State<AccionesScreen> {
     if (guardada == true) await _cargar();
   }
 
+  Future<void> _irACatalogo({String? categoria, String? magnitud}) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CatalogoAccionesScreen(categoriaInicial: categoria, magnitudInicial: magnitud),
+      ),
+    );
+    if (!mounted) return;
+    await _cargar();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Acciones')),
+      appBar: AppBar(
+        title: const Text('Acciones'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.listTree),
+            tooltip: 'Catálogo de acciones',
+            onPressed: () => _irACatalogo(),
+          ),
+        ],
+      ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                InkWell(
+                  onTap: () => _irACatalogo(),
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.info, size: 14, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          '¿Faltan acciones por proponer? Configúralas en el catálogo de acciones.',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Text('Pendientes de proponer acción', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 if (_pendientes.isEmpty)

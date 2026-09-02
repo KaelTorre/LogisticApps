@@ -14,6 +14,7 @@ import '../../../data/seed/caso_estudio_semilla.dart';
 import '../acciones/acciones_screen.dart';
 import '../auditoria_facturas/auditoria_facturas_screen.dart';
 import '../captura/captura_screen.dart';
+import '../catalogo_acciones/catalogo_acciones_screen.dart';
 import '../diagnostico_organizacional/diagnostico_organizacional_screen.dart';
 import '../evaluacion/evaluacion_periodo_screen.dart';
 import '../exportacion/exportacion_screen.dart';
@@ -504,6 +505,14 @@ class _DashboardState extends State<_Dashboard> {
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => AuditoriaFacturasScreen(organizacion: organizacion)),
               ),
+            ),
+            _TarjetaAcceso(
+              icono: LucideIcons.listTree,
+              titulo: 'Catálogo de acciones',
+              subtitulo: 'Qué acción proponer para cada categoría, magnitud y regla disparada',
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const CatalogoAccionesScreen())),
             ),
           ],
         ),
