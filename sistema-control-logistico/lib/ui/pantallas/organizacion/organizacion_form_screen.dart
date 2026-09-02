@@ -97,7 +97,10 @@ class _OrganizacionFormScreenState extends State<OrganizacionFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _tipoEmpresa,
-              decoration: const InputDecoration(labelText: 'Tipo de empresa'),
+              decoration: const InputDecoration(
+                labelText: 'Tipo de empresa',
+                helperText: 'El rubro de la organización, como referencia',
+              ),
               items: [
                 for (final tipo in _tiposEmpresa)
                   DropdownMenuItem(value: tipo, child: Text(_etiquetasTipoEmpresa[tipo]!)),

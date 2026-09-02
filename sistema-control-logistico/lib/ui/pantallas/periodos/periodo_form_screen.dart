@@ -149,14 +149,20 @@ class _PeriodoFormScreenState extends State<PeriodoFormScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _fechaInicioCtrl,
-                    decoration: const InputDecoration(labelText: 'Fecha de inicio (opcional)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha de inicio (opcional)',
+                      helperText: 'AAAA-MM-DD',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextFormField(
                     controller: _fechaFinCtrl,
-                    decoration: const InputDecoration(labelText: 'Fecha de fin (opcional)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha de fin (opcional)',
+                      helperText: 'AAAA-MM-DD',
+                    ),
                   ),
                 ),
               ],

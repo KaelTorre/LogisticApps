@@ -47,74 +47,94 @@ const _mesesEnOrden = [
 /// pedirlo nadie), este caso crea una organización completa y visible, así
 /// que es una elección explícita de quien usa la app -- se ofrece como
 /// botón alternativo a "Crear organización" cuando todavía no hay ninguna.
+/// Lanzada cuando ya existe una organización y se intenta sembrar el caso
+/// de estudio de todas formas -- este sistema opera sobre una sola
+/// organización por instalación (CLAUDE.md sección 9, Pantalla 2), así que
+/// sembrar un segundo caso dejaría a la app sin forma de mostrar cuál de
+/// las dos organizaciones está activa.
+class YaExisteOrganizacionException implements Exception {
+  const YaExisteOrganizacionException();
+}
+
 Future<int> sembrarCasoEstudio(AppDatabase database) async {
   final organizacionRepo = OrganizacionRepository(database);
   final periodoRepo = PeriodoRepository(database);
   final indicadorRepo = IndicadorRepository(database);
   final medicionRepo = MedicionRepository(database);
 
-  final organizacionId = await organizacionRepo.crear(
-    const Organizacion(
-      nombre: nombreOrganizacionCasoEstudio,
-      moneda: 'PEN',
-      tipoEmpresa: 'servicios',
-      notas:
-          'Caso de estudio de ejemplo, con datos sintéticos. Sirve para '
-          'recorrer el sistema con información ya cargada antes de '
-          'ingresar los datos reales de una organización propia.',
-    ),
-  );
+  // Toda la siembra corre en una sola transacción: si algo falla a mitad
+  // de camino (por ejemplo, otra instancia de la app escribiendo la misma
+  // base de datos al mismo tiempo), no debe quedar una organización a
+  // medio sembrar -- sin esto, un fallo parcial deja una fila de
+  // organización huérfana que nunca aparece completa en ninguna pantalla.
+  return database.transaction(() async {
+    if ((await organizacionRepo.obtenerTodas()).isNotEmpty) {
+      throw const YaExisteOrganizacionException();
+    }
 
-  final periodoIds = <int>[];
-  for (var i = 0; i < numeroPeriodosCasoEstudio; i++) {
-    final anio = 2023 + (i ~/ 12);
-    final mes = i % 12;
-    final diaFin = i % 12 == 1 ? 28 : 30;
-    final id = await periodoRepo.crear(
-      Periodo(
-        organizacionId: organizacionId,
-        orden: i + 1,
-        etiqueta: '${_mesesEnOrden[mes][0].toUpperCase()}${_mesesEnOrden[mes].substring(1)} $anio',
-        fechaInicio: '$anio-${(mes + 1).toString().padLeft(2, '0')}-01',
-        fechaFin: '$anio-${(mes + 1).toString().padLeft(2, '0')}-$diaFin',
-        granularidad: 'mensual',
-      ),
-    );
-    periodoIds.add(id);
-  }
-
-  final series = generarSeriesCasoEstudio();
-
-  for (final def in indicadoresCasoEstudio) {
-    final indicadorId = await indicadorRepo.crear(
-      Indicador(
-        organizacionId: organizacionId,
-        codigo: def.codigo,
-        nombre: def.nombre,
-        categoria: def.categoria,
-        unidad: def.unidad,
-        decimales: def.decimales,
-        sentido: def.sentido,
-        meta: def.meta,
-        bandaInferior: def.bandaInferior,
-        bandaSuperior: def.bandaSuperior,
-        granularidad: 'mensual',
-        proceso: def.proceso,
+    final organizacionId = await organizacionRepo.crear(
+      const Organizacion(
+        nombre: nombreOrganizacionCasoEstudio,
+        moneda: 'PEN',
+        tipoEmpresa: 'servicios',
+        notas:
+            'Caso de estudio de ejemplo, con datos sintéticos. Sirve para '
+            'recorrer el sistema con información ya cargada antes de '
+            'ingresar los datos reales de una organización propia.',
       ),
     );
 
-    final valores = series[def.codigo]!;
+    final periodoIds = <int>[];
     for (var i = 0; i < numeroPeriodosCasoEstudio; i++) {
-      await medicionRepo.crear(
-        Medicion(
-          indicadorId: indicadorId,
-          periodoId: periodoIds[i],
-          valor: double.parse(valores[i].toStringAsFixed(def.decimales)),
-          origen: 'sintetico',
+      final anio = 2023 + (i ~/ 12);
+      final mes = i % 12;
+      final diaFin = i % 12 == 1 ? 28 : 30;
+      final id = await periodoRepo.crear(
+        Periodo(
+          organizacionId: organizacionId,
+          orden: i + 1,
+          etiqueta: '${_mesesEnOrden[mes][0].toUpperCase()}${_mesesEnOrden[mes].substring(1)} $anio',
+          fechaInicio: '$anio-${(mes + 1).toString().padLeft(2, '0')}-01',
+          fechaFin: '$anio-${(mes + 1).toString().padLeft(2, '0')}-$diaFin',
+          granularidad: 'mensual',
         ),
       );
+      periodoIds.add(id);
     }
-  }
 
-  return organizacionId;
+    final series = generarSeriesCasoEstudio();
+
+    for (final def in indicadoresCasoEstudio) {
+      final indicadorId = await indicadorRepo.crear(
+        Indicador(
+          organizacionId: organizacionId,
+          codigo: def.codigo,
+          nombre: def.nombre,
+          categoria: def.categoria,
+          unidad: def.unidad,
+          decimales: def.decimales,
+          sentido: def.sentido,
+          meta: def.meta,
+          bandaInferior: def.bandaInferior,
+          bandaSuperior: def.bandaSuperior,
+          granularidad: 'mensual',
+          proceso: def.proceso,
+        ),
+      );
+
+      final valores = series[def.codigo]!;
+      for (var i = 0; i < numeroPeriodosCasoEstudio; i++) {
+        await medicionRepo.crear(
+          Medicion(
+            indicadorId: indicadorId,
+            periodoId: periodoIds[i],
+            valor: double.parse(valores[i].toStringAsFixed(def.decimales)),
+            origen: 'sintetico',
+          ),
+        );
+      }
+    }
+
+    return organizacionId;
+  });
 }

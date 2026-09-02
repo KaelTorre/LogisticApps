@@ -177,7 +177,10 @@ class _IndicadorFormScreenState extends State<IndicadorFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _categoria,
-              decoration: const InputDecoration(labelText: 'Categoría'),
+              decoration: const InputDecoration(
+                labelText: 'Categoría',
+                helperText: 'Determina en qué informe aparece: Costo y servicio, o Productividad',
+              ),
               items: [
                 for (final c in _categorias)
                   DropdownMenuItem(value: c, child: Text(_etiquetasCategoria[c]!)),
@@ -221,7 +224,12 @@ class _IndicadorFormScreenState extends State<IndicadorFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _sentido,
-              decoration: const InputDecoration(labelText: 'Sentido de mejora'),
+              decoration: const InputDecoration(
+                labelText: 'Sentido de mejora',
+                helperText: 'Si un valor alto es un problema (ej. costos) elige "Menor es mejor"; '
+                    'si un valor alto es bueno (ej. cumplimiento) elige "Mayor es mejor"',
+                helperMaxLines: 2,
+              ),
               items: [
                 for (final s in _sentidos) DropdownMenuItem(value: s, child: Text(_etiquetasSentido[s]!)),
               ],
@@ -230,11 +238,20 @@ class _IndicadorFormScreenState extends State<IndicadorFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _metaCtrl,
-              decoration: const InputDecoration(labelText: 'Meta'),
+              decoration: const InputDecoration(
+                labelText: 'Meta',
+                helperText: 'El valor esperado de este indicador en condiciones normales',
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
               validator: (v) => _num(v ?? '') == null ? 'Ingresa un número' : null,
             ),
             const SizedBox(height: 16),
+            Text(
+              'Banda de tolerancia: el rango alrededor de la meta que todavía se considera normal. '
+              'Un valor fuera de este rango se marca como desviación.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -259,7 +276,10 @@ class _IndicadorFormScreenState extends State<IndicadorFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _granularidad,
-              decoration: const InputDecoration(labelText: 'Granularidad'),
+              decoration: const InputDecoration(
+                labelText: 'Granularidad',
+                helperText: 'Con qué frecuencia se mide este indicador',
+              ),
               items: [
                 for (final g in _granularidades)
                   DropdownMenuItem(value: g, child: Text(_etiquetasGranularidad[g]!)),
