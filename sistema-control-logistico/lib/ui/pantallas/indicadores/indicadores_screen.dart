@@ -13,6 +13,12 @@ const _etiquetasCategoria = {
   'productividad': 'Productividad',
 };
 
+const _iconosCategoria = {
+  'costo': LucideIcons.circleDollarSign,
+  'servicio': LucideIcons.badgeCheck,
+  'productividad': LucideIcons.gauge,
+};
+
 /// Pantalla 4 (CLAUDE.md sección 9): catálogo de indicadores de la
 /// organización activa, con meta, banda, sentido y proceso.
 class IndicadoresScreen extends StatefulWidget {
@@ -97,7 +103,7 @@ class _IndicadoresScreenState extends State<IndicadoresScreen> {
                 final indicador = _indicadores[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    child: Text(indicador.codigo.isEmpty ? '?' : indicador.codigo[0]),
+                    child: Icon(_iconosCategoria[indicador.categoria] ?? LucideIcons.gauge, size: 18),
                   ),
                   title: Text(indicador.nombre),
                   subtitle: Text(

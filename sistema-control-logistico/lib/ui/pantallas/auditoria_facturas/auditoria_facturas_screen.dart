@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/formato_moneda.dart';
 import '../../../data/models/factura_transporte.dart';
+import '../../../data/models/organizacion.dart';
 import '../../../data/repositories/factura_transporte_repository.dart';
 import '../../../domain/motor/m10_auditoria_facturas.dart';
 
@@ -16,9 +18,9 @@ const _etiquetasEstado = {'pendiente': 'Pendiente', 'recuperado': 'Recuperado', 
 /// automática de M10 (tarifa y duplicado) y clasificación manual del
 /// resto de discrepancias declaradas por el esquema.
 class AuditoriaFacturasScreen extends StatefulWidget {
-  const AuditoriaFacturasScreen({super.key, required this.organizacionId});
+  const AuditoriaFacturasScreen({super.key, required this.organizacion});
 
-  final int organizacionId;
+  final Organizacion organizacion;
 
   @override
   State<AuditoriaFacturasScreen> createState() => _AuditoriaFacturasScreenState();
@@ -37,7 +39,7 @@ class _AuditoriaFacturasScreenState extends State<AuditoriaFacturasScreen> {
 
   Future<void> _cargar() async {
     setState(() => _cargando = true);
-    final todas = await context.read<FacturaTransporteRepository>().obtenerPorOrganizacion(widget.organizacionId);
+    final todas = await context.read<FacturaTransporteRepository>().obtenerPorOrganizacion(widget.organizacion.id!);
     if (!mounted) return;
     setState(() {
       _facturas = todas;
@@ -71,7 +73,11 @@ class _AuditoriaFacturasScreenState extends State<AuditoriaFacturasScreen> {
   Future<void> _abrirFormulario({FacturaTransporte? existente}) async {
     final guardado = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => _FormularioFactura(organizacionId: widget.organizacionId, existente: existente),
+        builder: (_) => _FormularioFactura(
+          organizacionId: widget.organizacion.id!,
+          moneda: widget.organizacion.moneda,
+          existente: existente,
+        ),
       ),
     );
     if (guardado == true) await _cargar();
@@ -134,14 +140,20 @@ class _AuditoriaFacturasScreenState extends State<AuditoriaFacturasScreen> {
                     leading: const Icon(LucideIcons.circleDollarSign),
                     title: const Text('Monto recuperable pendiente'),
                     trailing: Text(
-                      (totalRecuperablePendienteCent / 100).toStringAsFixed(2),
+                      formatearMoneda(totalRecuperablePendienteCent / 100, widget.organizacion.moneda),
                       style: Theme.of(
                         context,
                       ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                for (final f in _facturas) _TarjetaFactura(factura: f, onTap: () => _abrirFormulario(existente: f), onEliminar: () => _eliminar(f)),
+                for (final f in _facturas)
+                  _TarjetaFactura(
+                    factura: f,
+                    moneda: widget.organizacion.moneda,
+                    onTap: () => _abrirFormulario(existente: f),
+                    onEliminar: () => _eliminar(f),
+                  ),
               ],
             ),
     );
@@ -149,9 +161,10 @@ class _AuditoriaFacturasScreenState extends State<AuditoriaFacturasScreen> {
 }
 
 class _TarjetaFactura extends StatelessWidget {
-  const _TarjetaFactura({required this.factura, required this.onTap, required this.onEliminar});
+  const _TarjetaFactura({required this.factura, required this.moneda, required this.onTap, required this.onEliminar});
 
   final FacturaTransporte factura;
+  final String moneda;
   final VoidCallback onTap;
   final VoidCallback onEliminar;
 
@@ -169,8 +182,8 @@ class _TarjetaFactura extends StatelessWidget {
           children: [
             Text('${factura.ruta} · ${factura.peso.toStringAsFixed(1)} kg'),
             Text(
-              'Aplicada ${(factura.tarifaAplicadaCent / 100).toStringAsFixed(2)} · '
-              'Contratada ${(factura.tarifaContratadaCent / 100).toStringAsFixed(2)}',
+              'Aplicada ${formatearMoneda(factura.tarifaAplicadaCent / 100, moneda)} · '
+              'Contratada ${formatearMoneda(factura.tarifaContratadaCent / 100, moneda)}',
             ),
             if (tipo != null)
               Padding(
@@ -187,7 +200,7 @@ class _TarjetaFactura extends StatelessWidget {
                       padding: EdgeInsets.zero,
                     ),
                     if (factura.montoRecuperableCent > 0)
-                      Text('Recuperable ${(factura.montoRecuperableCent / 100).toStringAsFixed(2)}'),
+                      Text('Recuperable ${formatearMoneda(factura.montoRecuperableCent / 100, moneda)}'),
                     Text(
                       _etiquetasEstado[factura.estado] ?? factura.estado,
                       style: Theme.of(context).textTheme.bodySmall,
@@ -205,9 +218,10 @@ class _TarjetaFactura extends StatelessWidget {
 }
 
 class _FormularioFactura extends StatefulWidget {
-  const _FormularioFactura({required this.organizacionId, this.existente});
+  const _FormularioFactura({required this.organizacionId, required this.moneda, this.existente});
 
   final int organizacionId;
+  final String moneda;
   final FacturaTransporte? existente;
 
   @override
@@ -339,14 +353,17 @@ class _FormularioFacturaState extends State<_FormularioFactura> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _tarifaAplicadaCtrl,
-              decoration: const InputDecoration(labelText: 'Tarifa aplicada (cobrada)'),
+              decoration: InputDecoration(
+                labelText: 'Tarifa aplicada (cobrada)',
+                prefixText: simboloMoneda(widget.moneda),
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) => _aCentimos(v ?? '') == null ? 'Ingresa un monto válido' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _tarifaContratadaCtrl,
-              decoration: const InputDecoration(labelText: 'Tarifa contratada'),
+              decoration: InputDecoration(labelText: 'Tarifa contratada', prefixText: simboloMoneda(widget.moneda)),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) => _aCentimos(v ?? '') == null ? 'Ingresa un monto válido' : null,
             ),

@@ -132,7 +132,7 @@ class _LaboratorioContrasteScreenState extends State<LaboratorioContrasteScreen>
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           children: [
                             Text(
-                              'Serie de $_numeroPeriodos periodo(s)',
+                              'Serie de $_numeroPeriodos ${_numeroPeriodos == 1 ? 'periodo' : 'periodos'}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: 12),
@@ -156,7 +156,9 @@ class _LaboratorioContrasteScreenState extends State<LaboratorioContrasteScreen>
                                         resultado.ventajaDeteccionPeriodos == null
                                             ? 'Sin suficientes detecciones reales para comparar todavía.'
                                             : 'Reconocimiento de patrones detectó '
-                                                  '${resultado.ventajaDeteccionPeriodos} periodo(s) antes que el umbral simple.',
+                                                  '${resultado.ventajaDeteccionPeriodos} '
+                                                  '${resultado.ventajaDeteccionPeriodos == 1 ? 'periodo' : 'periodos'} '
+                                                  'antes que el umbral simple.',
                                       ),
                                     ),
                                   ],
@@ -206,8 +208,10 @@ class _TarjetaMetodo extends StatelessWidget {
                 ),
             const SizedBox(height: 8),
             Text(
-              '${resultado.numeroFalsasAlarmas} falsa(s) alarma(s) de ${resultado.detecciones.length} '
-              'detección/detecciones',
+              '${resultado.numeroFalsasAlarmas} '
+              '${resultado.numeroFalsasAlarmas == 1 ? 'falsa alarma' : 'falsas alarmas'} de '
+              '${resultado.detecciones.length} '
+              '${resultado.detecciones.length == 1 ? 'detección' : 'detecciones'}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],

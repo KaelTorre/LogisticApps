@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
 
+import '../../../core/formato_moneda.dart';
 import '../../../core/plataforma/abrir_carpeta.dart';
 import '../../../data/models/organizacion.dart';
 import '../../../data/models/periodo.dart';
@@ -73,6 +74,7 @@ class _PresupuestoScreenState extends State<PresupuestoScreen> {
         builder: (_) => _FormularioPresupuesto(
           organizacionId: widget.organizacion.id!,
           periodoId: periodo.id!,
+          moneda: widget.organizacion.moneda,
           existente: existente,
         ),
       ),
@@ -221,8 +223,8 @@ class _PresupuestoScreenState extends State<PresupuestoScreen> {
                             return ListTile(
                               title: Text(p.rubro),
                               subtitle: Text(
-                                'Presupuestado ${(p.montoPresupuestadoCent / 100).toStringAsFixed(2)} · '
-                                'Real ${(p.montoRealCent / 100).toStringAsFixed(2)}',
+                                'Presupuestado ${formatearMoneda(p.montoPresupuestadoCent / 100, widget.organizacion.moneda)} · '
+                                'Real ${formatearMoneda(p.montoRealCent / 100, widget.organizacion.moneda)}',
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -259,10 +261,16 @@ class _PresupuestoScreenState extends State<PresupuestoScreen> {
 }
 
 class _FormularioPresupuesto extends StatefulWidget {
-  const _FormularioPresupuesto({required this.organizacionId, required this.periodoId, this.existente});
+  const _FormularioPresupuesto({
+    required this.organizacionId,
+    required this.periodoId,
+    required this.moneda,
+    this.existente,
+  });
 
   final int organizacionId;
   final int periodoId;
+  final String moneda;
   final Presupuesto? existente;
 
   @override
@@ -361,14 +369,14 @@ class _FormularioPresupuestoState extends State<_FormularioPresupuesto> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _presupuestadoCtrl,
-              decoration: const InputDecoration(labelText: 'Monto presupuestado'),
+              decoration: InputDecoration(labelText: 'Monto presupuestado', prefixText: simboloMoneda(widget.moneda)),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) => _aCentimos(v ?? '') == null ? 'Ingresa un monto válido' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _realCtrl,
-              decoration: const InputDecoration(labelText: 'Monto real'),
+              decoration: InputDecoration(labelText: 'Monto real', prefixText: simboloMoneda(widget.moneda)),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) => _aCentimos(v ?? '') == null ? 'Ingresa un monto válido' : null,
             ),

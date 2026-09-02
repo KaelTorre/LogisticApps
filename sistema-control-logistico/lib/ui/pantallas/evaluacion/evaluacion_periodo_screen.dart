@@ -242,9 +242,12 @@ class _EvaluacionPeriodoScreenState extends State<EvaluacionPeriodoScreen> {
     await _cargarEvaluacionesExistentes();
     if (!mounted) return;
 
+    final cuenta = resultados.length == 1
+        ? '1 indicador evaluado'
+        : '${resultados.length} indicadores evaluados';
     final mensaje = omitidos.isEmpty
-        ? '${resultados.length} indicador(es) evaluados.'
-        : '${resultados.length} indicador(es) evaluados. Sin medición este periodo: ${omitidos.join(', ')}.';
+        ? '$cuenta.'
+        : '$cuenta. Sin medición este periodo: ${omitidos.join(', ')}.';
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(showCloseIcon: true, content: Text(mensaje)));
@@ -328,7 +331,7 @@ class _EvaluacionPeriodoScreenState extends State<EvaluacionPeriodoScreen> {
                   child: _resultados.isEmpty
                       ? Center(
                           child: Text(
-                            'Sin evaluar. Pulsa "Evaluar" para correr el motor sobre este periodo.',
+                            'Sin evaluar todavía. Pulsa "Evaluar" para calcular el estado de este periodo.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),

@@ -205,10 +205,15 @@ class _CapturaScreenState extends State<CapturaScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('$importadas medición(es) importada(s).'),
+              Text(
+                importadas == 1 ? '1 medición importada.' : '$importadas mediciones importadas.',
+              ),
               if (errores.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text('${errores.length} fila(s) rechazada(s):', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  errores.length == 1 ? '1 fila rechazada:' : '${errores.length} filas rechazadas:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const SizedBox(height: 4),
                 ...errores.map((e) => Text('• $e', style: Theme.of(context).textTheme.bodySmall)),
               ],

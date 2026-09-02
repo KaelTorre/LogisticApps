@@ -155,12 +155,12 @@ class _LaboratorioGeneradorScreenState extends State<LaboratorioGeneradorScreen>
       ..showSnackBar(const SnackBar(showCloseIcon: true, content: Text('Escenario sintético guardado.')));
   }
 
-  Widget _campo(String etiqueta, TextEditingController controlador) {
+  Widget _campo(String etiqueta, TextEditingController controlador, {String? ayuda}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: controlador,
-        decoration: InputDecoration(labelText: etiqueta),
+        decoration: InputDecoration(labelText: etiqueta, helperText: ayuda, helperMaxLines: 2),
         keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
       ),
     );
@@ -225,12 +225,22 @@ class _LaboratorioGeneradorScreenState extends State<LaboratorioGeneradorScreen>
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _campo('Semilla', _semillaCtrl)),
+                    Expanded(
+                      child: _campo(
+                        'Semilla',
+                        _semillaCtrl,
+                        ayuda: 'Un número cualquiera; el mismo número siempre genera la misma serie',
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(child: _campo('Número de periodos', _numeroPeriodosCtrl)),
                   ],
                 ),
-                _campo('Ruido (sigma)', _sigmaCtrl),
+                _campo(
+                  'Ruido (sigma)',
+                  _sigmaCtrl,
+                  ayuda: 'Qué tanto varían los valores al azar; 0 deja la serie sin variación aleatoria',
+                ),
                 ..._camposDelPatron(),
                 FilledButton.icon(
                   onPressed: _generar,

@@ -201,7 +201,7 @@ class _InformeProductividadScreenState extends State<InformeProductividadScreen>
                                 subtitle: Text(indicador.proceso),
                                 trailing: Text(
                                   '${medicion.valor.toStringAsFixed(indicador.decimales)} ${indicador.unidad}\n'
-                                  'meta ${indicador.meta.toStringAsFixed(indicador.decimales)}',
+                                  'meta ${indicador.meta.toStringAsFixed(indicador.decimales)} ${indicador.unidad}',
                                   textAlign: TextAlign.right,
                                 ),
                               ),
