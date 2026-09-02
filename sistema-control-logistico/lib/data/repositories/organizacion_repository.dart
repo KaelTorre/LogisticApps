@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show OrderingTerm, Value;
 
 import '../local/database.dart';
 import '../models/organizacion.dart';
@@ -9,7 +9,9 @@ class OrganizacionRepository {
   final AppDatabase _database;
 
   Future<List<Organizacion>> obtenerTodas() async {
-    final filas = await _database.select(_database.organizacionTable).get();
+    final filas = await (_database.select(
+      _database.organizacionTable,
+    )..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
     return filas.map(_aDominio).toList();
   }
 
